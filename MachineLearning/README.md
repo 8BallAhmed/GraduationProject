@@ -16,7 +16,7 @@ export FLASK_ENV=development
 flask run
 ```
 
-the server now will work on localhost port 7070
+the server now will work on  port 5000 locally
 
 ## Endpoints
 [***POST***] - https://127.0.0.1:5000/predict

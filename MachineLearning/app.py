@@ -1,9 +1,9 @@
 # Dependencies
-import os
 from flask import Flask, request, jsonify
 import joblib
 import traceback
 import pandas as pd
+from inference import print_hello
 
 
 # Your API definition
@@ -17,18 +17,17 @@ print ('Model columns loaded')
 @app.route('/predict', methods=['POST'])
 def predict():
     if clf:
-        try:
+        try:   
             json_ = request.json
             print(json_)
             query = pd.get_dummies(pd.DataFrame(json_))
             query = query.reindex(columns=model_columns, fill_value=0)
-
             prediction = list(clf.predict(query))
-
+            print_hello
             return jsonify({'prediction': str(prediction)})
 
         except:
-
+            
             return jsonify({'trace': traceback.format_exc()})
     else:
         print ('Train the model first')
