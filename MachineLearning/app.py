@@ -2,16 +2,13 @@
 from flask import Flask, request, jsonify
 import joblib
 import traceback
-import pandas as pd
-from inference import print_hello
-
 
 # Your API definition
 app = Flask(__name__)
 
-clf = joblib.load("model.pkl") # Load "model.pkl"
+clf = joblib.load("model.pkl")
 print ('Model loaded')
-model_columns = joblib.load("model_columns.pkl") # Load "model_columns.pkl"
+model_columns = joblib.load("model_columns.pkl") 
 print ('Model columns loaded')
 
 @app.route('/predict', methods=['POST'])
@@ -23,7 +20,6 @@ def predict():
             query = pd.get_dummies(pd.DataFrame(json_))
             query = query.reindex(columns=model_columns, fill_value=0)
             prediction = list(clf.predict(query))
-            print_hello
             return jsonify({'prediction': str(prediction)})
 
         except:
@@ -32,3 +28,4 @@ def predict():
     else:
         print ('Train the model first')
         return ('No model here to use')
+
