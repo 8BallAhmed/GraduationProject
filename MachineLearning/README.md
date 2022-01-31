@@ -22,9 +22,13 @@ the server now will work on  port 5000 locally
 [***POST***] - https://127.0.0.1:5000/predict
 - JSON Body
 ```json
-[
-    {"Glucose":50,"BloodPressure":50,"BMI":100,"DiabetesPedigreeFunction":0.62,"Age":50}
-]
+{
+    "Pregnancies":0,
+    "Glucose":150,
+    "BloodPressure":120,
+    "BMI":30,
+    "Age":50
+}
 ````
 - Expected JSON response 
 
