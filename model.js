@@ -145,7 +145,7 @@ const GlucoseTest = connection.define("glucose_test", {
   timestamps: false,
 });
 
-Patient.hasMany(GlucoseTest);
+Patient.hasMany(GlucoseTest,{foreignKey:'fk_patient_id'});
 
 const Supervision = connection.define("supervision",{
 
@@ -196,7 +196,7 @@ const Treatment = connection.define('treatment',{
     primaryKey: true,
     autoIncrement: true,
   },
-  
+
   unit:DataTypes.STRING,
   dosage:DataTypes.INTEGER,
   date_of_prescription: DataTypes.DATEONLY
@@ -217,32 +217,6 @@ Treatment.belongsTo(Medicine, { foreignKey: "fk_medicine_id"});
 connection.sync({}).then(() => {
   console.log("All models were synchronized successfully.");
 });
-
-
-// commented out bellow code because it synchronizes the model in asynchronos way which leads to refrence errors in some of the tables
-// some of the tables were created before other tables which led to references errors
-
-
-// Account.sync().then(() => {
-//   console.log("Account table synced!");
-// });
-
-// Patient.sync().then(() => {
-//   console.log("Patient table synced!");
-// });
-
-// Doctor.sync().then(() => {
-//   console.log("Doctor table synced!");
-// });
-
-// Activity.sync().then(() => {
-//   console.log("Activity table synced!");
-// });
-
-// Food.sync().then(() => {
-//   console.log("Food table synced!");
-// });
-
 
 
 
