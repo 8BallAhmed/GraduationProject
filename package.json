@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend package for our grad project",
+  "main": "model.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/8BallAhmed/GraduationProject.git"
+  },
+  "author": "Ahmed Al-Osaimi, Abdulaziz Al-Ghamdi, Mubarak Al-Oufi, Marwan Al-Sahafi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/8BallAhmed/GraduationProject/issues"
+  },
+  "homepage": "https://github.com/8BallAhmed/GraduationProject#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.2",
+    "pg": "^8.7.1",
+    "sequelize": "^6.15.0"
+  }
+}
