@@ -28,3 +28,28 @@ app.get("/patients", (req, res) => {
   }
 });
 
+// an endpoint to look after a patient by his id 
+app.get("/patients/:patientId", (req, res) => {
+  const header = req.header;
+  if (header == undefined) {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Authentication Header not specified!",
+      })
+    );
+  } else {
+
+    let PatientId = req.params.patientId
+
+    Patient.findOne({where:{patient_id:PatientId}}).then((result) => {
+      console.log(result);
+      res.json({
+          status: 200,
+          message: "Query successful",
+          patients: result,
+        });
+    });
+  }
+});
+
