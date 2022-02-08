@@ -1,6 +1,5 @@
 require("dotenv").config({ path: "./.env" }); // Set running DIR
 const model = require("./model");
-const Patient = model.Patient;
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT;
