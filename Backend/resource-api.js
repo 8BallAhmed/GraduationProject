@@ -17,7 +17,7 @@ app.get("/patients", (req, res) => {
   } else {
     //this endpoint should fetch patient_id and email FK from account table to get personal information such as name, age etc...
     //since there is no fk_email ill stick with patient_id as it is for testing purposes
-    Patient.findAll({attributes:['patient_id']}).then((result) => {
+    Patient.findAll().then((result) => {
       console.log(result);
       res.json({
           status: 200,
