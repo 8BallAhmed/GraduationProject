@@ -2,6 +2,7 @@ const express_app = require("./express-app");
 const model = require("./model");
 const Patient = model.Patient;
 const Doctors = model.Doctor;
+const Activities = model.Activity;
 
 const app = express_app.app;
 
@@ -93,7 +94,26 @@ app.get('/doctors/:doctorID', (req, res) => {
         patient: result
       })
     })
-
   }
 });
+
+// an endpoint to get all activites by the patient id
+app.get('/activity/:patient_id', (req, res) => {
+  header = req.headers
+  if (header == undefined) {
+    res.end(JSON.stringify({
+      status: 400,
+      message: 'Authentication Header not specified'
+    }))
+  } else {
+    let PatientId = req.body.patient_id
+    Activities.findAll({ where: { patient_id: PatientId } }).then((result) => {
+      res.json({
+        status: 200,
+        message: 'success',
+        activities: result
+      });
+    })
+  }
+})
 
