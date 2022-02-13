@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./.env" }); // Set running DIR
+require("dotenv").config({ path: "../.env" }); // Set running DIR
 const { Sequelize, DataTypes, DATE, Model } = require("sequelize");
 
 const DBUSER = process.env.DBUSER;
