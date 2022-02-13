@@ -1,6 +1,7 @@
 const express_app = require("./express-app");
 const model = require("./model");
 const Patient = model.Patient;
+const Doctors = model.Doctor;
 
 const app = express_app.app;
 
@@ -20,10 +21,10 @@ app.get("/patients", (req, res) => {
     Patient.findAll().then((result) => {
       console.log(result);
       res.json({
-          status: 200,
-          message: "Query successful",
-          patients: result,
-        });
+        status: 200,
+        message: "Query successful",
+        patients: result,
+      });
     });
   }
 });
@@ -42,14 +43,57 @@ app.get("/patients/:patientId", (req, res) => {
 
     let PatientId = req.params.patientId
 
-    Patient.findOne({where:{patient_id:PatientId}}).then((result) => {
+    Patient.findOne({ where: { patient_id: PatientId } }).then((result) => {
       console.log(result);
       res.json({
-          status: 200,
-          message: "Query successful",
-          patients: result,
-        });
+        status: 200,
+        message: "Query successful",
+        patients: result,
+      });
     });
   }
 });
+
+app.get('/doctors', (req, res) => {
+  const header = req.header;
+  if (header == undefined) {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Authentication Header not specified!",
+      })
+    );
+  } else {
+    Doctors.findAll().then((result) => {
+      console.log(result)
+      res.json({
+        status: 200,
+        message: 'Query Successed',
+        doctors: result
+      });
+    })
+  }
+});
+
+
+app.get('/doctors/:doctorID', (req, res) => {
+  const header = req.headers.doctorID
+
+  if (header == undefined) {
+    res.json({
+      status: 400,
+      message: "Authentication Header not specified !!!",
+    })
+  } else {
+    let DoctorID = req.params.doctorID
+    Doctors.findOne({ where: { patient_id: DoctorID } }).then((result) => {
+      req.json({
+        status: 200,
+        message: 'Query Succeed',
+        patient: result
+      })
+    })
+
+  }
+})
 
