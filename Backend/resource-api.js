@@ -80,7 +80,7 @@ app.get('/doctors/:doctorID', (req, res) => {
   const header = req.headers.doctorID
 
   if (header == undefined) {
-    res.json({
+    res.end({
       status: 400,
       message: "Authentication Header not specified !!!",
     })
