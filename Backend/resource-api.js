@@ -75,10 +75,8 @@ app.get('/doctors', (req, res) => {
   }
 });
 
-
 app.get('/doctors/:doctorID', (req, res) => {
   const header = req.headers.doctorID
-
   if (header == undefined) {
     res.end({
       status: 400,
@@ -86,7 +84,7 @@ app.get('/doctors/:doctorID', (req, res) => {
     })
   } else {
     let DoctorID = req.params.doctorID
-    Doctors.findOne({ where: { patient_id: DoctorID } }).then((result) => {
+    Doctors.findOne({ where: { doctor_id: DoctorID } }).then((result) => {
       req.json({
         status: 200,
         message: 'Query Succeed',
