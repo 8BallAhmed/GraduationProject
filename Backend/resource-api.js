@@ -78,10 +78,12 @@ app.get('/doctors', (req, res) => {
 app.get('/doctors/:doctorID', (req, res) => {
   const header = req.headers.doctorID
   if (header == undefined) {
-    res.end({
-      status: 400,
-      message: "Authentication Header not specified !!!",
-    })
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Authentication Header not specified!",
+      })
+    );
   } else {
     let DoctorID = req.params.doctorID
     Doctors.findOne({ where: { doctor_id: DoctorID } }).then((result) => {
@@ -93,5 +95,5 @@ app.get('/doctors/:doctorID', (req, res) => {
     })
 
   }
-})
+});
 
