@@ -1,9 +1,9 @@
 const express_app = require("./express-app");
 const model = require("./model");
 const Patient = model.Patient;
-const Doctors = model.Doctor;
-const Activities = model.Activity;
-
+const Doctor = model.Doctor;
+const Activitie = model.Activity;
+const Appointment = model.Appointment;
 const app = express_app.app;
 
 
@@ -65,7 +65,7 @@ app.get('/doctors', (req, res) => {
       })
     );
   } else {
-    Doctors.findAll().then((result) => {
+    Doctor.findAll().then((result) => {
       console.log(result)
       res.json({
         status: 200,
@@ -77,7 +77,7 @@ app.get('/doctors', (req, res) => {
 });
 
 app.get('/doctors/:doctorID', (req, res) => {
-  const header = req.headers.doctorID
+  const header = req.header
   if (header == undefined) {
     res.end(
       JSON.stringify({
@@ -87,7 +87,7 @@ app.get('/doctors/:doctorID', (req, res) => {
     );
   } else {
     let DoctorID = req.params.doctorID
-    Doctors.findOne({ where: { doctor_id: DoctorID } }).then((result) => {
+    Doctor.findOne({ where: { doctor_id: DoctorID } }).then((result) => {
       req.json({
         status: 200,
         message: 'Query Succeed',
@@ -99,7 +99,7 @@ app.get('/doctors/:doctorID', (req, res) => {
 
 // an endpoint to get all activites by the patient id
 app.get('/activity/:patient_id', (req, res) => {
-  header = req.headers
+  const header = req.header
   if (header == undefined) {
     res.end(JSON.stringify({
       status: 400,
@@ -107,7 +107,7 @@ app.get('/activity/:patient_id', (req, res) => {
     }))
   } else {
     let PatientId = req.body.patient_id
-    Activities.findAll({ where: { patient_id: PatientId } }).then((result) => {
+    Activitie.findAll({ where: { patient_id: PatientId } }).then((result) => {
       res.json({
         status: 200,
         message: 'success',
@@ -117,3 +117,22 @@ app.get('/activity/:patient_id', (req, res) => {
   }
 })
 
+// this endpoint will list all available appointments to doctors
+app.get('/appointment', (req, res) => {
+  const header = req.header
+  if (header == undefined) {
+    res.end(JSON.stringify({
+      'status': 400,
+      'message': 'Authentication Header not specified'
+    })
+    )
+  } else {
+    Appointment.findAll().then((result) => {
+      res.json({
+        status: 200,
+        message: 'success',
+        appoitments: result
+      })
+    })
+  }
+});
