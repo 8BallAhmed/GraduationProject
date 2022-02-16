@@ -1,13 +1,15 @@
-require("dotenv").config({ path: "../.env" }); // Set running DIR
+require("dotenv").config({ path: "./.env" }); // Set running DIR
 const { Sequelize, DataTypes, DATE, Model } = require("sequelize");
 
 const DBUSER = process.env.DBUSER;
 const DBPASSWORD = process.env.DBPASSWORD;
 
 const connection = new Sequelize(
-  `postgres://${DBUSER}:${DBPASSWORD}@localhost:5432/glucoguardian`, {
-  logging: false
-});
+  `postgres://${DBUSER}:${DBPASSWORD}@localhost:5432/glucoguardian`,
+  {
+    logging: false,
+  }
+);
 
 try {
   connection.authenticate().then(() => {
@@ -225,49 +227,81 @@ if (
   process.env.NODE_ENV == "development" ||
   process.env.NODE_ENV == "production"
 ) {
+  //relationships
 
-//relationships
+  // one to one realtioship with account FK is not null and unique
+  Patient.belongsTo(Account, {
+    foreignKey: { name: "fk_email", allowNull: false, unique: true },
+    targetKey: "email",
+  });
 
-// one to one realtioship with account FK is not null and unique 
-Patient.belongsTo(Account, { foreignKey: { name: "fk_email", allowNull: false, unique: true }, targetKey: "email" });
+  // one to one realtioship with account FK is not null and unique
+  Doctor.belongsTo(Account, {
+    foreignKey: { name: "fk_email", allowNull: false, unique: true },
+    targetKey: "email",
+  });
 
-// one to one realtioship with account FK is not null and unique 
-Doctor.belongsTo(Account, { foreignKey: { name: "fk_email", allowNull: false, unique: true }, targetKey: "email" });
+  // one to many realtioship with Activity table FK is not null
+  Patient.hasMany(Activity, {
+    foreignKey: { name: "patient_id", allowNull: false },
+  });
 
-// one to many realtioship with Activity table FK is not null
-Patient.hasMany(Activity, { foreignKey: { name: "patient_id", allowNull: false } });
+  // one to many realtioship with Food table FK is not null
+  Patient.hasMany(Food, {
+    foreignKey: { name: "patient_id", allowNull: false },
+  });
 
-// one to many realtioship with Food table FK is not null
-Patient.hasMany(Food, { foreignKey: { name: "patient_id", allowNull: false } });
+  // one to many realtioship with glucose_test table FK is not null
+  Patient.hasMany(GlucoseTest, {
+    foreignKey: { name: "patient_id", allowNull: false },
+  });
 
-// one to many realtioship with glucose_test table FK is not null
-Patient.hasMany(GlucoseTest, { foreignKey: { name: "patient_id", allowNull: false } });
+  // -- many to many relationship between doctor and patient in appoitment table
+  // bellow code was commented out because it has been an issue for sequlize to allow n:m with nonunique composite key since 2015
+  // check the issue below
+  // https://github.com/sequelize/sequelize/issues/5077
+  // i had to do it manually using belongsto
+  // Patient.belongsToMany(Doctor, {
+  //   through: { model: Supervision, unique: false }, constraints: false,// to remove composite primary-key
+  //   foreignKey: { name: "fk_patient_id", allowNull: false },
+  // });
+  // Doctor.belongsToMany(Patient, {
+  //   through: { model: Supervision, unique: false }, constraints: false, // to remove composite primary-key
+  //   foreignKey: { name: "fk_doctor_id", allowNull: false },
+  // });
 
-// -- many to many relationship between doctor and patient in appoitment table
-// bellow code was commented out because it has been an issue for sequlize to allow n:m with nonunique composite key since 2015
-// check the issue below 
-// https://github.com/sequelize/sequelize/issues/5077
-// i had to do it manually using belongsto
-// Patient.belongsToMany(Doctor, {
-//   through: { model: Supervision, unique: false }, constraints: false,// to remove composite primary-key 
-//   foreignKey: { name: "fk_patient_id", allowNull: false },
-// });
-// Doctor.belongsToMany(Patient, {
-//   through: { model: Supervision, unique: false }, constraints: false, // to remove composite primary-key 
-//   foreignKey: { name: "fk_doctor_id", allowNull: false },
-// });
+  // i had to do it manually using belongsTo to fix the problem
+  Supervision.belongsTo(Patient, {
+    foreignKey: { name: "fk_patient_id", allowNull: false },
+    targetKey: "patient_id",
+  });
+  Supervision.belongsTo(Doctor, {
+    foreignKey: { name: "fk_doctor_id", allowNull: false },
+    targetKey: "doctor_id",
+  });
 
-// i had to do it manually using belongsTo to fix the problem
-Supervision.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
-Supervision.belongsTo(Doctor, { foreignKey: { name: "fk_doctor_id", allowNull: false, }, targetKey: "doctor_id" });
+  Appointment.belongsTo(Patient, {
+    foreignKey: { name: "fk_patient_id", allowNull: false },
+    targetKey: "patient_id",
+  });
+  Appointment.belongsTo(Doctor, {
+    foreignKey: { name: "fk_doctor_id", allowNull: false },
+    targetKey: "doctor_id",
+  });
 
-Appointment.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
-Appointment.belongsTo(Doctor, { foreignKey: { name: "fk_doctor_id", allowNull: false, }, targetKey: "doctor_id" });
-
-Treatment.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
-Treatment.belongsTo(Doctor, { foreignKey: { name: "fk_doctor_id", allowNull: false, }, targetKey: "doctor_id" });
-Treatment.belongsTo(Medicine, { foreignKey: { name: "fk_medicine_id", allowNull: false, unique: true }, targetKey: "medicine_id" });
-console.log("Tables created with referential constraints! (DEV/PROD)");
+  Treatment.belongsTo(Patient, {
+    foreignKey: { name: "fk_patient_id", allowNull: false },
+    targetKey: "patient_id",
+  });
+  Treatment.belongsTo(Doctor, {
+    foreignKey: { name: "fk_doctor_id", allowNull: false },
+    targetKey: "doctor_id",
+  });
+  Treatment.belongsTo(Medicine, {
+    foreignKey: { name: "fk_medicine_id", allowNull: false, unique: true },
+    targetKey: "medicine_id",
+  });
+  console.log("Tables created with referential constraints! (DEV/PROD)");
 } else {
   console.log("Tables created with no referential constraints! (TEST)");
 }
