@@ -5,8 +5,9 @@ const DBUSER = process.env.DBUSER;
 const DBPASSWORD = process.env.DBPASSWORD;
 
 const connection = new Sequelize(
-  `postgres://${DBUSER}:${DBPASSWORD}@localhost:5432/glucoguardian`
-);
+  `postgres://${DBUSER}:${DBPASSWORD}@localhost:5432/glucoguardian`, {
+  logging: false
+});
 
 try {
   connection.authenticate().then(() => {
@@ -55,7 +56,7 @@ const Patient = connection.define(
     diabetes_treatment: DataTypes.STRING,
     diabetes_type: DataTypes.STRING,
     chronic_diseases: DataTypes.STRING,
-    A1C_level: DataTypes.STRING,
+    A1C_level: DataTypes.DOUBLE,
     glucometer_sensor: DataTypes.STRING,
   },
   {
@@ -95,7 +96,7 @@ const Activity = connection.define(
       autoIncrement: true,
     },
     calories: DataTypes.FLOAT,
-    duration: DataTypes.FLOAT,
+    duration: DataTypes.TIME,
     type: DataTypes.STRING,
     time: DataTypes.DATE,
   },
@@ -135,7 +136,7 @@ const GlucoseTest = connection.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    blood_pressure: DataTypes.FLOAT,
+    blood_pressure: DataTypes.STRING,
     pills: DataTypes.STRING,
     glucose_level: DataTypes.INTEGER,
     activity: DataTypes.STRING,
@@ -152,6 +153,11 @@ const GlucoseTest = connection.define(
 const Supervision = connection.define(
   "supervision",
   {
+    supervision_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     comments: DataTypes.STRING,
   },
   {
@@ -219,44 +225,49 @@ if (
   process.env.NODE_ENV == "development" ||
   process.env.NODE_ENV == "production"
 ) {
-  Patient.belongsTo(Account, { foreignKey: "fk_email", targetKey: "email" });
 
-  Doctor.belongsTo(Account, { foreignKey: "fk_email", targetKey: "email" });
+//relationships
 
-  Patient.hasMany(Activity, { foreignKey: "fk_patient_id" });
+// one to one realtioship with account FK is not null and unique 
+Patient.belongsTo(Account, { foreignKey: { name: "fk_email", allowNull: false, unique: true }, targetKey: "email" });
 
-  Patient.hasMany(Food, { foreignKey: "fk_patient_id" });
+// one to one realtioship with account FK is not null and unique 
+Doctor.belongsTo(Account, { foreignKey: { name: "fk_email", allowNull: false, unique: true }, targetKey: "email" });
 
-  Patient.hasMany(GlucoseTest, { foreignKey: "fk_patient_id" });
+// one to many realtioship with Activity table FK is not null
+Patient.hasMany(Activity, { foreignKey: { name: "patient_id", allowNull: false } });
 
-  Patient.belongsToMany(Doctor, {
-    through: Appointment,
-    foreignKey: "fk_patient_id",
-  });
-  Doctor.belongsToMany(Patient, {
-    through: Appointment,
-    foreignKey: "fk_doctor_id",
-  });
+// one to many realtioship with Food table FK is not null
+Patient.hasMany(Food, { foreignKey: { name: "patient_id", allowNull: false } });
 
-  Patient.belongsToMany(Doctor, {
-    through: Supervision,
-    foreignKey: "fk_patient_id",
-  });
-  Doctor.belongsToMany(Patient, {
-    through: Supervision,
-    foreignKey: "fk_doctor_id",
-  });
+// one to many realtioship with glucose_test table FK is not null
+Patient.hasMany(GlucoseTest, { foreignKey: { name: "patient_id", allowNull: false } });
 
-  Patient.belongsToMany(Doctor, {
-    through: Treatment,
-    foreignKey: "fk_patient_id",
-  });
-  Doctor.belongsToMany(Patient, {
-    through: Treatment,
-    foreignKey: "fk_doctor_id",
-  });
-  Treatment.belongsTo(Medicine, { foreignKey: "fk_medicine_id" });
-  console.log("Tables created with referential constraints! (DEV/PROD)");
+// -- many to many relationship between doctor and patient in appoitment table
+// bellow code was commented out because it has been an issue for sequlize to allow n:m with nonunique composite key since 2015
+// check the issue below 
+// https://github.com/sequelize/sequelize/issues/5077
+// i had to do it manually using belongsto
+// Patient.belongsToMany(Doctor, {
+//   through: { model: Supervision, unique: false }, constraints: false,// to remove composite primary-key 
+//   foreignKey: { name: "fk_patient_id", allowNull: false },
+// });
+// Doctor.belongsToMany(Patient, {
+//   through: { model: Supervision, unique: false }, constraints: false, // to remove composite primary-key 
+//   foreignKey: { name: "fk_doctor_id", allowNull: false },
+// });
+
+// i had to do it manually using belongsTo to fix the problem
+Supervision.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
+Supervision.belongsTo(Doctor, { foreignKey: { name: "fk_doctor_id", allowNull: false, }, targetKey: "doctor_id" });
+
+Appointment.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
+Appointment.belongsTo(Doctor, { foreignKey: { name: "fk_doctor_id", allowNull: false, }, targetKey: "doctor_id" });
+
+Treatment.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
+Treatment.belongsTo(Doctor, { foreignKey: { name: "fk_doctor_id", allowNull: false, }, targetKey: "doctor_id" });
+Treatment.belongsTo(Medicine, { foreignKey: { name: "fk_medicine_id", allowNull: false, unique: true }, targetKey: "medicine_id" });
+console.log("Tables created with referential constraints! (DEV/PROD)");
 } else {
   console.log("Tables created with no referential constraints! (TEST)");
 }
@@ -264,8 +275,8 @@ if (
 // --------------------------------------------------------------
 
 // --- Synchronization and validation
-
-connection.sync({}).then(() => {
+// force : true drop and recreate the tables everytime you start the app
+connection.sync({ force: true }).then(() => {
   console.log("All models were synchronized successfully.");
 });
 
