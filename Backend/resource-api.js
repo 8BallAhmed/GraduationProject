@@ -44,7 +44,7 @@ app.get("/patients/:patientId", (req, res) => {
 
     let PatientId = req.params.patientId
 
-    Patient.findOne({ where: { patient_id: PatientId } }).then((result) => {
+    Patient.findByPk(PatientId).then((result) => {
       console.log(result);
       res.json({
         status: 200,
@@ -87,7 +87,7 @@ app.get('/doctors/:doctorID', (req, res) => {
     );
   } else {
     let DoctorID = req.params.doctorID
-    Doctor.findOne({ where: { doctor_id: DoctorID } }).then((result) => {
+    Doctor.findByPk(DoctorID).then((result) => {
       req.json({
         status: 200,
         message: 'Query Succeed',
@@ -107,7 +107,7 @@ app.get('/activity/:patient_id', (req, res) => {
     }))
   } else {
     let PatientId = req.body.patient_id
-    Activitie.findAll({ where: { patient_id: PatientId } }).then((result) => {
+    Activitie.findByPk(PatientId).then((result) => {
       res.json({
         status: 200,
         message: 'success',
