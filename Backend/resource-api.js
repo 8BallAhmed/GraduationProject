@@ -1,3 +1,4 @@
+require("dotenv").config({ path: "./.env" });
 const express_app = require("./express-app");
 const model = require("./model");
 const Patient = model.Patient;
@@ -5,7 +6,6 @@ const Doctor = model.Doctor;
 const Activitie = model.Activity;
 const Appointment = model.Appointment;
 const app = express_app.app;
-
 
 app.get("/patients", (req, res) => {
   const header = req.header;
@@ -30,7 +30,7 @@ app.get("/patients", (req, res) => {
   }
 });
 
-// an endpoint to look after a patient by his id 
+// an endpoint to look after a patient by his id
 app.get("/patients/:patientId", (req, res) => {
   const header = req.header;
   if (header == undefined) {
@@ -41,8 +41,7 @@ app.get("/patients/:patientId", (req, res) => {
       })
     );
   } else {
-
-    let PatientId = req.params.patientId
+    let PatientId = req.params.patientId;
 
     Patient.findByPk(PatientId).then((result) => {
       console.log(result);
@@ -55,7 +54,7 @@ app.get("/patients/:patientId", (req, res) => {
   }
 });
 
-app.get('/doctors', (req, res) => {
+app.get("/doctors", (req, res) => {
   const header = req.header;
   if (header == undefined) {
     res.end(
@@ -66,18 +65,18 @@ app.get('/doctors', (req, res) => {
     );
   } else {
     Doctor.findAll().then((result) => {
-      console.log(result)
+      console.log(result);
       res.json({
         status: 200,
-        message: 'Query Successed',
-        doctors: result
+        message: "Query Successed",
+        doctors: result,
       });
-    })
+    });
   }
 });
 
-app.get('/doctors/:doctorID', (req, res) => {
-  const header = req.header
+app.get("/doctors/:doctorID", (req, res) => {
+  const header = req.header;
   if (header == undefined) {
     res.end(
       JSON.stringify({
@@ -86,53 +85,56 @@ app.get('/doctors/:doctorID', (req, res) => {
       })
     );
   } else {
-    let DoctorID = req.params.doctorID
+    let DoctorID = req.params.doctorID;
     Doctor.findByPk(DoctorID).then((result) => {
-      req.json({
+      res.json({
         status: 200,
-        message: 'Query Succeed',
-        patient: result
-      })
-    })
+        message: "Query Succeed",
+        patient: result,
+      });
+    });
   }
 });
 
 // an endpoint to get all activites by the patient id
-app.get('/activity/:patient_id', (req, res) => {
-  const header = req.header
+app.get("/activity/:patient_id", (req, res) => {
+  const header = req.header;
   if (header == undefined) {
-    res.end(JSON.stringify({
-      status: 400,
-      message: 'Authentication Header not specified'
-    }))
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Authentication Header not specified",
+      })
+    );
   } else {
-    let PatientId = req.body.patient_id
+    let PatientId = req.body.patient_id;
     Activitie.findByPk(PatientId).then((result) => {
       res.json({
         status: 200,
-        message: 'success',
-        activities: result
+        message: "success",
+        activities: result,
       });
-    })
+    });
   }
-})
+});
 
 // this endpoint will list all available appointments to doctors
-app.get('/appointment', (req, res) => {
-  const header = req.header
+app.get("/appointment", (req, res) => {
+  const header = req.header;
   if (header == undefined) {
-    res.end(JSON.stringify({
-      'status': 400,
-      'message': 'Authentication Header not specified'
-    })
-    )
+    res.end(
+      JSON.stringify({
+        "status": 400,
+        "message": "Authentication Header not specified",
+      })
+    );
   } else {
     Appointment.findAll().then((result) => {
       res.json({
         status: 200,
-        message: 'success',
-        appoitments: result
-      })
-    })
+        message: "success",
+        appoitments: result,
+      });
+    });
   }
 });
