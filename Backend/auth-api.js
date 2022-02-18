@@ -9,6 +9,7 @@ const app = express_app.app;
 
 app.post("/register", (req, res) => {
   const body = req.body;
+  body.account_type = body.account_type.toLowerCase();
   const errors = registerSchema.validate(body, { abortEarly: false }).error;
   console.log(`errors: ${errors}`);
   if (errors == undefined) {
@@ -24,13 +25,56 @@ app.post("/register", (req, res) => {
       account_type: body.account_type,
     })
       .then(() => {
-        res.end(
-          JSON.stringify({
-            status: 200,
-            message: "Account created successfully!",
-            account_type: body.account_type,
+        if (body.account_type == "patient") {
+          Patient.create({
+            fk_email: body.email,
           })
-        );
+            .then(() => {
+              res.end(
+                JSON.stringify({
+                  status: 200,
+                  message: "Patient account created successfully!",
+                  account_type: body.account_type,
+                })
+              );
+            })
+            .catch((err) => {
+              res.end(
+                JSON.stringify({
+                  status: 401,
+                  message: "Could not create Patient account!",
+                  error: err.errors[0].message,
+                })
+              );
+            });
+        } else if (body.account_type == "doctor") {
+          Doctor.create({ fk_email: body.email })
+            .then(() => {
+              res.end(
+                JSON.stringify({
+                  status: 200,
+                  message: "Doctor account created successfully!",
+                  account_type: body.account_type,
+                })
+              );
+            })
+            .catch((err) => {
+              res.end(
+                JSON.stringify({
+                  status: 401,
+                  message: "Could not create Doctor account!",
+                  error: err.errors[0].message,
+                })
+              );
+            });
+        } else {
+          res.end(
+            JSON.stringify({
+              status: 400,
+              message: "Account type must be either 'Patient' or 'Doctor'!",
+            })
+          );
+        }
       })
       .catch((err) => {
         console.log(err);
