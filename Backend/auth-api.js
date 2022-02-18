@@ -1,5 +1,4 @@
 const model = require("./model");
-const joi = require("joi");
 const Account = model.Account;
 const Patient = model.Patient;
 const Doctor = model.Doctor;
