@@ -1,0 +1,1 @@
+this is simple anamoly detection algorithem to find anamolies within patient glucose level
