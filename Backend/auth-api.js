@@ -3,6 +3,7 @@ const Account = model.Account;
 const Patient = model.Patient;
 const Doctor = model.Doctor;
 const registerSchema = require("./joi-validators").registerSchema;
+const loginSchema = require("./joi-validators").loginSchema;
 const express_app = require("./express-app");
 const app = express_app.app;
 
@@ -85,6 +86,42 @@ app.post("/register", (req, res) => {
           })
         );
       });
+  } else {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+  }
+});
+
+app.post("/login", (req, res) => {
+  const body = req.body;
+  const errors = loginSchema.validate(body, { abortEarly: false }).error;
+  if (errors == undefined) {
+    let account = Account.findByPk(body.email).then((result) => {
+      if (result == null) {
+        res.end(
+          JSON.stringify({
+            status: 404,
+            message: "User not found!",
+          })
+        );
+      } else {
+        let data = result.dataValues;
+        if (data.password == body.password) {
+          res.end(
+            JSON.stringify({ status: 200, message: "Login successful!" })
+          );
+        } else {
+          res.end(
+            JSON.stringify({ status: 401, message: "Incorrect password!" })
+          );
+        }
+      }
+    });
   } else {
     res.end(
       JSON.stringify({
