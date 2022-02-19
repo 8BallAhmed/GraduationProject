@@ -1,8 +1,10 @@
-require("dotenv").config({ path: "./.env" }); // Set running DIR
+require("dotenv").config({ path: "../.env" }); // Set running DIR
 const { Sequelize, DataTypes, DATE, Model } = require("sequelize");
 
 const DBUSER = process.env.DBUSER;
 const DBPASSWORD = process.env.DBPASSWORD;
+console.log(DBUSER)
+console.log(DBPASSWORD)
 
 const connection = new Sequelize(
   `postgres://${DBUSER}:${DBPASSWORD}@localhost:5432/glucoguardian`,
@@ -145,6 +147,10 @@ const GlucoseTest = connection.define(
     meal: DataTypes.STRING,
     time_interval: DataTypes.STRING,
     time: DataTypes.DATE,
+    anamoly:{
+      type:DataTypes.BOOLEAN,
+      allowNull:true
+    }
   },
   {
     freezeTableName: true,
