@@ -48,7 +48,7 @@ app.get("/patients/:patientId", (req, res) => {
       res.json({
         status: 200,
         message: "Query successful",
-        patients: result,
+        patient: result,
       });
     });
   }
@@ -90,7 +90,7 @@ app.get("/doctors/:doctorID", (req, res) => {
       res.json({
         status: 200,
         message: "Query Succeed",
-        patient: result,
+        doctor: result,
       });
     });
   }
