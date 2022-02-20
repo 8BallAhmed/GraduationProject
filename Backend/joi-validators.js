@@ -19,4 +19,15 @@ const registerSchema = joi.object({
   account_type: joi.string().required().equal("patient", "doctor").required(),
 });
 
+const loginSchema = joi.object({
+  email: joi
+    .string()
+    .email({
+      tlds: { allow: true },
+    })
+    .required(),
+  password: joi.string().min(8).alphanum().required(),
+});
+
 module.exports.registerSchema = registerSchema;
+module.exports.loginSchema = loginSchema;
