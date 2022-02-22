@@ -7,10 +7,15 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from sqlalchemy import create_engine
+import psycopg2
 
 
-dotenv_path = Path('././.env')
+dotenv_path = '.env'
 load_dotenv(dotenv_path=dotenv_path)
+
+#server configuration
+port=os.environ['FLASK_PORT']
+debug=os.environ['DEBUG']
 
 #establish database connection
 username = os.environ['DBUSER']
@@ -31,13 +36,11 @@ def fetch_glucose_test(patient_id):
         
     for row in rs:
         x.append(row[0])
-    return np.array(x)
+    return np.array(x).reshape(1,-1)
 
 
-x=fetch_glucose_test(1)
-print(x)
+app = Flask(__name__)
 
-app = Flask(__app__)
 
 '''
 anamoly detection endpoint
@@ -54,37 +57,43 @@ def test():
 @app.route('/detect-anamoly', methods=['POST'])
 def anamoly_detection():
     try:
+           
         # fetching data from body
         body = request.get_json()
-        patient_id = body.get('patient_id')
-        glucose_level = body.get('glucose_level')
-       
-        # blood_pressure = body.get('blood_pressure')
-        # pills = body.get('pills')
-        # activity = body.get('activity')
-        # meal = body.get('meal')
-        # time_interval = body.get('time_interval')
-        # meal = body.get('time')
+        patient_id = body['patient_id']
+        glucose_level = body['glucose_level']
+
+
         
     except:
         print('error fetching records from the endpoint')
         return jsonify({'trace': traceback.format_exc()})
+   
     try:
-        # fetching data from database
-        X_train = fetch_glucose_test(patient_id)
+        # fetching data from database through fetch_glucose_test method
+        x_train = fetch_glucose_test(patient_id).reshape(-1,1)
     except:
         print('error fetching records from database')
         return jsonify({'trace': traceback.format_exc()})
     try:
         # fit the model and detect anamoly
         clf = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
-        clf.fit(X_train)
-        y_pred = clf.predict(glucose_level)
+        clf.fit(x_train)
+        x_test = np.array(glucose_level).reshape(1,-1)
+        y_pred = clf.predict(x_test)
+        
+        print(y_pred)
+        
     except:
         print('error while detecting an anamoly')
         return jsonify({'trace': traceback.format_exc()})
+    
     return jsonify({
         'status': 200,
         'message': 'success',
-        'result': y_pred
+        'result': int(y_pred)
         })
+
+if __name__ == '__main__':
+
+    app.run(port=port,debug=debug)
