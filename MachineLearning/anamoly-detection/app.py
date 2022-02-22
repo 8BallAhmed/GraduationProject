@@ -12,22 +12,30 @@ from sqlalchemy import create_engine
 dotenv_path = Path('././.env')
 load_dotenv(dotenv_path=dotenv_path)
 
+#establish database connection
 username = os.environ['DBUSER']
 password = os.environ['DBPASSWORD']
-
-engine = create_engine(
-    'postgresql://{username}:{password}@localhost:5432/glucoguardian'.format(username=username, password=password))
+db_string = 'postgresql://{username}:{password}@localhost:5432/glucoguardian'.format(username=username, password=password)
+engine = create_engine(db_string)
 
 
 def fetch_glucose_test(patient_id):
+    
+    sql = 'SELECT glucose_level FROM glucose_test \
+    WHERE patient_id={patient_id} AND anamoly=False \
+    ORDER BY time DESC LIMIT 10;'.format(patient_id=patient_id)
+    
     with engine.connect() as con:
-        rs = con.execute('SELECT glucose_level FROM glucose_test where patient_id={patient_id} and anamoly=False'.format(
-            patient_id=patient_id))
+        rs = con.execute(sql)
         x = list()
+        
     for row in rs:
         x.append(row[0])
     return np.array(x)
 
+
+x=fetch_glucose_test(1)
+print(x)
 
 app = Flask(__app__)
 
