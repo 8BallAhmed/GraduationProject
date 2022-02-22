@@ -5,6 +5,10 @@ const Doctor = model.Doctor;
 const registerSchema = require("./joi-validators").registerSchema;
 const loginSchema = require("./joi-validators").loginSchema;
 const express_app = require("./express-app");
+require("dotenv").config({ path: "./.env" });
+const jwt = require("jsonwebtoken");
+const JWTSECRET = process.env.SECRET;
+console.log(JWTSECRET);
 const app = express_app.app;
 
 app.post("/register", (req, res) => {
@@ -113,7 +117,11 @@ app.post("/login", (req, res) => {
         let data = result.dataValues;
         if (data.password == body.password) {
           res.end(
-            JSON.stringify({ status: 200, message: "Login successful!" })
+            JSON.stringify({
+              status: 200,
+              message: "Login successful!",
+              token: generateAccessToken({ account_type: data.account_type }),
+            })
           );
         } else {
           res.end(
@@ -132,3 +140,32 @@ app.post("/login", (req, res) => {
     );
   }
 });
+
+function authenticateToken(req, res, next) {
+  // Used to validate tokens, to be used as middleware. Attach to endpoint.
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Splits token, which is usually in the form of : "Bearer <token>"
+  if (token == null)
+    // Incase a token wasn't specified
+    return res.end(
+      JSON.stringify({
+        status: 401,
+        message: "Unauthorized. Token not specified.",
+      })
+    );
+  jwt.verify(token, JWTSECRET, (err, decoded) => {
+    if (err)
+      // Possible errors: Token expired, signatures is messed with. Try this with a modified token.
+      return res.end(JSON.stringify({ status: 403, message: err.message }));
+    req.decodedToken = decoded; // Pass payload to endpoint using this middleware. This is useful
+    //for validating types of accounts. For example: Patient can't do Doctor functionalities.
+    next();
+  });
+}
+
+function generateAccessToken(data) {
+  // Generates a JWT Token with a payload. Signs using SECRET in .env file
+  return jwt.sign(data, JWTSECRET, { expiresIn: "30s" });
+}
+
+module.exports.authenticateToken = authenticateToken;
