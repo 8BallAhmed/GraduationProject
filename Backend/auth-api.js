@@ -154,10 +154,12 @@ function authenticateToken(req, res, next) {
       })
     );
   jwt.verify(token, JWTSECRET, (err, decoded) => {
-    if (err)
+    if (err) {
       // Possible errors: Token expired, signatures is messed with. Try this with a modified token.
       return res.end(JSON.stringify({ status: 403, message: err.message }));
-    req.decodedToken = decoded; // Pass payload to endpoint using this middleware. This is useful
+    }
+    req.decodedToken = decoded;
+    // Pass payload to endpoint using this middleware. This is useful
     //for validating types of accounts. For example: Patient can't do Doctor functionalities.
     next();
   });
