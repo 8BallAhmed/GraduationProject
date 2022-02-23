@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:graduationproject1/BloodGlucose.dart';
 import 'constants.dart';
 
 class Home extends StatefulWidget {
@@ -49,7 +50,9 @@ class _HomeState extends State<Home> {
                               color: Colors.white,
                             ),
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).pushNamed("Exercise");
+                              },
                               child: Container(
                                 padding: EdgeInsets.all(10),
                                 child: Column(
@@ -91,7 +94,9 @@ class _HomeState extends State<Home> {
                               color: Colors.white,
                             ),
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.of(context).pushNamed("BloodGlucose");
+                              },
                               child: Container(
                                 padding: EdgeInsets.only(top: 60),
                                 child: Column(
@@ -117,24 +122,24 @@ class _HomeState extends State<Home> {
                   SizedBox(
                     height: 10,
                   ),
-                  Flexible(
-                    flex: 1,
-                    fit: FlexFit.loose,
-                    child: Container(
-                      width: 380,
-                      height: 151,
-                      decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0xFF101E73).withOpacity(0.08),
-                                spreadRadius: 5,
-                                blurRadius: 6,
-                                offset: Offset(1.0, 2.0))
-                          ],
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white),
-                      child: InkWell(
-                        onTap: () {},
+                  InkWell(
+                    onTap: () {},
+                    child: Flexible(
+                      flex: 1,
+                      fit: FlexFit.loose,
+                      child: Container(
+                        width: 380,
+                        height: 151,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color(0xFF101E73).withOpacity(0.08),
+                                  spreadRadius: 5,
+                                  blurRadius: 6,
+                                  offset: Offset(1.0, 2.0))
+                            ],
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white),
                         child: Container(
                           width: double.infinity,
                           child: Column(
