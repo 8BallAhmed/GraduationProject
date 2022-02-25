@@ -122,24 +122,26 @@ class _HomeState extends State<Home> {
                   SizedBox(
                     height: 10,
                   ),
-                  InkWell(
-                    onTap: () {},
-                    child: Flexible(
-                      flex: 1,
-                      fit: FlexFit.loose,
-                      child: Container(
-                        width: 380,
-                        height: 151,
-                        decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0xFF101E73).withOpacity(0.08),
-                                  spreadRadius: 5,
-                                  blurRadius: 6,
-                                  offset: Offset(1.0, 2.0))
-                            ],
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white),
+                  Flexible(
+                    flex: 1,
+                    fit: FlexFit.loose,
+                    child: Container(
+                      width: 380,
+                      height: 151,
+                      decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: Color(0xFF101E73).withOpacity(0.08),
+                                spreadRadius: 5,
+                                blurRadius: 6,
+                                offset: Offset(1.0, 2.0))
+                          ],
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context).pushNamed("FoodIntake");
+                        },
                         child: Container(
                           width: double.infinity,
                           child: Column(
