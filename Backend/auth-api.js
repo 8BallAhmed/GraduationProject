@@ -146,9 +146,7 @@ app.post("/login", (req, res) => {
 app.post("/reset-password", (req, res) => {
   const body = req.body;
   const errors = pwdResetSchema.validate(body, { abortEarly: false }).error;
-  console.log("done validating");
   if (errors == undefined) {
-    console.log("errors undefined");
     Account.findByPk(body.email).then((result) => {
       if (result == null) {
         res.end(
@@ -160,15 +158,25 @@ app.post("/reset-password", (req, res) => {
         );
         return;
       } else {
-        result.set({ password: body.newPwd });
-        result.save().then(() => {
+        if (body.oldPwd == result.password) {
+          result.set({ password: body.newPwd });
+          result.save().then(() => {
+            res.end(
+              JSON.stringify({
+                status: 200,
+                message: "password reset successfully",
+              })
+            );
+          });
+        } else {
           res.end(
             JSON.stringify({
-              status: 200,
-              message: "password reset successfully",
+              status: 403,
+              message:
+                "You've failed to authenticate using your previous password. Please contact an admin.",
             })
           );
-        });
+        }
       }
     });
   } else {
