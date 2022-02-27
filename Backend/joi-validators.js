@@ -29,5 +29,15 @@ const loginSchema = joi.object({
   password: joi.string().min(8).alphanum().required(),
 });
 
+const pwdReset = joi.object({
+  email: joi
+    .string()
+    .email({
+      tlds: { allow: true },
+    })
+    .required(),
+  newPwd: joi.string().min(8).alphanum().required(),
+});
+
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
