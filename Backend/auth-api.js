@@ -141,6 +141,10 @@ app.post("/login", (req, res) => {
   }
 });
 
+app.post("/reset-password", (req, res) => {
+  const body = req.body;
+});
+
 function authenticateToken(req, res, next) {
   // Used to validate tokens, to be used as middleware. Attach to endpoint.
   const authHeader = req.headers["authorization"];
