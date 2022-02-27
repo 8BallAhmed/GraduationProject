@@ -9,7 +9,7 @@ const registerSchema = joi.object({
       },
     })
     .required(),
-  password: joi.string().min(8).alphanum().required(),
+  password: joi.string().min(8).required(),
   address: joi.exist().required(),
   name: joi.exist().required(),
   ssn: joi.exist().required(),
@@ -29,15 +29,17 @@ const loginSchema = joi.object({
   password: joi.string().min(8).alphanum().required(),
 });
 
-const pwdReset = joi.object({
+const pwdResetSchema = joi.object({
   email: joi
     .string()
     .email({
       tlds: { allow: true },
     })
     .required(),
-  newPwd: joi.string().min(8).alphanum().required(),
+  oldPwd: joi.string().min(8).required(),
+  newPwd: joi.string().min(8).required(),
 });
 
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
+module.exports.pwdResetSchema = pwdResetSchema;
