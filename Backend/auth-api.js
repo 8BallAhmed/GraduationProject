@@ -4,9 +4,11 @@ const Patient = model.Patient;
 const Doctor = model.Doctor;
 const registerSchema = require("./joi-validators").registerSchema;
 const loginSchema = require("./joi-validators").loginSchema;
+const pwdResetSchema = require("./joi-validators").pwdResetSchema;
 const express_app = require("./express-app");
 require("dotenv").config({ path: "./.env" });
 const jwt = require("jsonwebtoken");
+const { user } = require("pg/lib/defaults");
 const JWTSECRET = process.env.SECRET;
 console.log(JWTSECRET);
 const app = express_app.app;
@@ -143,6 +145,41 @@ app.post("/login", (req, res) => {
 
 app.post("/reset-password", (req, res) => {
   const body = req.body;
+  const errors = pwdResetSchema.validate(body, { abortEarly: false }).error;
+  console.log("done validating");
+  if (errors == undefined) {
+    console.log("errors undefined");
+    Account.findByPk(body.email).then((result) => {
+      if (result == null) {
+        res.end(
+          JSON.stringify({
+            status: 404,
+            message:
+              "User not found! A Password reset for a non-existent user? this shouldn't be happening.",
+          })
+        );
+        return;
+      } else {
+        result.set({ password: body.newPwd });
+        result.save().then(() => {
+          res.end(
+            JSON.stringify({
+              status: 200,
+              message: "password reset successfully",
+            })
+          );
+        });
+      }
+    });
+  } else {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+  }
 });
 
 function authenticateToken(req, res, next) {
