@@ -17,16 +17,24 @@ insert into doctor values(1,'Marwan@gmail.com');
 insert into glucose_test values(1,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,1);
 insert into glucose_test values(2,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,1);
 insert into glucose_test values(3,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,1);
+insert into glucose_test values(4,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,1);
+insert into glucose_test values(5,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,1);
+insert into glucose_test values(6,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,1);
+insert into glucose_test values(7,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,1);
+insert into glucose_test values(8,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,1);
+insert into glucose_test values(9,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,1);
+insert into glucose_test values(10,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,1);
+insert into glucose_test values(11,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,1);
 
 -- insert into glucose_test
-insert into glucose_test values(4,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,2);
-insert into glucose_test values(5,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,2);
-insert into glucose_test values(6,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,2);
+insert into glucose_test values(11,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,2);
+insert into glucose_test values(12,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,2);
+insert into glucose_test values(13,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,2);
 
 -- insert into glucose_test
-insert into glucose_test values(7,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,3);
-insert into glucose_test values(8,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,3);
-insert into glucose_test values(9,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,3);
+insert into glucose_test values(14,'120/80','glucophage 500mg',130,null,'cornflakes','after breakfast','2022-02-14 09:10',false,3);
+insert into glucose_test values(15,'120/80','centrum 1 pills',130,null,'10 pcs Moshhab','after dinner','2022-02-14',false,3);
+insert into glucose_test values(16,'120/80','centrum 1 pills',130,null,null,'after breakfast','2022-02-14',false,3);
 
 -- insert into activity
 insert into activity values(1,256,'00:30','walking','2022-02-14 09:10',1);
