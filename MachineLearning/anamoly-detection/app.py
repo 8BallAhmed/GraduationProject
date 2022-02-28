@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request,abort
 import pandas as pd
 import numpy as np
-from sklearn import svm
+from sklearn.neighbors import LocalOutlierFactor
 import traceback
 import os
 from dotenv import load_dotenv
@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 import psycopg2
 
 
-dotenv_path = '.env'
+dotenv_path = '../.env'
 load_dotenv(dotenv_path=dotenv_path)
 
 #server configuration
@@ -33,67 +33,75 @@ def fetch_glucose_test(patient_id):
     with engine.connect() as con:
         rs = con.execute(sql)
         x = list()
-        
+    cnt = 0;    
     for row in rs:
         x.append(row[0])
-    return np.array(x).reshape(1,-1)
+        cnt=cnt+1 # to count the amount of records fetched from the database query
+    if(cnt < 9): # if counter is less than 10 then it means the user doesn't have enough glucose tests to train the model and detect anamoly
+        return 0
+    # else :  the user have enough record and can fit the data into the model
+    return np.array(x).reshape(-1,1)
 
 
 app = Flask(__name__)
 
-
-'''
-anamoly detection endpoint
-1- fetch all patient glucose_test to train the model upon each request and append the upcoming glucose_tests
-2- request is made after 7 glucose_tests
-3- within the endpoint classify if the glucose_test was before or after food for better model accuracy
-4- if anamoly was detected set the anamoly attribute to true : else false
-'''
-
+# testing endpoint :3
 @app.route('/hello',methods=['GET'])
 def test():
     return jsonify({'status':200})
 
+# main endpoint route
 @app.route('/detect-anamoly', methods=['POST'])
 def anamoly_detection():
+    
     try:
-           
-        # fetching data from body
+        # fetching raw data from body
         body = request.get_json()
         patient_id = body['patient_id']
         glucose_level = body['glucose_level']
-
-
-        
     except:
-        print('error fetching records from the endpoint')
-        return jsonify({'trace': traceback.format_exc()})
+        return jsonify({
+            'status':400,
+            'message':'error fetching records from the endpoint'
+        })
    
     try:
         # fetching data from database through fetch_glucose_test method
-        x_train = fetch_glucose_test(patient_id).reshape(-1,1)
+        x_train = fetch_glucose_test(patient_id)
+        if(type(x_train) == int):# to check the returned value from fetch_glucose_test if it's an int or np.array
+            if(x_train == 0):# if it's int then the result will equals 0 in that case there is no enough record
+                return jsonify({
+                    'status':200,
+                    'message':'there is no enough record to train the model',
+                    'result':x_train # returned value should be 0
+                })
     except:
-        print('error fetching records from database')
-        return jsonify({'trace': traceback.format_exc()})
-    try:
+        return jsonify({
+            'status':400,
+            'message':'error fetching records from database',
+            'trace':traceback.format_exc(),
+        })
+    try:        
         # fit the model and detect anamoly
-        clf = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+        clf = LocalOutlierFactor(n_neighbors=9,metric='euclidean',p=1,novelty=True)
         clf.fit(x_train)
-        x_test = np.array(glucose_level).reshape(1,-1)
+        x_test = [[glucose_level]]
         y_pred = clf.predict(x_test)
         
-        print(y_pred)
-        
     except:
-        print('error while detecting an anamoly')
-        return jsonify({'trace': traceback.format_exc()})
+        return jsonify({
+            'status':400,
+            'message':'error while detecting an anamoly',
+            'trace':traceback.format_exc(),
+        })
     
+    print(type(int(y_pred[0])))
     return jsonify({
         'status': 200,
-        'message': 'success',
-        'result': int(y_pred)
+        'message':'success',
+        'result':int(y_pred[0])
         })
 
 if __name__ == '__main__':
-
     app.run(port=port,debug=debug)
+
