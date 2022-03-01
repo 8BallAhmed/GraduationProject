@@ -117,7 +117,7 @@ app.get('/activity/:patient_id', (req, res) => {
   }
 })
 
-// this endpoint will list all available appointments for given doctor id
+// this endpoint will list all appointments for given doctor id
 app.get('/appointment/:doctor_id', (req, res) => {
   const header = req.header
   if (header == undefined) {
@@ -129,6 +129,28 @@ app.get('/appointment/:doctor_id', (req, res) => {
   } else {
     let doctorID = req.body.doctor_id
     Appointment.findAll({where:{fk_doctor_id:doctorID}}).then((result) => {
+      res.end(JSON.stringify({
+        status: 200,
+        message: 'success',
+        appoitments: result
+      })
+    )})
+  }
+});
+
+
+// this endpoint will list all appointments for given patient id
+app.get('/appointment/:patient_id', (req, res) => {
+  const header = req.header
+  if (header == undefined) {
+    res.end(JSON.stringify({
+      'status': 400,
+      'message': 'Authentication Header not specified'
+    })
+    )
+  } else {
+    let patientID = req.body.patient_id
+    Appointment.findAll({where:{fk_patient_id:patientID}}).then((result) => {
       res.end(JSON.stringify({
         status: 200,
         message: 'success',
