@@ -117,8 +117,8 @@ app.get('/activity/:patient_id', (req, res) => {
   }
 })
 
-// this endpoint will list all available appointments to doctors
-app.get('/appointment', (req, res) => {
+// this endpoint will list all available appointments for given doctor id
+app.get('/appointment/:doctor_id', (req, res) => {
   const header = req.header
   if (header == undefined) {
     res.end(JSON.stringify({
@@ -127,12 +127,13 @@ app.get('/appointment', (req, res) => {
     })
     )
   } else {
-    Appointment.findAll().then((result) => {
-      res.json({
+    let doctorID = req.body.doctor_id
+    Appointment.findAll({where:{fk_doctor_id:doctorID}}).then((result) => {
+      res.end(JSON.stringify({
         status: 200,
         message: 'success',
         appoitments: result
       })
-    })
+    )})
   }
 });
