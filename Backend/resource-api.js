@@ -220,7 +220,29 @@ app.get('/treatment/:doctor_id',(req,res)=>{
       res.end(JSON.stringify({
         'status':200,
         'message':'success',
-        'result':restult
+        'result':result
+      }))
+    })
+  }
+})
+
+
+// an endpoint to get all the treatments given by doctor to patient
+app.get('/treatment/:patient_id',(req,res)=>{
+  const header = req.headers
+  if(header == undefined){
+    res.end(JSON.stringify({
+      'status': 400,
+      'message': "Authentication Header not specified",
+    })
+    )
+  }else {
+    let PatientId = req.body.patient_id
+    Treatment.findAll({where:{'fk_patient_id':PatientId}}).then((result)=>{
+      res.end(JSON.stringify({
+        'status':200,
+        'message':'success',
+        'result':result
       }))
     })
   }
