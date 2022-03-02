@@ -141,6 +141,63 @@ app.post("/login", (req, res) => {
   }
 });
 
+//This endpoint is used to update account information supplied by the user
+app.put("/update-account", (req, res) => {
+  const body = req.body;
+  const errors = registerSchema.validate(body, { abortEarly: false }).error;
+  if (errors == undefined) {
+    Account.findByPk(body.email).then((result) => {
+      if (result == null) {
+        res.end(
+          JSON.stringify({
+            status: 404,
+            message:
+              "User not found! An Account update for a non-existent user? this shouldn't be happening.",
+          })
+        );
+        return;
+      } else {
+        if (result.password == body.password) {
+          if (JSON.stringify(req.body) == JSON.stringify(result.dataValues)) {
+            res.end(
+              JSON.stringify({
+                status: 418,
+                message: "Nothing to update, I'm a teapot.",
+              })
+            );
+            return;
+          }
+          result.set(body);
+          result.save().then(() => {
+            res.end(
+              JSON.stringify({
+                status: 200,
+                message: "Account updated successfully",
+              })
+            );
+          });
+        } else {
+          res.end(
+            JSON.stringify({
+              status: 403,
+              message:
+                "You've failed to authenticate using your previous password. Please contact an admin.",
+            })
+          );
+        }
+      }
+    });
+  } else {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+  }
+});
+
 function authenticateToken(req, res, next) {
   // Used to validate tokens, to be used as middleware. Attach to endpoint.
   const authHeader = req.headers["authorization"];

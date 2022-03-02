@@ -9,10 +9,10 @@ const registerSchema = joi.object({
       },
     })
     .required(),
-  password: joi.string().min(8).alphanum().required(),
+  password: joi.string().min(8).required(),
   address: joi.exist().required(),
   name: joi.exist().required(),
-  ssn: joi.exist().required(),
+  SSN: joi.exist().required(),
   gender: joi.exist().required(),
   city: joi.exist().required(),
   dob: joi.exist().required(),
