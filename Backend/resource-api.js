@@ -6,6 +6,7 @@ const Activitie = model.Activity;
 const Appointment = model.Appointment;
 const GlucostTest = model.GlucoseTest;
 const Medicine = model.Medicine;
+const Treatment = model.Treatment;
 const app = express_app.app;
 
 
@@ -203,21 +204,23 @@ app.get('/medicine', (req, res) => {
   }
 })
 
-// an endpoint to get all medicines available withing the DB
-app.get('/medicine', (req, res) => {
+
+// an endpoint to get all the treatments given by doctor
+app.get('/treatment/:doctor_id',(req,res)=>{
   const header = req.headers
-  if (header == undefined) {
+  if(header == undefined){
     res.end(JSON.stringify({
       'status': 400,
       'message': "Authentication Header not specified",
     })
     )
-  } else {
-    Medicine.findAll().then((result) => {
+  }else {
+    let DoctorID = req.body.doctor_id
+    Treatment.findAll({where:{'fk_doctor_id':DoctorID}}).then((result)=>{
       res.end(JSON.stringify({
-        'status': 200,
-        'message': 'success',
-        'result':result
+        'status':200,
+        'message':'success',
+        'result':restult
       }))
     })
   }
