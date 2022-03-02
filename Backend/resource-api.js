@@ -202,3 +202,23 @@ app.get('/medicine', (req, res) => {
     })
   }
 })
+
+// an endpoint to get all medicines available withing the DB
+app.get('/medicine', (req, res) => {
+  const header = req.headers
+  if (header == undefined) {
+    res.end(JSON.stringify({
+      'status': 400,
+      'message': "Authentication Header not specified",
+    })
+    )
+  } else {
+    Medicine.findAll().then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result':result
+      }))
+    })
+  }
+})
