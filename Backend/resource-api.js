@@ -4,6 +4,7 @@ const Patient = model.Patient;
 const Doctor = model.Doctor;
 const Activitie = model.Activity;
 const Appointment = model.Appointment;
+const GlucostTest = model.GlucoseTest
 const app = express_app.app;
 
 
@@ -128,16 +129,16 @@ app.get('/appointment/:doctor_id', (req, res) => {
     )
   } else {
     let doctorID = req.body.doctor_id
-    Appointment.findAll({where:{fk_doctor_id:doctorID}}).then((result) => {
+    Appointment.findAll({ where: { fk_doctor_id: doctorID } }).then((result) => {
       res.end(JSON.stringify({
         status: 200,
         message: 'success',
         appoitments: result
       })
-    )})
+      )
+    })
   }
 });
-
 
 // this endpoint will list all appointments for given patient id
 app.get('/appointment/:patient_id', (req, res) => {
@@ -150,12 +151,33 @@ app.get('/appointment/:patient_id', (req, res) => {
     )
   } else {
     let patientID = req.body.patient_id
-    Appointment.findAll({where:{fk_patient_id:patientID}}).then((result) => {
+    Appointment.findAll({ where: { fk_patient_id: patientID } }).then((result) => {
       res.end(JSON.stringify({
         status: 200,
         message: 'success',
         appoitments: result
       })
-    )})
+      )
+    })
   }
 });
+
+app.get('/glucose_test/:patient_id', (req, res) => {
+  const header = req.headers
+  if (header == undefined) {
+    res.end(JSON.stringify({
+      'status': 400,
+      'message': "Authentication Header not specified",
+    })
+    )
+  } else {
+    let patientID = req.body.patient_id
+    GlucostTest.findAll({ where: { patient_id: patientID } }).then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result': result
+      }))
+    })
+  }
+})
