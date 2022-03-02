@@ -142,7 +142,7 @@ app.post("/login", (req, res) => {
 });
 
 //This endpoint is used to update account information supplied by the user
-app.post("/update-account", (req, res) => {
+app.put("/update-account", (req, res) => {
   const body = req.body;
   const errors = registerSchema.validate(body, { abortEarly: false }).error;
   if (errors == undefined) {
