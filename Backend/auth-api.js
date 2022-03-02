@@ -143,9 +143,10 @@ app.post("/login", (req, res) => {
   }
 });
 
-app.post("/reset-password", (req, res) => {
+//This endpoint is used to update account information supplied by the user
+app.put("/update-account", (req, res) => {
   const body = req.body;
-  const errors = pwdResetSchema.validate(body, { abortEarly: false }).error;
+  const errors = registerSchema.validate(body, { abortEarly: false }).error;
   if (errors == undefined) {
     Account.findByPk(body.email).then((result) => {
       if (result == null) {
@@ -153,18 +154,27 @@ app.post("/reset-password", (req, res) => {
           JSON.stringify({
             status: 404,
             message:
-              "User not found! A Password reset for a non-existent user? this shouldn't be happening.",
+              "User not found! An Account update for a non-existent user? this shouldn't be happening.",
           })
         );
         return;
       } else {
-        if (body.oldPwd == result.password) {
-          result.set({ password: body.newPwd });
+        if (result.password == body.password) {
+          if (JSON.stringify(req.body) == JSON.stringify(result.dataValues)) {
+            res.end(
+              JSON.stringify({
+                status: 418,
+                message: "Nothing to update, I'm a teapot.",
+              })
+            );
+            return;
+          }
+          result.set(body);
           result.save().then(() => {
             res.end(
               JSON.stringify({
                 status: 200,
-                message: "password reset successfully",
+                message: "Account updated successfully",
               })
             );
           });
@@ -190,6 +200,28 @@ app.post("/reset-password", (req, res) => {
   }
 });
 
+app.post("/reset-password", (req, res) => {
+  const body = req.body;
+  const errors = pwdResetSchema.validate(body, { abortEarly: false }).error;
+  if (errors == undefined) {
+    Account.findByPk(body.email).then((result) => {
+      if (result == null) {
+        res.end(
+          JSON.stringify({
+            status: 404,
+            message: "User not found! A Password reset for a non-existent user? this shouldn't be happening.",
+             })
+        );
+        return;
+      } else {
+         if (body.oldPwd == result.password) {
+            result.set({ password: body.newPwd });
+            result.save().then(() => {
+            res.end(
+              JSON.stringify({
+                status: 200,
+                message: "password reset successfully",
+             
 function authenticateToken(req, res, next) {
   // Used to validate tokens, to be used as middleware. Attach to endpoint.
   const authHeader = req.headers["authorization"];
