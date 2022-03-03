@@ -24,7 +24,7 @@ app.get("/patients", (req, res) => {
       })
     );
   } else {
-    const patients = connection.query('SELECT p.patient_id,a.name,a.gender,a.phone_number,p.diabetes_type,p.diabetes_treatment,p.bmi FROM patient p , account a where p.fk_email = a.email; ', { type: QueryTypes.SELECT })
+    const patients = connection.query('SELECT p.patient_id,a.name,a.gender,a.phone_number,a.dob,p.diabetes_type,p.diabetes_treatment,p.bmi FROM patient p , account a where p.fk_email = a.email; ', { type: QueryTypes.SELECT })
     patients.then((result) => {
       res.end(JSON.stringify({
         'status': 200,
@@ -36,14 +36,42 @@ app.get("/patients", (req, res) => {
 });
 
 /*
-response will be : 
-{ "status": 200,
- "message": "success",
-  "result": [
-    { "patient_id": 1, "name": "abdulaziz alghamdi", "gender": true, "phone_number": "0547261420", "diabetes_type": "type 1", "diabetes_treatment": "pills", "bmi": 19.89 },
-    { "patient_id": 2, "name": "ahmed alosaimi", "gender": true, "phone_number": "0543218967", "diabetes_type": "type 2", "diabetes_treatment": "pills", "bmi": 25.44 },
-    { "patient_id": 3, "name": "mubarak aloufi", "gender": true, "phone_number": "0543218927", "diabetes_type": "type 1", "diabetes_treatment": "pills", "bmi": 30.15 }
-  ]}
+{
+  "status":200,
+  "message":"success",
+  "result":[
+     {
+        "patient_id":1,
+        "name":"abdulaziz alghamdi",
+        "gender":true,
+        "phone_number":"0547261420",
+        "dob":"1999-09-17",
+        "diabetes_type":"type 1",
+        "diabetes_treatment":"pills",
+        "bmi":19.89
+     },
+     {
+        "patient_id":2,
+        "name":"ahmed alosaimi",
+        "gender":true,
+        "phone_number":"0543218967",
+        "dob":"1999-09-02",
+        "diabetes_type":"type 2",
+        "diabetes_treatment":"pills",
+        "bmi":25.44
+     },
+     {
+        "patient_id":3,
+        "name":"mubarak aloufi",
+        "gender":true,
+        "phone_number":"0543218927",
+        "dob":"1999-09-04",
+        "diabetes_type":"type 1",
+        "diabetes_treatment":"pills",
+        "bmi":30.15
+     }
+  ]
+}
 */
 
 // an endpoint to look after a patient by his id
@@ -58,7 +86,7 @@ app.get("/patients/:patientId", (req, res) => {
     );
   } else {
     let PatientId = req.params.patientId
-    const patient = connection.query(`SELECT p.patient_id,a.name,a.gender,a.phone_number,p.diabetes_type,p.diabetes_treatment,p.bmi FROM patient p , account a where p.fk_email = a.email AND p.patient_id = ${PatientId}; `, { type: QueryTypes.SELECT })
+    const patient = connection.query(`SELECT p.patient_id,a.name,a.gender,a.phone_number,a.dob,p.diabetes_type,p.diabetes_treatment,p.bmi FROM patient p , account a where p.fk_email = a.email AND p.patient_id = ${PatientId}; `, { type: QueryTypes.SELECT })
     patient.then((result) => {
       res.end(JSON.stringify({
         'status': 200,
@@ -78,6 +106,7 @@ app.get("/patients/:patientId", (req, res) => {
          "name":"abdulaziz alghamdi",
          "gender":true,
          "phone_number":"0547261420",
+         "dob":"1999-09-17",
          "diabetes_type":"type 1",
          "diabetes_treatment":"pills",
          "bmi":19.89
