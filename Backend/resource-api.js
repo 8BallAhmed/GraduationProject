@@ -222,7 +222,7 @@ app.get('/activity/:patient_id', (req, res) => {
       res.end(JSON.stringify({
         'status': 200,
         'message': 'success',
-        'result':result
+        'result': result
       }))
     })
   }
@@ -271,8 +271,17 @@ app.get('/appointment/:doctor_id', (req, res) => {
     })
     )
   } else {
-    let doctorID = req.body.doctor_id
-    Appointment.findAll({ where: { fk_doctor_id: doctorID } }).then((result) => {
+    let doctorID = req.params.doctor_id
+    const appointment = connection.query(`
+    SELECT 
+    ac.name,
+    p.fk_email,
+    p.diabetes_type,
+    a.visit_time,
+    a.date
+    FROM patient p , doctor d, appointment a , account ac 
+    WHERE (a.fk_doctor_id = d.doctor_id AND ac.email = p.fk_email AND a.fk_patient_id = p.patient_id) AND (a.date >= CURRENT_DATE) AND (a.fk_doctor_id = ${doctorID}) ;`, { type: QueryTypes.SELECT })
+    appointment.then((result) => {
       res.end(JSON.stringify({
         status: 200,
         message: 'success',
@@ -282,6 +291,36 @@ app.get('/appointment/:doctor_id', (req, res) => {
     })
   }
 });
+
+/*
+{
+   "status":200,
+   "message":"success",
+   "appoitments":[
+      {
+         "name":"abdulaziz alghamdi",
+         "fk_email":"aziz@gmail.com",
+         "diabetes_type":"type 1",
+         "visit_time":"04:00:00",
+         "date":"2022-09-17"
+      },
+      {
+         "name":"ahmed alosaimi",
+         "fk_email":"ahmed@gmail.com",
+         "diabetes_type":"type 2",
+         "visit_time":"04:30:00",
+         "date":"2022-09-17"
+      },
+      {
+         "name":"mubarak aloufi",
+         "fk_email":"mubarak@gmail.com",
+         "diabetes_type":"type 1",
+         "visit_time":"05:30:00",
+         "date":"2022-09-17"
+      }
+   ]
+}
+*/
 
 // this endpoint will list all appointments for given patient id
 app.get('/appointment/:patient_id', (req, res) => {
