@@ -127,7 +127,7 @@ app.get("/patients/:patientId", (req, res) => {
    ]
 }
 */
-app.get('/doctors', (req, res) => {
+app.get("/doctors", (req, res) => {
   const header = req.header;
   if (header == undefined) {
     res.end(
@@ -137,12 +137,38 @@ app.get('/doctors', (req, res) => {
       })
     );
   } else {
-    const doctors = connection.query(``,{Type:QueryTypes.SELECT})
+    const doctors = connection.query('SELECT d.doctor_id,a.name,a.gender,a.dob,a.phone_number,a.email,a.city,a.address FROM doctor d , account a where d.fk_email = a.email; ', { type: QueryTypes.SELECT })
+    doctors.then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result': result
+      }))
+    })
   }
 });
 
-app.get('/doctors/:doctorID', (req, res) => {
-  const header = req.header
+/*
+{
+   "status":200,
+   "message":"success",
+   "result":[
+      {
+         "doctor_id":1,
+         "name":"Marwan Al harbi",
+         "gender":true,
+         "dob":"1980-09-04",
+         "phone_number":"0543218917",
+         "email":"Marwan@gmail.com",
+         "city":"jeddah",
+         "address":"70 road"
+      }
+   ]
+}
+*/
+
+app.get("/doctors/:doctor_id", (req, res) => {
+  const header = req.header;
   if (header == undefined) {
     res.end(
       JSON.stringify({
@@ -151,16 +177,36 @@ app.get('/doctors/:doctorID', (req, res) => {
       })
     );
   } else {
-    let DoctorID = req.params.doctorID
-    Doctor.findByPk(DoctorID).then((result) => {
-      req.json({
-        status: 200,
-        message: 'Query Succeed',
-        patient: result
-      })
+    let doctorID = req.params.doctor_id;
+    const doctors = connection.query(`SELECT d.doctor_id,a.name,a.gender,a.dob,a.phone_number,a.email,a.city,a.address FROM doctor d , account a where d.fk_email = a.email AND doctor_id=${doctorID}; `, { type: QueryTypes.SELECT })
+    doctors.then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result': result
+      }))
     })
   }
 });
+
+/*
+{
+   "status":200,
+   "message":"success",
+   "result":[
+      {
+         "doctor_id":1,
+         "name":"Marwan Al harbi",
+         "gender":true,
+         "dob":"1980-09-04",
+         "phone_number":"0543218917",
+         "email":"Marwan@gmail.com",
+         "city":"jeddah",
+         "address":"70 road"
+      }
+   ]
+}
+*/
 
 // an endpoint to get all activites by the patient id
 app.get('/activity/:patient_id', (req, res) => {
