@@ -57,20 +57,34 @@ app.get("/patients/:patientId", (req, res) => {
       })
     );
   } else {
-
     let PatientId = req.params.patientId
-
-    Patient.findByPk(PatientId).then((result) => {
-      console.log(result);
-      res.json({
-        status: 200,
-        message: "Query successful",
-        patients: result,
-      });
-    });
+    const patient = connection.query(`SELECT p.patient_id,a.name,a.gender,a.phone_number,p.diabetes_type,p.diabetes_treatment,p.bmi FROM patient p , account a where p.fk_email = a.email AND p.patient_id = ${PatientId}; `, { type: QueryTypes.SELECT })
+    patient.then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result': result
+      }))
+    })
   }
 });
-
+/*
+{
+   "status":200,
+   "message":"success",
+   "result":[
+      {
+         "patient_id":1,
+         "name":"abdulaziz alghamdi",
+         "gender":true,
+         "phone_number":"0547261420",
+         "diabetes_type":"type 1",
+         "diabetes_treatment":"pills",
+         "bmi":19.89
+      }
+   ]
+}
+*/
 app.get('/doctors', (req, res) => {
   const header = req.header;
   if (header == undefined) {
