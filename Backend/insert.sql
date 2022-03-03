@@ -3,14 +3,17 @@ insert into account values('aziz@gmail.com','abdulaziz!@#','jaber ibn sinan st.'
 insert into account values('ahmed@gmail.com','ahmed!@#','rehanat al jazeerah','ahmed alosaimi','2234567891',true,'jeddah','1999-09-2','0543218967',0);
 insert into account values('mubarak@gmail.com','mubarak!@#','60 road','mubarak aloufi','3234567891',true,'jeddah','1999-09-4','0543218927',0);
 insert into account values('Marwan@gmail.com','Marwan!@#','70 road','Marwan Al harbi','4234567891',true,'jeddah','1980-09-4','0543218917',1);
-
+insert into account values('Meo@gmail.com','Marwan!@#','70 road','Marwan Al harbi','4234567891',true,'jeddah','1980-09-4','0543218917',1);
+insert into account values('Jon@gmail.com','Marwan!@#','70 road','Marwan Al harbi','4234567891',true,'jeddah','1980-09-4','0543218917',0);
 -- Insert into patient table
 insert into patient values(1,19.89,'pills','type 1','High Blood Pressure,High Colestrol Rate',5.6,null,'aziz@gmail.com');
 insert into patient values(2,25.44,'pills','type 2','High Blood Pressure,High Colestrol Rate',5.6,null,'ahmed@gmail.com');
 insert into patient values(3,30.15,'pills','type 1','High Blood Pressure,High Colestrol Rate',5.6,null,'mubarak@gmail.com');
+insert into patient values(4,30.15,'pills','type 1','High Blood Pressure,High Colestrol Rate',5.6,null,'Jon@gmail.com');
 
 -- Insert into doctor table
 insert into doctor values(1,'Marwan@gmail.com');
+insert into doctor values(2,'Meo@gmail.com');
 
 
 -- insert into glucose_test
@@ -45,3 +48,10 @@ insert into activity values(9,500,'01:30','weight lifting','2022-02-16 09:10',3)
 insert into supervision values(1,'need to exercise more',1,1);
 insert into supervision values(2,'need to eat healthy food',2,1);
 insert into supervision values(3,'need to walk 30 minutes a day',3,1);
+insert into supervision values(4,'need to walk 30 minutes a day',4,2);
+
+-- Insert into appointment table
+insert into appointment values(1,'04:00','2022-09-17',1,1);
+insert into appointment values(2,'04:30','2022-09-17',2,1);
+insert into appointment values(3,'05:30','2022-09-17',3,1);
+insert into appointment values(4,'05:30','2022-09-17',4,2);
