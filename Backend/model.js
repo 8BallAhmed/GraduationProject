@@ -177,7 +177,7 @@ const Appointment = connection.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    visit_time: DataTypes.DATE,
+    visit_time: DataTypes.TIME,
     date: DataTypes.DATEONLY,
   },
   {
@@ -279,9 +279,9 @@ if (
 
 // --- Synchronization and validation
 // force : true drop and recreate the tables everytime you start the app
-connection.sync({ force: true }).then(() => {
-  console.log("All models were synchronized successfully.");
-});
+// connection.sync({ force: true }).then(() => {
+//   console.log("All models were synchronized successfully.");
+// });
 
 // --- Exporting DB Tables, to be imported in express-app.js
 module.exports.Treatment = Treatment;
