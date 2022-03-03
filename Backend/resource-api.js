@@ -322,8 +322,8 @@ app.get('/appointment/:doctor_id', (req, res) => {
 }
 */
 
-// this endpoint will list all appointments for given patient id
-app.get('/appointment/:patient_id', (req, res) => {
+// this endpoint will list the upcoming appointment for patient 
+app.get('/appointment-patient/:patient_id', (req, res) => {
   const header = req.header
   if (header == undefined) {
     res.end(JSON.stringify({
@@ -332,17 +332,35 @@ app.get('/appointment/:patient_id', (req, res) => {
     })
     )
   } else {
-    let patientID = req.body.patient_id
-    Appointment.findAll({ where: { fk_patient_id: patientID } }).then((result) => {
+    let patient_id = req.params.patient_id
+    const appointment = connection.query(`
+    SELECT ac.name,a.visit_time,a.date
+    FROM patient p , doctor d, appointment a , account ac 
+    WHERE (a.fk_doctor_id = d.doctor_id AND ac.email = d.fk_email AND a.fk_patient_id = p.patient_id) AND (a.date >= CURRENT_DATE) AND (a.fk_patient_id = ${patient_id}) ;`, { type: QueryTypes.SELECT })
+    appointment.then((result) => {
       res.end(JSON.stringify({
-        'status': 200,
-        'message': 'success',
-        'appoitments': result
+        status: 200,
+        message: 'success',
+        appoitments: result
       })
       )
     })
   }
 });
+
+/*
+{
+  "status":200,
+  "message":"success",
+  "appoitments":[
+     {
+        "name":"Marwan Al harbi",
+        "visit_time":"04:00:00",
+        "date":"2022-09-17"
+     }
+  ]
+}
+*/
 
 // an endpoint to get all the glucose test for given patient id
 app.get('/glucose_test/:patient_id', (req, res) => {
