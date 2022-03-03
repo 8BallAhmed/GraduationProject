@@ -372,7 +372,7 @@ app.get('/glucose_test/:patient_id', (req, res) => {
     })
     )
   } else {
-    let patientID = req.body.patient_id
+    let patientID = req.params.patient_id
     GlucostTest.findAll({ where: { patient_id: patientID } }).then((result) => {
       res.end(JSON.stringify({
         'status': 200,
@@ -382,6 +382,49 @@ app.get('/glucose_test/:patient_id', (req, res) => {
     })
   }
 })
+/*
+
+{
+   "status":200,
+   "message":"success",
+   "result":[
+      {
+         "test_id":1,
+         "blood_pressure":"120/80",
+         "pills":"glucophage 500mg",
+         "glucose_level":130,
+         "activity":null,
+         "meal":"cornflakes",
+         "time_interval":"after breakfast",
+         "time":"2022-02-14T06:10:00.000Z",
+         "patient_id":1
+      },
+      {
+         "test_id":2,
+         "blood_pressure":"120/80",
+         "pills":"centrum 1 pills",
+         "glucose_level":130,
+         "activity":null,
+         "meal":"10 pcs Moshhab",
+         "time_interval":"after dinner",
+         "time":"2022-02-13T21:00:00.000Z",
+         "patient_id":1
+      },
+      {
+         "test_id":3,
+         "blood_pressure":"120/80",
+         "pills":"centrum 1 pills",
+         "glucose_level":130,
+         "activity":null,
+         "meal":null,
+         "time_interval":"after breakfast",
+         "time":"2022-02-13T21:00:00.000Z",
+         "patient_id":1
+      }
+   ]
+}
+
+*/
 // an endpoint to get all medicines available withing the DB
 app.get('/medicine', (req, res) => {
   const header = req.headers
