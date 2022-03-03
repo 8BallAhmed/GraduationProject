@@ -1,5 +1,6 @@
 const express_app = require("./express-app");
 const model = require("./model");
+
 const Patient = model.Patient;
 const Doctor = model.Doctor;
 const Activitie = model.Activity;
@@ -7,8 +8,11 @@ const Appointment = model.Appointment;
 const GlucostTest = model.GlucoseTest;
 const Medicine = model.Medicine;
 const Treatment = model.Treatment;
-const app = express_app.app;
 
+// exported from model.js
+const connection = model.connection;
+const QueryTypes = model.QueryTypes;
+const app = express_app.app;
 
 app.get("/patients", (req, res) => {
   const header = req.header;
@@ -20,20 +24,29 @@ app.get("/patients", (req, res) => {
       })
     );
   } else {
-    //this endpoint should fetch patient_id and email FK from account table to get personal information such as name, age etc...
-    //since there is no fk_email ill stick with patient_id as it is for testing purposes
-    Patient.findAll().then((result) => {
-      console.log(result);
-      res.json({
-        status: 200,
-        message: "Query successful",
-        patients: result,
-      });
-    });
+    const patients = connection.query('SELECT p.patient_id,a.name,a.gender,a.phone_number,p.diabetes_type,p.diabetes_treatment,p.bmi FROM patient p , account a where p.fk_email = a.email; ', { type: QueryTypes.SELECT })
+    patients.then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result': result
+      }))
+    })
   }
 });
 
-// an endpoint to look after a patient by his id 
+/*
+response will be : 
+{ "status": 200,
+ "message": "success",
+  "result": [
+    { "patient_id": 1, "name": "abdulaziz alghamdi", "gender": true, "phone_number": "0547261420", "diabetes_type": "type 1", "diabetes_treatment": "pills", "bmi": 19.89 },
+    { "patient_id": 2, "name": "ahmed alosaimi", "gender": true, "phone_number": "0543218967", "diabetes_type": "type 2", "diabetes_treatment": "pills", "bmi": 25.44 },
+    { "patient_id": 3, "name": "mubarak aloufi", "gender": true, "phone_number": "0543218927", "diabetes_type": "type 1", "diabetes_treatment": "pills", "bmi": 30.15 }
+  ]}
+*/
+
+// an endpoint to look after a patient by his id
 app.get("/patients/:patientId", (req, res) => {
   const header = req.header;
   if (header == undefined) {
@@ -198,7 +211,7 @@ app.get('/medicine', (req, res) => {
       res.end(JSON.stringify({
         'status': 200,
         'message': 'success',
-        'result':result
+        'result': result
       }))
     })
   }
@@ -206,21 +219,21 @@ app.get('/medicine', (req, res) => {
 
 
 // an endpoint to get all the treatments given by doctor
-app.get('/treatment/:doctor_id',(req,res)=>{
+app.get('/treatment/:doctor_id', (req, res) => {
   const header = req.headers
-  if(header == undefined){
+  if (header == undefined) {
     res.end(JSON.stringify({
       'status': 400,
       'message': "Authentication Header not specified",
     })
     )
-  }else {
+  } else {
     let DoctorID = req.body.doctor_id
-    Treatment.findAll({where:{'fk_doctor_id':DoctorID}}).then((result)=>{
+    Treatment.findAll({ where: { 'fk_doctor_id': DoctorID } }).then((result) => {
       res.end(JSON.stringify({
-        'status':200,
-        'message':'success',
-        'result':result
+        'status': 200,
+        'message': 'success',
+        'result': result
       }))
     })
   }
@@ -228,21 +241,21 @@ app.get('/treatment/:doctor_id',(req,res)=>{
 
 
 // an endpoint to get all the treatments given by doctor to patient
-app.get('/treatment/:patient_id',(req,res)=>{
+app.get('/treatment/:patient_id', (req, res) => {
   const header = req.headers
-  if(header == undefined){
+  if (header == undefined) {
     res.end(JSON.stringify({
       'status': 400,
       'message': "Authentication Header not specified",
     })
     )
-  }else {
+  } else {
     let PatientId = req.body.patient_id
-    Treatment.findAll({where:{'fk_patient_id':PatientId}}).then((result)=>{
+    Treatment.findAll({ where: { 'fk_patient_id': PatientId } }).then((result) => {
       res.end(JSON.stringify({
-        'status':200,
-        'message':'success',
-        'result':result
+        'status': 200,
+        'message': 'success',
+        'result': result
       }))
     })
   }
