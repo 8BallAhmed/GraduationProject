@@ -217,16 +217,49 @@ app.get('/activity/:patient_id', (req, res) => {
       message: 'Authentication Header not specified'
     }))
   } else {
-    let PatientId = req.body.patient_id
-    Activitie.findByPk(PatientId).then((result) => {
-      res.json({
-        status: 200,
-        message: 'success',
-        activities: result
-      });
+    let PatientId = req.params.patient_id
+    Activitie.findAll({ where: { patient_id: PatientId } }).then((result) => {
+      res.end(JSON.stringify({
+        'status': 200,
+        'message': 'success',
+        'result':result
+      }))
     })
   }
 })
+
+/*
+{
+   "status":200,
+   "message":"success",
+   "result":[
+      {
+         "activity_id":1,
+         "calories":256,
+         "duration":"00:30:00",
+         "type":"walking",
+         "time":"2022-02-14T06:10:00.000Z",
+         "patient_id":1
+      },
+      {
+         "activity_id":2,
+         "calories":432,
+         "duration":"00:50:00",
+         "type":"swimming",
+         "time":"2022-02-15T06:10:00.000Z",
+         "patient_id":1
+      },
+      {
+         "activity_id":3,
+         "calories":500,
+         "duration":"01:30:00",
+         "type":"weight lifting",
+         "time":"2022-02-16T06:10:00.000Z",
+         "patient_id":1
+      }
+   ]
+}
+*/
 
 // this endpoint will list all appointments for given doctor id
 app.get('/appointment/:doctor_id', (req, res) => {
@@ -263,9 +296,9 @@ app.get('/appointment/:patient_id', (req, res) => {
     let patientID = req.body.patient_id
     Appointment.findAll({ where: { fk_patient_id: patientID } }).then((result) => {
       res.end(JSON.stringify({
-        status: 200,
-        message: 'success',
-        appoitments: result
+        'status': 200,
+        'message': 'success',
+        'appoitments': result
       })
       )
     })
