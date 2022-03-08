@@ -113,7 +113,6 @@ app.get('/activity/:patient_id', (req, res) => {
 })
 
 
-
 // this endpoint will list all appointments for given doctor id
 app.get('/appointment/:doctor_id', (req, res) => {
   const header = req.header;
@@ -210,5 +209,3 @@ app.get('/treatment/:patient_id', (req, res) => {
     })
   }
 })
-
-module.exports = app
