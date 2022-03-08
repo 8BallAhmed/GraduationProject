@@ -123,7 +123,10 @@ app.post("/login", (req, res) => {
             JSON.stringify({
               status: 200,
               message: "Login successful!",
-              token: generateAccessToken({ account_type: data.account_type }),
+              token: generateAccessToken({
+                account_type: data.account_type,
+                email: data.email,
+              }),
             })
           );
         } else {
@@ -273,6 +276,7 @@ function authenticateToken(req, res, next) {
 }
 
 function generateAccessToken(data) {
+  console.log(`JWT ID: ${data.id}`);
   // Generates a JWT Token with a payload. Signs using SECRET in .env file
   return jwt.sign(data, JWTSECRET, { expiresIn: "24h" });
 }
