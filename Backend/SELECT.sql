@@ -1,18 +1,11 @@
 SELECT 
     p.patient_id,
-    a.name,
-    a.gender,
-    a.dob,
-    a.phone_number,
-    a.email,
-    a.city,
-    a.address,
+    d.doctor_id,
+    ac.name,
     p.diabetes_type,
-    p.diabetes_treatment,
-    p.bmi
-FROM 
-    patient p , account a
-    WHERE p.fk_email = a.email;
+    a.date
+FROM patient p , doctor d, appointment a , account ac 
+WHERE (a.fk_doctor_id = d.doctor_id AND ac.email = p.fk_email AND a.fk_patient_id = p.patient_id)  AND (a.fk_doctor_id = 1) ;
 
 SELECT 
     p.patient_id,
