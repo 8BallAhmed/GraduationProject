@@ -1,3 +1,4 @@
+require("dotenv").config({ path: "./.env" }); // Set running DIR
 const model = require("./model");
 const Account = model.Account;
 const Patient = model.Patient;
@@ -209,19 +210,44 @@ app.post("/reset-password", (req, res) => {
         res.end(
           JSON.stringify({
             status: 404,
-            message: "User not found! A Password reset for a non-existent user? this shouldn't be happening.",
-             })
+            message:
+              "User not found! A Password reset for a non-existent user? this shouldn't be happening.",
+          })
         );
         return;
       } else {
-         if (body.oldPwd == result.password) {
-            result.set({ password: body.newPwd });
-            result.save().then(() => {
+        if (body.oldPwd == result.password) {
+          result.set({ password: body.newPwd });
+          result.save().then(() => {
             res.end(
               JSON.stringify({
                 status: 200,
                 message: "password reset successfully",
-             
+              })
+            );
+          });
+        } else {
+          res.end(
+            JSON.stringify({
+              status: 403,
+              message:
+                "You've failed to authenticate using your previous password. Please contact an admin.",
+            })
+          );
+        }
+      }
+    });
+  } else {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+  }
+});
+
 function authenticateToken(req, res, next) {
   // Used to validate tokens, to be used as middleware. Attach to endpoint.
   const authHeader = req.headers["authorization"];
