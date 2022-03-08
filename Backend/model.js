@@ -1,5 +1,5 @@
 require("dotenv").config({ path: "./.env" }); // Set running DIR
-const { Sequelize, DataTypes,QueryTypes } = require("sequelize");
+const { Sequelize, DataTypes, QueryTypes } = require("sequelize");
 
 const DBUSER = process.env.DBUSER;
 const DBPASSWORD = process.env.DBPASSWORD;
@@ -32,9 +32,9 @@ const Account = connection.define(
     gender: DataTypes.BOOLEAN,
     city: DataTypes.STRING,
     dob: DataTypes.DATEONLY,
-    phone_number:DataTypes.STRING,
+    phone_number: DataTypes.STRING,
     account_type: DataTypes.STRING,
-  
+
   },
   {
     // disable the modification of tablenames; By default, sequelize will automatically
@@ -162,6 +162,11 @@ const Supervision = connection.define(
       autoIncrement: true,
     },
     comments: DataTypes.STRING,
+    date: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.fn('NOW')
+    }
   },
   {
     freezeTableName: true,
@@ -245,20 +250,6 @@ if (
 
   // one to many realtioship with glucose_test table FK is not null
   Patient.hasMany(GlucoseTest, { foreignKey: { name: "patient_id", allowNull: false } });
-
-  // -- many to many relationship between doctor and patient in appoitment table
-  // bellow code was commented out because it has been an issue for sequlize to allow n:m with nonunique composite key since 2015
-  // check the issue below 
-  // https://github.com/sequelize/sequelize/issues/5077
-  // i had to do it manually using belongsto
-  // Patient.belongsToMany(Doctor, {
-  //   through: { model: Supervision, unique: false }, constraints: false,// to remove composite primary-key 
-  //   foreignKey: { name: "fk_patient_id", allowNull: false },
-  // });
-  // Doctor.belongsToMany(Patient, {
-  //   through: { model: Supervision, unique: false }, constraints: false, // to remove composite primary-key 
-  //   foreignKey: { name: "fk_doctor_id", allowNull: false },
-  // });
 
   // i had to do it manually using belongsTo to fix the problem
   Supervision.belongsTo(Patient, { foreignKey: { name: "fk_patient_id", allowNull: false, }, targetKey: "patient_id" });
