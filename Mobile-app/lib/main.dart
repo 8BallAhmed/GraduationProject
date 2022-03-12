@@ -4,6 +4,11 @@ import 'package:graduationproject1/Exercise.dart';
 import 'Home.dart';
 import 'BloodGlucose.dart';
 import 'FoodIntake.dart';
+import 'Meals.dart';
+import 'Breakfast.dart';
+import 'Lunch.dart';
+import 'Dinner.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -19,6 +24,10 @@ class MyApp extends StatelessWidget {
         "Home": (context) => Home(),
         "Exercise": (context) => Exercise(),
         "FoodIntake": (context) => FoodIntake(),
+        "Meals": (context) => Meals(),
+        "Breakfast": (context) => Breakfast(),
+        "Lunch": (context) => Lunch(),
+        "Dinner": (context) => Dinner(),
       },
     );
   }
