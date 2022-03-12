@@ -267,7 +267,9 @@ class _HomeState extends State<Home> {
                         Visibility(
                             visible: vis,
                             child: RawMaterialButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pushNamed("Meals");
+                              },
                               elevation: 2.0,
                               fillColor: Colors.white,
                               child: Image.asset("images/pizza.png",

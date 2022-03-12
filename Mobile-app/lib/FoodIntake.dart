@@ -143,7 +143,9 @@ class _FoodIntakeState extends State<FoodIntake> {
                       style: TextStyle(fontSize: 20),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamed("Breakfast");
+                      },
                       icon: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 4.5, 40, 0),
                         child: Icon(
@@ -206,7 +208,9 @@ class _FoodIntakeState extends State<FoodIntake> {
                       style: TextStyle(fontSize: 20),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamed("Lunch");
+                      },
                       icon: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 4.5, 40, 0),
                         child: Icon(
@@ -269,7 +273,9 @@ class _FoodIntakeState extends State<FoodIntake> {
                       style: TextStyle(fontSize: 20),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamed("Dinner");
+                      },
                       icon: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 4.5, 40, 0),
                         child: Icon(

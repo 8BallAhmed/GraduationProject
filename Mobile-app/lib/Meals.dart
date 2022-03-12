@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'Breakfast.dart';
+import 'Lunch.dart';
+import 'Dinner.dart';
 class Meals extends StatefulWidget {
   Meals({Key? key}) : super(key: key);
 
@@ -35,7 +37,9 @@ class _MealsState extends State<Meals> {
                   Flexible(
                     flex: 1,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).pushNamed("Breakfast");
+                      },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 20),
                         height: 81,
@@ -86,7 +90,9 @@ class _MealsState extends State<Meals> {
                   Flexible(
                     flex: 1,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).pushNamed("Lunch");
+                      },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 20),
                         height: 81,
@@ -137,7 +143,9 @@ class _MealsState extends State<Meals> {
                   Flexible(
                     flex: 1,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                         Navigator.of(context).pushNamed("Dinner");
+                      },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 20),
                         height: 81,
