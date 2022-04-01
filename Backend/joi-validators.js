@@ -41,7 +41,7 @@ const pwdResetSchema = joi.object({
 });
 
 const glucoseSchema = joi.object({
-  glucose: joi.number().required(),
+  glucose_level: joi.number().required(),
   blood_pressure: joi.string(),
   pills: joi.string(),
   activity: joi.string(),
@@ -53,3 +53,4 @@ const glucoseSchema = joi.object({
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
 module.exports.pwdResetSchema = pwdResetSchema;
+module.exports.glucoseSchema = glucoseSchema;
