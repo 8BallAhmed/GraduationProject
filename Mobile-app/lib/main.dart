@@ -8,6 +8,7 @@ import 'Meals.dart';
 import 'Breakfast.dart';
 import 'Lunch.dart';
 import 'Dinner.dart';
+import 'Glucose.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         "Breakfast": (context) => Breakfast(),
         "Lunch": (context) => Lunch(),
         "Dinner": (context) => Dinner(),
+        "Glucose": (context) => Glucose(),
       },
     );
   }
