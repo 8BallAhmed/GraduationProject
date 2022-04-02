@@ -6,19 +6,19 @@ const Patient = model.Patient;
 const Doctor = model.Doctor;
 const Activitie = model.Activity;
 const Appointment = model.Appointment;
+const GlucoseTest = model.GlucoseTest;
+const Account = model.Account;
+const glucoseSchema = require("./joi-validators").glucoseSchema;
 const app = express_app.app;
 
 if (process.env.NODE_ENV != "development") {
   // If we're in development, it doesn't use JWT Authentication as Middleware
   authenticateToken = require("./auth-api").authenticateToken;
-  console.log(`Started Resource API with JWT Middleware`);
+  console.log(`Started Resource API WITHOUT JWT Middleware`);
 } else {
   // If we're in Testing or Production, it uses JWT Authentication as Middleware
-  authenticateToken = (req, res, next) => {
-    console.log("Decoy authentication middleware");
-    next();
-  };
-  console.log("Started Resource API WITHOUT JWT Middleware");
+  authenticateToken = require("./auth-api").authenticateToken;
+  console.log("Started Resource API WITH JWT Middleware");
 }
 
 app.get("/patients", authenticateToken, (req, res) => {
@@ -151,5 +151,59 @@ app.get("/appointment", authenticateToken, (req, res) => {
         appoitments: result,
       });
     });
+  }
+});
+
+app.post("/glucose", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = glucoseSchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  let email = req.decodedToken.email;
+  if (account_type != "patient") {
+    res.end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+  if (errors == undefined) {
+    let account = Patient.findOne({ fk_email: email }).then((result) => {
+      if (result == null) {
+        res.end(
+          JSON.stringify({
+            status: 404,
+            message: "User not found! Blood Glucose not added.",
+          })
+        );
+      } else {
+        let patient_id = result.dataValues.patient_id;
+        console.log(`RESULT PATIENT ID: ${result.dataValues.patient_id}`);
+        GlucoseTest.create({ ...body, patient_id: patient_id })
+          .then(() => {
+            res.end(
+              JSON.stringify({ status: 200, message: "Glucose reading added." })
+            );
+          })
+          .catch((err) => {
+            res.end(
+              JSON.stringify({
+                status: 401,
+                message: "Could not create Glucose Reading!",
+                error: err.errors[0].message,
+              })
+            );
+          });
+      }
+    });
+  } else {
+    res.end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
   }
 });
