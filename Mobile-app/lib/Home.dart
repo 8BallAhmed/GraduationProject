@@ -227,7 +227,9 @@ class _HomeState extends State<Home> {
                             Visibility(
                                 visible: vis,
                                 child: RawMaterialButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed("Glucose");
+                                  },
                                   elevation: 2.0,
                                   fillColor: Colors.white,
                                   child: Image.asset("images/Blood.png",
