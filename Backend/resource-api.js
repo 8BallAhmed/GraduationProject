@@ -1,4 +1,5 @@
 require("dotenv").config({ path: "./.env" });
+const e = require("express");
 let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
 const model = require("./model");
@@ -243,10 +244,44 @@ app.get(
 );
 
 app.delete(
-  "/glucose/patient/:patient_id/reading/:reading_id",
+  "/glucose/patient/:patient_id/reading/:test_id",
   authenticateToken,
   (req, res) => {
-    const patient_id = req.headers.patient_id;
-    const reading_id = req.headers.reading_id;
+    const patient_id = req.params.patient_id;
+    const test_id = req.params.test_id;
+    GlucoseTest.destroy({
+      where: {
+        patient_id: patient_id,
+        test_id: test_id,
+      },
+    })
+      .then((result) => {
+        console.log(`RESULT: ${result}`);
+        if (result == 0) {
+          res.end(
+            JSON.stringify({
+              status: 404,
+              message: "Reading not found for patient ID " + patient_id,
+            })
+          );
+        } else {
+          res.end(
+            JSON.stringify({
+              status: 200,
+              message: `Deleted Glucose Reading ID ${test_id} for Patient with ID ${patient_id}`,
+            })
+          );
+        }
+      })
+      .catch((err) => {
+        console.log(`ERR: ${err}`);
+        res.end(
+          JSON.stringify({
+            status: 403,
+            message: "Could not delete glucose reading for patient.",
+            error: err,
+          })
+        );
+      });
   }
 );
