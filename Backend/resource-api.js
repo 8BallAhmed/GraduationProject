@@ -155,6 +155,7 @@ app.get("/appointment", authenticateToken, (req, res) => {
 });
 
 app.post("/glucose", authenticateToken, (req, res) => {
+  // Add glucose reading
   const body = req.body;
   const errors = glucoseSchema.validate(body, { abortEarly: false }).error;
   let account_type = req.decodedToken.account_type;
@@ -207,3 +208,45 @@ app.post("/glucose", authenticateToken, (req, res) => {
     );
   }
 });
+
+// For pagination, limit of 5 for each page.
+// This endpoint returns all glucose tests for the patient
+app.get(
+  "/glucose/patient/:patient_id/page/:page",
+  authenticateToken,
+  (req, res) => {
+    const patient_id = req.params.patient_id;
+    const page = req.params.page;
+    GlucoseTest.findAll({
+      where: {
+        patient_id: patient_id,
+      },
+    })
+      .then((result) => {
+        res.end(
+          JSON.stringify({
+            status: 200,
+            message: "Success.",
+            glucose_data: result,
+          })
+        );
+      })
+      .catch((err) => {
+        res.end(
+          JSON.stringify({
+            status: 403,
+            message: "Could not return glucose readings for patient.",
+          })
+        );
+      });
+  }
+);
+
+app.delete(
+  "/glucose/patient/:patient_id/reading/:reading_id",
+  authenticateToken,
+  (req, res) => {
+    const patient_id = req.headers.patient_id;
+    const reading_id = req.headers.reading_id;
+  }
+);
