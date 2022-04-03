@@ -40,6 +40,17 @@ const pwdResetSchema = joi.object({
   newPwd: joi.string().min(8).required(),
 });
 
+const glucoseSchema = joi.object({
+  glucose_level: joi.number().required(),
+  blood_pressure: joi.string(),
+  pills: joi.string(),
+  activity: joi.string(),
+  meal: joi.string(),
+  time_interval: joi.string(),
+  time: joi.number().required(), // The timing of the glucose reading is required
+});
+
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
 module.exports.pwdResetSchema = pwdResetSchema;
+module.exports.glucoseSchema = glucoseSchema;
