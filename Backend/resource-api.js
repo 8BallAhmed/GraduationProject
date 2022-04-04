@@ -9,6 +9,7 @@ const Activitie = model.Activity;
 const Appointment = model.Appointment;
 const GlucoseTest = model.GlucoseTest;
 const Account = model.Account;
+const Supervision = model.Supervision;
 const glucoseSchema = require("./joi-validators").glucoseSchema;
 const app = express_app.app;
 
@@ -22,9 +23,14 @@ if (process.env.NODE_ENV != "development") {
   console.log("Started Resource API WITH JWT Middleware");
 }
 
+//this endpoint should fetch patient_id and email FK from account table to get personal information such as name, age etc...
+//since there is no fk_email ill stick with patient_id as it is for testing purposes
 app.get("/patients", authenticateToken, (req, res) => {
   // Middleware function "authenticateToken" is passed to endpoint
   let accountType = req.decodedToken.account_type;
+  let email = req.decodedToken.email;
+  let supervisedPatients = [];
+  let patientIDs = [];
   if (accountType != "doctor" && accountType != null) {
     res.end(
       JSON.stringify({
@@ -34,15 +40,78 @@ app.get("/patients", authenticateToken, (req, res) => {
     );
     return; // Must add return, or second hit on endpoint will look infinitely
   }
-  //this endpoint should fetch patient_id and email FK from account table to get personal information such as name, age etc...
-  //since there is no fk_email ill stick with patient_id as it is for testing purposes
-  Patient.findAll().then((result) => {
-    console.log(result);
-    res.json({
-      status: 200,
-      message: "Query successful",
-      patients: result,
-    });
+  Doctor.findOne({ where: { fk_email: email } }).then((result) => {
+    if (result == null) {
+      res.end(
+        JSON.stringify({
+          status: 404,
+          message: "Doctor for patients not found.",
+        })
+      );
+      return;
+    } else {
+      let doctor_id = result.dataValues.doctor_id;
+      Supervision.findAll({
+        where: {
+          fk_doctor_id: doctor_id,
+        },
+      }).then((result) => {
+        if (result == null) {
+          res.end(
+            JSON.stringify({
+              status: 404,
+              message: "This Doctor does not treat any patients currently.",
+            })
+          );
+          return;
+        } else {
+          result.map((supervised_patient) => {
+            patientIDs.push(supervised_patient.dataValues.fk_patient_id);
+          });
+          patientIDs.map((ID) => {
+            Patient.findByPk(ID).then((result) => {
+              if (result == undefined) {
+                res.end(
+                  JSON.stringify({
+                    status: 500,
+                    message:
+                      "This Patient does not exist anymore, please contact an administrator or file a bug report",
+                  })
+                );
+                return;
+              } else {
+                Account.findByPk(result.dataValues.fk_email)
+                  .then((accountResult) => {
+                    if (accountResult == undefined) {
+                      res.end(
+                        JSON.stringify({
+                          status: 500,
+                          message:
+                            "An account for this patient was not found. Please contact an administrator or file a bug report.",
+                        })
+                      );
+                    } else {
+                      supervisedPatients.push({
+                        name: accountResult.dataValues.name,
+                        ...result.dataValues,
+                      });
+                    }
+                  })
+                  .then(() => {
+                    res.end(
+                      JSON.stringify({
+                        status: 200,
+                        patients: supervisedPatients,
+                      })
+                    );
+                    return;
+                  });
+              }
+            });
+          });
+        }
+      });
+    }
   });
 });
 
