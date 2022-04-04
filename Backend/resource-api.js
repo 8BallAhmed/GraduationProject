@@ -285,3 +285,47 @@ app.delete(
       });
   }
 );
+
+app.patch(
+  "/glucose/patient/:patient_id/reading/:test_id",
+  authenticateToken,
+  (req, res) => {
+    const body = req.body;
+    const errors = glucoseSchema.validate(body, { abortEarly: false }).error;
+    let account_type = req.decodedToken.account_type;
+    let patient_id = req.params.patient_id;
+    let test_id = req.params.test_id;
+    if (account_type != "patient") {
+      res.end(
+        JSON.stringify({
+          status: 403,
+          message: "Incorrect account type, only patient allowed.",
+        })
+      );
+      return;
+    }
+
+    if (errors == undefined) {
+      GlucoseTest.findOne({
+        where: {
+          patient_id,
+          test_id,
+        },
+      }).then((result) => {
+        if (result == null) {
+          res.end(
+            JSON.stringify({ status: 404, message: "Reading not found" })
+          );
+        } else {
+          result.set(body);
+          result.save().then(() => {
+            res.end(
+              JSON.stringify({ status: 200, message: "Reading updated." })
+            );
+          });
+        }
+      });
+    } else {
+    }
+  }
+);
