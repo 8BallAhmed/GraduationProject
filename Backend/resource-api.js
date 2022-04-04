@@ -1,4 +1,5 @@
 require("dotenv").config({ path: "./.env" });
+const e = require("express");
 let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
 const model = require("./model");
@@ -155,6 +156,7 @@ app.get("/appointment", authenticateToken, (req, res) => {
 });
 
 app.post("/glucose", authenticateToken, (req, res) => {
+  // Add glucose reading
   const body = req.body;
   const errors = glucoseSchema.validate(body, { abortEarly: false }).error;
   let account_type = req.decodedToken.account_type;
@@ -207,3 +209,123 @@ app.post("/glucose", authenticateToken, (req, res) => {
     );
   }
 });
+
+// For pagination, limit of 5 for each page.
+// This endpoint returns all glucose tests for the patient
+app.get(
+  "/glucose/patient/:patient_id/page/:page",
+  authenticateToken,
+  (req, res) => {
+    const patient_id = req.params.patient_id;
+    const page = req.params.page;
+    GlucoseTest.findAll({
+      where: {
+        patient_id: patient_id,
+      },
+    })
+      .then((result) => {
+        res.end(
+          JSON.stringify({
+            status: 200,
+            message: "Success.",
+            glucose_data: result,
+          })
+        );
+      })
+      .catch((err) => {
+        res.end(
+          JSON.stringify({
+            status: 403,
+            message: "Could not return glucose readings for patient.",
+          })
+        );
+      });
+  }
+);
+
+app.delete(
+  "/glucose/patient/:patient_id/reading/:test_id",
+  authenticateToken,
+  (req, res) => {
+    const patient_id = req.params.patient_id;
+    const test_id = req.params.test_id;
+    GlucoseTest.destroy({
+      where: {
+        patient_id: patient_id,
+        test_id: test_id,
+      },
+    })
+      .then((result) => {
+        console.log(`RESULT: ${result}`);
+        if (result == 0) {
+          res.end(
+            JSON.stringify({
+              status: 404,
+              message: "Reading not found for patient ID " + patient_id,
+            })
+          );
+        } else {
+          res.end(
+            JSON.stringify({
+              status: 200,
+              message: `Deleted Glucose Reading ID ${test_id} for Patient with ID ${patient_id}`,
+            })
+          );
+        }
+      })
+      .catch((err) => {
+        console.log(`ERR: ${err}`);
+        res.end(
+          JSON.stringify({
+            status: 403,
+            message: "Could not delete glucose reading for patient.",
+            error: err,
+          })
+        );
+      });
+  }
+);
+
+app.patch(
+  "/glucose/patient/:patient_id/reading/:test_id",
+  authenticateToken,
+  (req, res) => {
+    const body = req.body;
+    const errors = glucoseSchema.validate(body, { abortEarly: false }).error;
+    let account_type = req.decodedToken.account_type;
+    let patient_id = req.params.patient_id;
+    let test_id = req.params.test_id;
+    if (account_type != "patient") {
+      res.end(
+        JSON.stringify({
+          status: 403,
+          message: "Incorrect account type, only patient allowed.",
+        })
+      );
+      return;
+    }
+
+    if (errors == undefined) {
+      GlucoseTest.findOne({
+        where: {
+          patient_id,
+          test_id,
+        },
+      }).then((result) => {
+        if (result == null) {
+          res.end(
+            JSON.stringify({ status: 404, message: "Reading not found" })
+          );
+        } else {
+          result.set(body);
+          result.save().then(() => {
+            res.end(
+              JSON.stringify({ status: 200, message: "Reading updated." })
+            );
+          });
+        }
+      });
+    } else {
+    }
+  }
+);
