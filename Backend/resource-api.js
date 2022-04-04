@@ -453,7 +453,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
 });
 
 
-app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
+app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const patient_id = req.params.patient_id;
   const account_type = req.decodedToken.account_type;
 
