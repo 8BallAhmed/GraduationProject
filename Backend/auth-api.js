@@ -119,16 +119,45 @@ app.post("/login", (req, res) => {
       } else {
         let data = result.dataValues;
         if (data.password == body.password) {
-          res.end(
-            JSON.stringify({
-              status: 200,
-              message: "Login successful!",
-              token: generateAccessToken({
-                account_type: data.account_type,
-                email: data.email,
-              }),
-            })
-          );
+          if (data.account_type == "patient") {
+            Patient.findOne({
+              where: {
+                fk_email: data.email,
+              },
+            }).then((result) => {
+              let patient_id = result.dataValues.patient_id;
+              res.end(
+                JSON.stringify({
+                  status: 200,
+                  message: "Login successful!",
+                  token: generateAccessToken({
+                    account_type: data.account_type,
+                    email: data.email,
+                    patient_id: patient_id,
+                  }),
+                })
+              );
+            });
+          } else if (data.account_type == "doctor") {
+            Doctor.findOne({
+              where: {
+                fk_email: data.email,
+              },
+            }).then((result) => {
+              let doctor_id = result.dataValues.doctor_id;
+              res.end(
+                JSON.stringify({
+                  status: 200,
+                  message: "Login successful!",
+                  token: generateAccessToken({
+                    account_type: data.account_type,
+                    email: data.email,
+                    doctor_id: doctor_id,
+                  }),
+                })
+              );
+            });
+          }
         } else {
           res.end(
             JSON.stringify({ status: 401, message: "Incorrect password!" })
