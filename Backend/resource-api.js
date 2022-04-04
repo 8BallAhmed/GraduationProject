@@ -451,3 +451,51 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
       );
   }
 });
+
+
+app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
+  const patient_id = req.params.patient_id;
+  const account_type = req.decodedToken.account_type;
+
+  if (account_type != "doctor") {
+    res.json({
+      status: 403,
+      message: "This endpoint is to be used by Doctors only.",
+    });
+    return;
+  } else {
+    const doctor_id = req.decodedToken.doctor_id;
+    Patient.count({ where: { patient_id: patient_id } })
+      .then((result) => {
+        if (result <= 0) {
+          res.json({
+            status: 404,
+            message: "The specified patient does not exist.",
+          });
+        }
+      })
+      .then(
+        Doctor.count({
+          where: {
+            doctor_id: doctor_id,
+          },
+        }).then((result) => {
+          if (result <= 0) {
+            res.json({
+              status: 404,
+              message: "The specified doctor does not exist.",
+            });
+          } else {
+            Supervision.destroy({where: { patient_id: patient_id}}).then(() => {
+              res.json({
+                status: 200,
+                message: `Patient #${patient_id} unpaired with Doctor #${doctor_id}`,
+              });
+              return;
+            });
+          }
+        })
+      );
+  }
+});
+
