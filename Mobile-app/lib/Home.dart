@@ -286,26 +286,28 @@ class _HomeState extends State<Home> {
               ))),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1,
-        selectedItemColor: Color(0xFF4C75D4),
+        onTap: (value) {
+          if (value == 1) {
+            Navigator.of(context).pushReplacementNamed("Home");
+          }
+        },
         items: [
           BottomNavigationBarItem(
             icon: Icon(
               Icons.settings_outlined,
             ),
-            title: Text('Settings'),
+            label: "Settings",
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.home_outlined,
             ),
-            title: new Text(
-              'Home',
-              style: TextStyle(color: Color(0xFF4C75D4)),
-            ),
+            label: "Home",
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.medical_services_outlined),
-              title: Text('Medicine'))
+            icon: Icon(Icons.medical_services_outlined),
+            label: "Medicine",
+          )
         ],
       ),
     );

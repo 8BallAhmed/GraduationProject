@@ -123,19 +123,18 @@ class _LunchState extends State<Lunch> {
             icon: Icon(
               Icons.settings_outlined,
             ),
-            title: Text('Settings'),
+            label: "Settings",
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.home_outlined,
             ),
-            title: new Text(
-              'Home',
-            ),
+            label: "Home",
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.medical_services_outlined),
-              title: Text('Medicine'))
+            icon: Icon(Icons.medical_services_outlined),
+            label: "Medicine",
+          )
         ],
       ),
     );

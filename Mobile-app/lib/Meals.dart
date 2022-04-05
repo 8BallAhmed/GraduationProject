@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'Breakfast.dart';
 import 'Lunch.dart';
 import 'Dinner.dart';
+
 class Meals extends StatefulWidget {
   Meals({Key? key}) : super(key: key);
 
@@ -144,7 +145,7 @@ class _MealsState extends State<Meals> {
                     flex: 1,
                     child: InkWell(
                       onTap: () {
-                         Navigator.of(context).pushNamed("Dinner");
+                        Navigator.of(context).pushNamed("Dinner");
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 20),
@@ -207,19 +208,18 @@ class _MealsState extends State<Meals> {
             icon: Icon(
               Icons.settings_outlined,
             ),
-            title: Text('Settings'),
+            label: "Settings",
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.home_outlined,
             ),
-            title: new Text(
-              'Home',
-            ),
+            label: "Home",
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.medical_services_outlined),
-              title: Text('Medicine'))
+            icon: Icon(Icons.medical_services_outlined),
+            label: "Medicine",
+          )
         ],
       ),
     );
