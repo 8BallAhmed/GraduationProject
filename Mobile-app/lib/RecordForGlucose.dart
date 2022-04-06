@@ -337,6 +337,9 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
           if (value == 1) {
             Navigator.of(context).pushReplacementNamed("Home");
           }
+          if (value == 2) {
+            Navigator.of(context).pushNamed("medicine");
+          }
         },
         selectedItemColor: Color(0xFF858585),
         items: [

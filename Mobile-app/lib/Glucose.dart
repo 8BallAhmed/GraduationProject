@@ -18,7 +18,9 @@ class _GlucoseState extends State<Glucose> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pushNamed("RecordForGlucose");
+            },
             icon: Icon(
               Icons.add_outlined,
             ),
@@ -191,6 +193,9 @@ class _GlucoseState extends State<Glucose> {
         onTap: (value) {
           if (value == 1) {
             Navigator.of(context).pushReplacementNamed("Home");
+          }
+          if (value == 2) {
+            Navigator.of(context).pushNamed("medicine");
           }
         },
         selectedItemColor: Color(0xFF858585),

@@ -18,7 +18,9 @@ class _ExerciseDataState extends State<ExerciseData> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pushNamed("RecordForExercise");
+            },
             icon: Icon(
               Icons.add_outlined,
             ),
@@ -249,6 +251,9 @@ class _ExerciseDataState extends State<ExerciseData> {
         onTap: (value) {
           if (value == 1) {
             Navigator.of(context).pushReplacementNamed("Home");
+          }
+          if (value == 2) {
+            Navigator.of(context).pushNamed("medicine");
           }
         },
         selectedItemColor: Color(0xFF858585),

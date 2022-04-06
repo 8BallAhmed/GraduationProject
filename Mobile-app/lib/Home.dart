@@ -214,7 +214,9 @@ class _HomeState extends State<Home> {
                         Visibility(
                             visible: vis,
                             child: RawMaterialButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pushNamed("ExerciseData");
+                              },
                               elevation: 2.0,
                               fillColor: Colors.white,
                               child: Image.asset("images/gym.png",
@@ -289,6 +291,9 @@ class _HomeState extends State<Home> {
         onTap: (value) {
           if (value == 1) {
             Navigator.of(context).pushReplacementNamed("Home");
+          }
+          if (value == 2) {
+            Navigator.of(context).pushNamed("medicine");
           }
         },
         items: [
