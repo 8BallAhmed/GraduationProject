@@ -244,6 +244,33 @@ class _ExerciseDataState extends State<ExerciseData> {
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        onTap: (value) {
+          if (value == 1) {
+            Navigator.of(context).pushReplacementNamed("Home");
+          }
+        },
+        selectedItemColor: Color(0xFF858585),
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.settings_outlined,
+            ),
+            label: "Settings",
+          ),
+          BottomNavigationBarItem(
+            icon: new Icon(
+              Icons.home_outlined,
+            ),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.medical_services_outlined),
+            label: "Medicine",
+          )
+        ],
+      ),
     );
   }
 }
