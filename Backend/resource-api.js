@@ -3,6 +3,7 @@ const e = require("express");
 let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
 const model = require("./model");
+const axios = require("axios").default;
 const Patient = model.Patient;
 const Doctor = model.Doctor;
 const Activitie = model.Activity;
@@ -12,6 +13,10 @@ const Account = model.Account;
 const Supervision = model.Supervision;
 const glucoseSchema = require("./joi-validators").glucoseSchema;
 const app = express_app.app;
+
+const APPID = process.env.APPID;
+const APPLICATIONKEY = process.env.APPLICATIONKEY;
+console.log(`APPID: ${APPID}, \nAPPLICATION KEY: ${APPLICATIONKEY}`);
 
 if (process.env.NODE_ENV != "development") {
   // If we're in development, it doesn't use JWT Authentication as Middleware
@@ -452,7 +457,6 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   }
 });
 
-
 app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const patient_id = req.params.patient_id;
   const account_type = req.decodedToken.account_type;
@@ -486,16 +490,43 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
               message: "The specified doctor does not exist.",
             });
           } else {
-            Supervision.destroy({where: { patient_id: patient_id}}).then(() => {
-              res.json({
-                status: 200,
-                message: `Patient #${patient_id} unpaired with Doctor #${doctor_id}`,
-              });
-              return;
-            });
+            Supervision.destroy({ where: { patient_id: patient_id } }).then(
+              () => {
+                res.json({
+                  status: 200,
+                  message: `Patient #${patient_id} unpaired with Doctor #${doctor_id}`,
+                });
+                return;
+              }
+            );
           }
         })
       );
   }
 });
 
+// Food CRUD
+
+app.get("/food/search/:query/page/:page", (req, res) => {
+  const query = req.params.query;
+  const page = req.params.page;
+  let offset = 5;
+  let food_names = [];
+  axios
+    .get(`https://trackapi.nutritionix.com/v2/search/instant?query=${query}`, {
+      headers: {
+        "x-app-id": "5c475c16",
+        "x-app-key": "8ce769600e4ddd4409260f0520cbbb9f",
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      for (i = offset * page; i < offset * page + 5; i++) {
+        food_names.push({
+          name: response.data.common[i].food_name,
+          serving_unit: response.data.common[i].serving_unit,
+        });
+      }
+    })
+    .then(() => res.json({ search_result: food_names }));
+});
