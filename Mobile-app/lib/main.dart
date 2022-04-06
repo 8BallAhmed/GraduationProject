@@ -9,6 +9,10 @@ import 'Breakfast.dart';
 import 'Lunch.dart';
 import 'Dinner.dart';
 import 'Glucose.dart';
+import 'RecordForGlucose.dart';
+import 'ExerciseData.dart';
+import 'RecordForExercise.dart';
+import 'medicine.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,6 +34,10 @@ class MyApp extends StatelessWidget {
         "Lunch": (context) => Lunch(),
         "Dinner": (context) => Dinner(),
         "Glucose": (context) => Glucose(),
+        "RecordForGlucose": (context) => RecordForGlucose(),
+        "ExerciseData": (context) => ExerciseData(),
+        "RecordForExercise": (context) => RecordForExercise(),
+        "medicine": (context) => medicine(),
       },
     );
   }
