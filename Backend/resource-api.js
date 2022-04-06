@@ -652,3 +652,25 @@ app.delete("/food/:food_id", authenticateToken, (req, res) => {
       });
     });
 });
+
+app.get("/food/:food_id", authenticateToken, (req, res) => {
+  const food_id = req.params.food_id;
+  Food.findByPk(food_id)
+    .then((result) => {
+      if (result == undefined) {
+        res.json({ status: 404, message: "Food item not found" });
+      } else {
+        res.json({
+          status: 200,
+          message: "Food item found.",
+          ...result.dataValues,
+        });
+      }
+    })
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An error has occured, please contact an administrator.",
+      });
+    });
+});
