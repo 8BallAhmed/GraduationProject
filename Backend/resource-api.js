@@ -507,7 +507,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
 
 // Food CRUD
 
-app.get("/food/search/:query/page/:page", (req, res) => {
+app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
   const query = req.params.query;
   const page = req.params.page;
   let offset = 5;
@@ -520,7 +520,9 @@ app.get("/food/search/:query/page/:page", (req, res) => {
       },
     })
     .then((response) => {
-      console.log(response.data);
+      if (response.data.common.length == 0) {
+        res.json({ status: 404, message: "No foods found with that name." });
+      }
       for (i = offset * page; i < offset * page + 5; i++) {
         food_names.push({
           name: response.data.common[i].food_name,
@@ -528,5 +530,11 @@ app.get("/food/search/:query/page/:page", (req, res) => {
         });
       }
     })
-    .then(() => res.json({ search_result: food_names }));
+    .then(() => res.json({ search_result: food_names }))
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An unexpected error occured. Please contact an administrator",
+      });
+    });
 });
