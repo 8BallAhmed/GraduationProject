@@ -630,3 +630,25 @@ app.get("/food/page/:page", authenticateToken, (req, res) => {
       return;
     });
 });
+
+app.delete("/food/:food_id", authenticateToken, (req, res) => {
+  const food_id = req.params.food_id;
+  Food.destroy({
+    where: {
+      food_id: food_id,
+    },
+  })
+    .then((result) => {
+      if (result == 1) {
+        res.json({ status: 200, message: "Food item deleted" });
+      } else {
+        res.json({ status: 404, message: "Food item not found." });
+      }
+    })
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An error has occured, please contact an administrator.",
+      });
+    });
+});
