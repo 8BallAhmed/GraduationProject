@@ -2,6 +2,7 @@ require("dotenv").config({ path: "./.env" });
 const e = require("express");
 let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
+const { foodSchema } = require("./joi-validators");
 const model = require("./model");
 const axios = require("axios").default;
 const Patient = model.Patient;
@@ -11,6 +12,7 @@ const Appointment = model.Appointment;
 const GlucoseTest = model.GlucoseTest;
 const Account = model.Account;
 const Supervision = model.Supervision;
+const Food = model.Food;
 const glucoseSchema = require("./joi-validators").glucoseSchema;
 const app = express_app.app;
 
@@ -507,6 +509,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
 
 // Food CRUD
 
+// Search for a specific food
 app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
   const query = req.params.query;
   const page = req.params.page;
@@ -540,7 +543,7 @@ app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
 });
 
 // used to view nutients of food
-app.get("/food/:food_name/nutrients", (req, res) => {
+app.get("/food/:food_name/nutrients", authenticateToken, (req, res) => {
   const food_name = req.params.food_name;
   axios
     .post(
@@ -569,5 +572,61 @@ app.get("/food/:food_name/nutrients", (req, res) => {
     })
     .catch((err) => {
       res.json({ status: 404, message: "Food item not found." });
+    });
+});
+
+// Add food item for patient
+app.post("/food", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = foodSchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  if (account_type != "patient") {
+    res.json({
+      status: 403,
+      message: "This endpoint is only allowed for patients",
+    });
+    return;
+  }
+  let patient_id = req.decodedToken.patient_id;
+  //JSON.stringify(body) is used to parse the food item as string, and store it in the database.
+  //When retreived, it should be parsed to object.
+  Food.create({
+    patient_id: patient_id,
+    food_item: JSON.stringify({ ...body, date: Date.now() }),
+  }).then(() => {
+    res.json({ status: 200, message: "Food item successfully added." });
+    return;
+  });
+});
+
+// Get all foods for patient. Pagination active, 5 food items per page.
+app.get("/food/page/:page", authenticateToken, (req, res) => {
+  let patient_id = req.decodedToken.patient_id;
+  let page = req.params.page;
+  let food = [];
+  Food.findAll({
+    where: { patient_id: patient_id },
+    offset: page * 5,
+    limit: 5,
+  })
+    .then((response) => {
+      response.map((item) => {
+        food.push(item.dataValues);
+      });
+    })
+    .then(() => {
+      if (food.length == 0) {
+        res.json({ status: 404, message: "No more food items found." });
+        return;
+      }
+      res.json({ status: 200, message: "Food fetched", food: food });
+      return;
+    })
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An error has occured. Please contact an administrator.",
+      });
+      return;
     });
 });
