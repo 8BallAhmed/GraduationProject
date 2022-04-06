@@ -538,3 +538,36 @@ app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
       });
     });
 });
+
+// used to view nutients of food
+app.get("/food/:food_name/nutrients", (req, res) => {
+  const food_name = req.params.food_name;
+  axios
+    .post(
+      "https://trackapi.nutritionix.com/v2/natural/nutrients",
+      { query: food_name },
+      {
+        headers: {
+          "x-app-id": "5c475c16",
+          "x-app-key": "8ce769600e4ddd4409260f0520cbbb9f",
+        },
+      }
+    )
+    .then((response) => {
+      res.json({
+        status: 200,
+        food_name: response.data.foods[0].food_name,
+        serving_quantity: response.data.foods[0].serving_qty,
+        calories: response.data.foods[0].nf_calories,
+        fat: response.data.foods[0].nf_total_fat,
+        saturated_fat: response.data.foods[0].nf_saturated_fat,
+        carbs: response.data.foods[0].nf_total_carbohydrate,
+        sugars: response.data.foods[0].nf_sugars,
+        protein: response.data.foods[0].nf_protein,
+      });
+      return;
+    })
+    .catch((err) => {
+      res.json({ status: 404, message: "Food item not found." });
+    });
+});
