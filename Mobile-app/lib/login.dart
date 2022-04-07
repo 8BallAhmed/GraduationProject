@@ -111,7 +111,9 @@ class _loginState extends State<login> {
                         height: 15,
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).pushNamed("ResetPassword");
+                        },
                         child: Text(
                           "Forgot Password?",
                           style: TextStyle(
@@ -150,7 +152,9 @@ class _loginState extends State<login> {
                             width: 20,
                           ),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.of(context).pushNamed("Register");
+                            },
                             child: Text(
                               "Sign up!",
                               style: TextStyle(
