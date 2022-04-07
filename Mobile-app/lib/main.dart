@@ -13,6 +13,9 @@ import 'RecordForGlucose.dart';
 import 'ExerciseData.dart';
 import 'RecordForExercise.dart';
 import 'medicine.dart';
+import 'login.dart';
+import 'Register.dart';
+import 'ResetPassword.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Home(),
+      home: ResetPassword(),
       routes: {
         "BloodGlucose": (context) => BloodGlucose(),
         "Home": (context) => Home(),
@@ -38,6 +41,9 @@ class MyApp extends StatelessWidget {
         "ExerciseData": (context) => ExerciseData(),
         "RecordForExercise": (context) => RecordForExercise(),
         "medicine": (context) => medicine(),
+        "login": (context) => login(),
+        "Register": (context) => Register(),
+        "ResetPassword": (context) => ResetPassword(),
       },
     );
   }
