@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Register extends StatefulWidget {
   Register({Key? key}) : super(key: key);
@@ -8,6 +10,32 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  var name;
+  var email;
+  var password;
+
+  addPost() async {
+    var url = "http://localhost:8000/register";
+    Map data = {
+      "email": "$email",
+      "password": "$password",
+      "address": null,
+      "name": "$name",
+      "SSN": null,
+      "gender": null,
+      "city": null,
+      "dob": null,
+      "account_type": 0,
+    };
+    //encode Map to JSON
+    var body = json.encode(data);
+
+    var res = await http.post(Uri.parse(url), body: body);
+    var resbody = jsonDecode(res.body);
+    print(resbody);
+    return resbody;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,18 +65,22 @@ class _RegisterState extends State<Register> {
                       SizedBox(
                         height: 50.0,
                       ),
+                      SizedBox(
+                        height: 5.0,
+                      ),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 40),
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
+                            name = value;
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.person_sharp,
                               color: Colors.grey,
                             ),
-                            hintText: 'First Name',
+                            hintText: 'Name',
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 10.0, horizontal: 20.0),
                             border: OutlineInputBorder(
@@ -78,78 +110,7 @@ class _RegisterState extends State<Register> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
-                          },
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.person_sharp,
-                              color: Colors.grey,
-                            ),
-                            hintText: 'Last Name',
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 20.0),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1.0),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1.0),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5.0,
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 40),
-                        child: TextField(
-                          onChanged: (value) {
-                            //Do something with the user input.
-                          },
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.person_sharp,
-                              color: Colors.grey,
-                            ),
-                            hintText: 'User Name',
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 20.0),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1.0),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1.0),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(32.0)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5.0,
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 40),
-                        child: TextField(
-                          onChanged: (value) {
-                            //Do something with the user input.
+                            email = value;
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
@@ -186,6 +147,7 @@ class _RegisterState extends State<Register> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
+                            password = value;
                           },
                           obscureText: true,
                           decoration: InputDecoration(
@@ -218,9 +180,6 @@ class _RegisterState extends State<Register> {
                       SizedBox(
                         height: 15,
                       ),
-                      SizedBox(
-                        height: 3.0,
-                      ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 16.0),
                         child: Material(
@@ -230,6 +189,7 @@ class _RegisterState extends State<Register> {
                           child: MaterialButton(
                             onPressed: () {
                               //Implement login functionality.
+                              addPost();
                             },
                             minWidth: 100.0,
                             height: 40.0,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class login extends StatefulWidget {
   login({Key? key}) : super(key: key);
@@ -45,10 +46,10 @@ class _loginState extends State<login> {
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
-                              Icons.person_sharp,
+                              Icons.email_outlined,
                               color: Colors.grey,
                             ),
-                            hintText: 'User Name',
+                            hintText: 'Email',
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 10.0, horizontal: 20.0),
                             border: OutlineInputBorder(
@@ -71,7 +72,7 @@ class _loginState extends State<login> {
                         ),
                       ),
                       SizedBox(
-                        height: 8.0,
+                        height: 5.0,
                       ),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 40),
