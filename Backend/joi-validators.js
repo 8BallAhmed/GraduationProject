@@ -50,7 +50,19 @@ const glucoseSchema = joi.object({
   time: joi.number().required(), // The timing of the glucose reading is required
 });
 
+const foodSchema = joi.object({
+  food_name: joi.string().required(),
+  serving_quantity: joi.string().required(),
+  calories: joi.number().required(),
+  fat: joi.number().required(),
+  saturated_fat: joi.number().required(),
+  carbs: joi.number().required(),
+  sugars: joi.number().required(),
+  protein: joi.number().required(),
+});
+
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
 module.exports.pwdResetSchema = pwdResetSchema;
 module.exports.glucoseSchema = glucoseSchema;
+module.exports.foodSchema = foodSchema;

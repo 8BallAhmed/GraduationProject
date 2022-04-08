@@ -2,7 +2,9 @@ require("dotenv").config({ path: "./.env" });
 const e = require("express");
 let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
+const { foodSchema } = require("./joi-validators");
 const model = require("./model");
+const axios = require("axios").default;
 const Patient = model.Patient;
 const Doctor = model.Doctor;
 const Activitie = model.Activity;
@@ -10,8 +12,13 @@ const Appointment = model.Appointment;
 const GlucoseTest = model.GlucoseTest;
 const Account = model.Account;
 const Supervision = model.Supervision;
+const Food = model.Food;
 const glucoseSchema = require("./joi-validators").glucoseSchema;
 const app = express_app.app;
+
+const APPID = process.env.APPID;
+const APPLICATIONKEY = process.env.APPLICATIONKEY;
+console.log(`APPID: ${APPID}, \nAPPLICATION KEY: ${APPLICATIONKEY}`);
 
 if (process.env.NODE_ENV != "development") {
   // If we're in development, it doesn't use JWT Authentication as Middleware
@@ -452,7 +459,6 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   }
 });
 
-
 app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const patient_id = req.params.patient_id;
   const account_type = req.decodedToken.account_type;
@@ -486,16 +492,185 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
               message: "The specified doctor does not exist.",
             });
           } else {
-            Supervision.destroy({where: { patient_id: patient_id}}).then(() => {
-              res.json({
-                status: 200,
-                message: `Patient #${patient_id} unpaired with Doctor #${doctor_id}`,
-              });
-              return;
-            });
+            Supervision.destroy({ where: { patient_id: patient_id } }).then(
+              () => {
+                res.json({
+                  status: 200,
+                  message: `Patient #${patient_id} unpaired with Doctor #${doctor_id}`,
+                });
+                return;
+              }
+            );
           }
         })
       );
   }
 });
 
+// Food CRUD
+
+// Search for a specific food
+app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
+  const query = req.params.query;
+  const page = req.params.page;
+  let offset = 5;
+  let food_names = [];
+  axios
+    .get(`https://trackapi.nutritionix.com/v2/search/instant?query=${query}`, {
+      headers: {
+        "x-app-id": "5c475c16",
+        "x-app-key": "8ce769600e4ddd4409260f0520cbbb9f",
+      },
+    })
+    .then((response) => {
+      if (response.data.common.length == 0) {
+        res.json({ status: 404, message: "No foods found with that name." });
+      }
+      for (i = offset * page; i < offset * page + 5; i++) {
+        food_names.push({
+          name: response.data.common[i].food_name,
+          serving_unit: response.data.common[i].serving_unit,
+        });
+      }
+    })
+    .then(() => res.json({ search_result: food_names }))
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An unexpected error occured. Please contact an administrator",
+      });
+    });
+});
+
+// used to view nutients of food
+app.get("/food/:food_name/nutrients", authenticateToken, (req, res) => {
+  const food_name = req.params.food_name;
+  axios
+    .post(
+      "https://trackapi.nutritionix.com/v2/natural/nutrients",
+      { query: food_name },
+      {
+        headers: {
+          "x-app-id": "5c475c16",
+          "x-app-key": "8ce769600e4ddd4409260f0520cbbb9f",
+        },
+      }
+    )
+    .then((response) => {
+      res.json({
+        status: 200,
+        food_name: response.data.foods[0].food_name,
+        serving_quantity: response.data.foods[0].serving_qty,
+        calories: response.data.foods[0].nf_calories,
+        fat: response.data.foods[0].nf_total_fat,
+        saturated_fat: response.data.foods[0].nf_saturated_fat,
+        carbs: response.data.foods[0].nf_total_carbohydrate,
+        sugars: response.data.foods[0].nf_sugars,
+        protein: response.data.foods[0].nf_protein,
+      });
+      return;
+    })
+    .catch((err) => {
+      res.json({ status: 404, message: "Food item not found." });
+    });
+});
+
+// Add food item for patient
+app.post("/food", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = foodSchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  if (account_type != "patient") {
+    res.json({
+      status: 403,
+      message: "This endpoint is only allowed for patients",
+    });
+    return;
+  }
+  let patient_id = req.decodedToken.patient_id;
+  //JSON.stringify(body) is used to parse the food item as string, and store it in the database.
+  //When retreived, it should be parsed to object.
+  Food.create({
+    patient_id: patient_id,
+    food_item: JSON.stringify({ ...body, date: Date.now() }),
+  }).then(() => {
+    res.json({ status: 200, message: "Food item successfully added." });
+    return;
+  });
+});
+
+// Get all foods for patient. Pagination active, 5 food items per page.
+app.get("/food/page/:page", authenticateToken, (req, res) => {
+  let patient_id = req.decodedToken.patient_id;
+  let page = req.params.page;
+  let food = [];
+  Food.findAll({
+    where: { patient_id: patient_id },
+    offset: page * 5,
+    limit: 5,
+  })
+    .then((response) => {
+      response.map((item) => {
+        food.push(item.dataValues);
+      });
+    })
+    .then(() => {
+      if (food.length == 0) {
+        res.json({ status: 404, message: "No more food items found." });
+        return;
+      }
+      res.json({ status: 200, message: "Food fetched", food: food });
+      return;
+    })
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An error has occured. Please contact an administrator.",
+      });
+      return;
+    });
+});
+
+app.delete("/food/:food_id", authenticateToken, (req, res) => {
+  const food_id = req.params.food_id;
+  Food.destroy({
+    where: {
+      food_id: food_id,
+    },
+  })
+    .then((result) => {
+      if (result == 1) {
+        res.json({ status: 200, message: "Food item deleted" });
+      } else {
+        res.json({ status: 404, message: "Food item not found." });
+      }
+    })
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An error has occured, please contact an administrator.",
+      });
+    });
+});
+
+app.get("/food/:food_id", authenticateToken, (req, res) => {
+  const food_id = req.params.food_id;
+  Food.findByPk(food_id)
+    .then((result) => {
+      if (result == undefined) {
+        res.json({ status: 404, message: "Food item not found" });
+      } else {
+        res.json({
+          status: 200,
+          message: "Food item found.",
+          ...result.dataValues,
+        });
+      }
+    })
+    .catch((err) => {
+      res.json({
+        status: 500,
+        message: "An error has occured, please contact an administrator.",
+      });
+    });
+});

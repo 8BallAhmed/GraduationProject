@@ -3,8 +3,8 @@ const { Sequelize, DataTypes, DATE, Model } = require("sequelize");
 
 const DBUSER = process.env.DBUSER;
 const DBPASSWORD = process.env.DBPASSWORD;
-console.log(DBUSER)
-console.log(DBPASSWORD)
+console.log(DBUSER);
+console.log(DBPASSWORD);
 
 const connection = new Sequelize(
   `postgres://${DBUSER}:${DBPASSWORD}@localhost:5432/glucoguardian`,
@@ -121,7 +121,7 @@ const Food = connection.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    nix_item_id: DataTypes.STRING,
+    food_item: DataTypes.STRING,
   },
   {
     // disable the modification of tablenames; By default, sequelize will automatically
@@ -147,10 +147,10 @@ const GlucoseTest = connection.define(
     meal: DataTypes.STRING,
     time_interval: DataTypes.STRING,
     time: DataTypes.DATE,
-    anamoly:{
-      type:DataTypes.BOOLEAN,
-      allowNull:true
-    }
+    anamoly: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
   },
   {
     freezeTableName: true,
