@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./.env" }); // Set running DIR
+require("dotenv").config({ path: "../.env" }); // Set running DIR
 const model = require("./model");
 const Account = model.Account;
 const Patient = model.Patient;
@@ -13,6 +13,8 @@ const { user } = require("pg/lib/defaults");
 const JWTSECRET = process.env.SECRET;
 console.log(JWTSECRET);
 const app = express_app.app;
+
+console.log("Auth API Started");
 
 app.post("/register", (req, res) => {
   const body = req.body;
@@ -293,11 +295,28 @@ function authenticateToken(req, res, next) {
       })
     );
   jwt.verify(token, JWTSECRET, (err, decoded) => {
-    if (err) {
-      // Possible errors: Token expired, signatures is messed with. Try this with a modified token.
-      return res.end(JSON.stringify({ status: 403, message: err.message }));
-    }
+    // Possible errors: Token expired, signatures is messed with. Try this with a modified token.
+
     req.decodedToken = decoded;
+    Account.count({
+      where: {
+        email: decoded.email,
+      },
+    }).then((result) => {
+      if (err) {
+        res.json({ status: 403, message: err.message });
+      } else if (result == 0) {
+        res.json({
+          status: 403,
+          message: "No account exists by this email!",
+        });
+      } else {
+        next();
+        return;
+      }
+    });
+
+    return;
     // Pass payload to endpoint using this middleware. This is useful
     //for validating types of accounts. For example: Patient can't do Doctor functionalities.
     next();
