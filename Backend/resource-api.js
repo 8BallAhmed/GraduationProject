@@ -1,5 +1,4 @@
 require("dotenv").config({ path: "./.env" });
-const e = require("express");
 let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
 const { foodSchema } = require("./joi-validators");
@@ -12,23 +11,17 @@ const Appointment = model.Appointment;
 const GlucoseTest = model.GlucoseTest;
 const Account = model.Account;
 const Supervision = model.Supervision;
+const Treatment = model.Treatment;
 const Food = model.Food;
 const glucoseSchema = require("./joi-validators").glucoseSchema;
+const treatmentSchema = require("./joi-validators").treatmentSchema;
 const app = express_app.app;
 
 const APPID = process.env.APPID;
 const APPLICATIONKEY = process.env.APPLICATIONKEY;
-console.log(`APPID: ${APPID}, \nAPPLICATION KEY: ${APPLICATIONKEY}`);
 
-if (process.env.NODE_ENV != "development") {
-  // If we're in development, it doesn't use JWT Authentication as Middleware
-  authenticateToken = require("./auth-api").authenticateToken;
-  console.log(`Started Resource API WITHOUT JWT Middleware`);
-} else {
-  // If we're in Testing or Production, it uses JWT Authentication as Middleware
-  authenticateToken = require("./auth-api").authenticateToken;
-  console.log("Started Resource API WITH JWT Middleware");
-}
+console.log("Resource API Started");
+console.log(`APPID: ${APPID}, \nAPPLICATION KEY: ${APPLICATIONKEY}`);
 
 //this endpoint should fetch patient_id and email FK from account table to get personal information such as name, age etc...
 //since there is no fk_email ill stick with patient_id as it is for testing purposes
@@ -674,3 +667,206 @@ app.get("/food/:food_id", authenticateToken, (req, res) => {
       });
     });
 });
+
+// Treatment CRUD
+
+app.get(
+  "/treatments/patient/:patient_id/page/:page",
+  authenticateToken,
+  async (req, res) => {
+    let offset = 5;
+    let page = req.params.page;
+    let patient_id = req.params.patient_id;
+    if (
+      req.decodedToken.patient_id != undefined &&
+      patient_id != req.decodedToken.patient_id
+    ) {
+      return res.json({
+        status: 403,
+        message: "You are not allowed to access other patients' treatments.",
+      });
+    } else if (req.decodedToken.doctor_id != undefined) {
+      await Supervision.count({
+        where: {
+          fk_doctor_id: req.decodedToken.doctor_id,
+          fk_patient_id: req.params.patient_id,
+        },
+      }).then((response) =>
+        response == 1
+          ? ""
+          : res.json({
+              status: 403,
+              message:
+                "You cannot view treatments for patients you do not supervise.",
+            })
+      );
+    }
+    await Treatment.findAll({
+      where: {
+        fk_patient_id: patient_id,
+      },
+      limit: 5,
+      offset: offset * page,
+    }).then((result) => {
+      if (result.length == 0) {
+        return res.json({
+          status: 404,
+          message: "No treatments found at page #" + page,
+        });
+      } else {
+        return res.json({
+          status: 200,
+          message: "Treatments found",
+          treatments: result,
+        });
+      }
+    });
+  }
+);
+
+app.delete("/treatment/:treatment_id", authenticateToken, (req, res) => {
+  let treatment_id = req.params.treatment_id;
+  if (req.decodedToken.account_type != "doctor") {
+    return res.json({
+      status: 403,
+      message: "This endpoint is only allowed for doctors.",
+    });
+  } else {
+    Treatment.destroy({
+      where: {
+        fk_doctor_id: req.decodedToken.doctor_id,
+        treatment_id: treatment_id,
+      },
+    }).then((result) => {
+      if (result == 1) {
+        return res.json({ status: 200, message: "Treatment deleted" });
+      } else {
+        return res.json({
+          status: 404,
+          message: "Treatment not found, cannot delete.",
+        });
+      }
+    });
+  }
+});
+
+app.post(
+  "/treatment/patient/:patient_id",
+  authenticateToken,
+  async (req, res) => {
+    if (req.decodedToken.account_type != "doctor") {
+      console.log(`You're not a doctor!`);
+      return res.json({
+        status: 200,
+        message: "This endpoint is only allowed for doctors.",
+      });
+    } else {
+      console.log("Flow started...");
+      let patient_id = req.params.patient_id;
+      await Supervision.count({
+        where: {
+          fk_patient_id: patient_id,
+          fk_doctor_id: req.decodedToken.doctor_id,
+        },
+      }).then(async (result) => {
+        console.log("Supervision counted.");
+        if (result != 1) {
+          console.log("No supervision exists.");
+          return res.json({
+            status: 403,
+            message: "You do not supervise this patient.",
+          });
+        } else {
+          console.log("Supervision exists.");
+          const body = req.body;
+          let errors = treatmentSchema.validate(body, {
+            abortEarly: false,
+          }).error;
+          if (errors == undefined) {
+            console.log("No errors whatsoever. Record should be created.");
+            await Treatment.create({
+              ...body,
+              fk_patient_id: patient_id,
+              fk_doctor_id: req.decodedToken.doctor_id,
+            })
+              .then(() => {
+                console.log("record created.");
+                return res.json({ status: 200, message: "Treatment added." });
+              })
+              .catch((err) => {
+                console.log("an error occured.");
+                return res.json({
+                  status: 500,
+                  message:
+                    "An internal server error occured, please contact an administrator.",
+                  error: err.errors,
+                });
+              });
+          } else {
+            return res.json({
+              status: 401,
+              message: "Bad request",
+              errors: errors.details,
+            });
+          }
+        }
+      });
+    }
+  }
+);
+
+app.patch(
+  "/treatment/:treatment_id/patient/:patient_id/",
+  authenticateToken,
+  (req, res) => {
+    if (req.decodedToken.account_type != "doctor") {
+      return res.json({
+        status: 200,
+        message: "This endpoint is only allowed for doctors.",
+      });
+    }
+    let patient_id = req.params.patient_id;
+    Supervision.count({
+      where: {
+        fk_patient_id: patient_id,
+        fk_doctor_id: req.decodedToken.doctor_id,
+      },
+    }).then((result) => {
+      if (result != 1) {
+        return res.json({
+          status: 403,
+          message: "You do not supervise this patient.",
+        });
+      } else {
+        const body = req.body;
+        let errors = treatmentSchema.validate(body, {
+          abortEarly: false,
+        }).error;
+        if (errors == undefined) {
+          Treatment.update(
+            {
+              ...body,
+            },
+            {
+              where: {
+                fk_patient_id: patient_id,
+                fk_doctor_id: req.decodedToken.doctor_id,
+                treatment_id: req.params.treatment_id,
+              },
+            }
+          )
+            .then(() => {
+              return res.json({ status: 200, message: "Treatment updated." });
+            })
+            .catch((err) => {
+              return res.json({
+                status: 500,
+                message:
+                  "An internal server error occured, please contact an administrator.",
+              });
+            });
+        }
+      }
+    });
+  }
+);
