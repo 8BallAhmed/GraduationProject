@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "../.env" }); // Set running DIR
+require("dotenv").config({ path: "./.env" }); // Set running DIR
 const { Sequelize, DataTypes, DATE, Model } = require("sequelize");
 
 const DBUSER = process.env.DBUSER;
@@ -121,7 +121,7 @@ const Food = connection.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    food_item: DataTypes.STRING,
+    food_item: DataTypes.JSON,
   },
   {
     // disable the modification of tablenames; By default, sequelize will automatically
@@ -191,23 +191,6 @@ const Appointment = connection.define(
   }
 );
 
-const Medicine = connection.define(
-  "medicine",
-  {
-    medicine_id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    name: DataTypes.STRING,
-    description: DataTypes.STRING,
-  },
-  {
-    freezeTableName: true,
-    timestamps: false,
-  }
-);
-
 const Treatment = connection.define(
   "treatment",
   {
@@ -216,7 +199,8 @@ const Treatment = connection.define(
       primaryKey: true,
       autoIncrement: true,
     },
-
+    medicine_name: DataTypes.STRING,
+    description: DataTypes.STRING,
     unit: DataTypes.STRING,
     dosage: DataTypes.INTEGER,
     date_of_prescription: DataTypes.DATEONLY,
@@ -303,10 +287,6 @@ if (
     foreignKey: { name: "fk_doctor_id", allowNull: false },
     targetKey: "doctor_id",
   });
-  Treatment.belongsTo(Medicine, {
-    foreignKey: { name: "fk_medicine_id", allowNull: false, unique: true },
-    targetKey: "medicine_id",
-  });
   console.log("Tables created with referential constraints! (DEV/PROD)");
 } else {
   console.log("Tables created with no referential constraints! (TEST)");
@@ -325,7 +305,6 @@ connection.sync({ force: true }).then(() => {
 module.exports.Treatment = Treatment;
 module.exports.Doctor = Doctor;
 module.exports.Patient = Patient;
-module.exports.Medicine = Medicine;
 module.exports.Food = Food;
 module.exports.Activity = Activity;
 module.exports.Appointment = Appointment;
