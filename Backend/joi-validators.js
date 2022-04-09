@@ -61,8 +61,15 @@ const foodSchema = joi.object({
   protein: joi.number().required(),
 });
 
+const treatmentSchema = joi.object({
+  medicine_name: joi.string().required(),
+  description: joi.string().required(),
+  unit: joi.string().required(),
+});
+
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
 module.exports.pwdResetSchema = pwdResetSchema;
 module.exports.glucoseSchema = glucoseSchema;
 module.exports.foodSchema = foodSchema;
+module.exports.treatmentSchema = treatmentSchema;
