@@ -14,3 +14,5 @@ app.listen(PORT, () => {
 module.exports.app = app;
 
 // Take care of JWT Auth in Middleware
+require("./auth-api");
+require("./resource-api");
