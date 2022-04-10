@@ -7,9 +7,10 @@
     <title>Login - GlucoGuardian</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
 <body class="bg-gradient-primary">
@@ -27,7 +28,7 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4">Welcome Back!</h4>
                                     </div>
-                                    <form class="user">
+                                    <form class="user" id="login" action="http://localhost:8000/login">
                                         <div class="mb-3"><input class="form-control form-control-user" type="email" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Enter Email Address..." name="email"></div>
                                         <div class="mb-3"><input class="form-control form-control-user" type="password" id="exampleInputPassword" placeholder="Password" name="password"></div>
                                         <div class="mb-3">
@@ -48,9 +49,55 @@
             </div>
         </div>
     </div>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <script>
+
+        $("#login").submit(function(e) {
+
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+    
+            var form = $(this);
+            
+            var actionUrl = form.attr('action');
+            formData = form.serializeArray()
+
+            console.log(formData)
+            var data = {
+                "email":formData[0].value,
+                "password":formData[1].value,
+            }
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                data: JSON.stringify(data), // serializes the form's elements.
+                contentType: "application/json",
+                dataType : 'json',
+                success: async function(res,status)
+                {
+        
+
+                    console.log(status)
+                    console.log(res)
+                    
+                    //token is stored in localstoarge
+                    const token = res.token
+                    await localStorage.setItem('token',res.token)
+                    console.log(res.token)
+                    setTimeout(window.location.assign("Appointments.html"),2000)
+                    
+                },
+                error:function(XMLHttpRequest, textStatus, e) { 
+                    alert("Status: " + textStatus); alert("Error: " + e); 
+                } 
+                
+            });
+            
+        });
+     </script>
 </body>
 
 </html>

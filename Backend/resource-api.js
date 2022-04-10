@@ -3,7 +3,7 @@ let { authenticateToken } = require("./auth-api");
 const express_app = require("./express-app");
 const { foodSchema } = require("./joi-validators");
 const model = require("./model");
-const axios = require("axios").default;
+
 const Patient = model.Patient;
 const Doctor = model.Doctor;
 const Activitie = model.Activity;
