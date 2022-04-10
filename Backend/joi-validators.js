@@ -67,9 +67,14 @@ const treatmentSchema = joi.object({
   unit: joi.string().required(),
 });
 
+const appointmentSchema = joi.object({
+  visit_time: joi.string().required(),
+});
+
 module.exports.registerSchema = registerSchema;
 module.exports.loginSchema = loginSchema;
 module.exports.pwdResetSchema = pwdResetSchema;
 module.exports.glucoseSchema = glucoseSchema;
 module.exports.foodSchema = foodSchema;
 module.exports.treatmentSchema = treatmentSchema;
+module.exports.appointmentSchema = appointmentSchema;
