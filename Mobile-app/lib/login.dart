@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'constants.dart';
 
 class login extends StatefulWidget {
   login({Key? key}) : super(key: key);
@@ -9,6 +12,27 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
+  var email;
+  var password;
+  List post = [];
+  addPost() async {
+    var url = "http://10.0.2.2:8090/login";
+
+    var res = await http.post(
+      Uri.parse(url),
+      body: {
+        "email": "$email",
+        "password": "$password",
+      },
+    );
+
+    var resBody = jsonDecode(res.body);
+
+    setState(() {
+      post.add(resBody);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +66,9 @@ class _loginState extends State<login> {
                         margin: EdgeInsets.symmetric(horizontal: 40),
                         child: TextField(
                           onChanged: (value) {
-                            //Do something with the user input.
+                            setState(() {
+                              email = value;
+                            });
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
@@ -79,6 +105,10 @@ class _loginState extends State<login> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
+                            setState(() {
+                              password =
+                                  md5.convert(utf8.encode(value)).toString();
+                            });
                           },
                           obscureText: true,
                           decoration: InputDecoration(
@@ -133,8 +163,28 @@ class _loginState extends State<login> {
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),
                           elevation: 5.0,
                           child: MaterialButton(
-                            onPressed: () {
+                            onPressed: () async {
                               //Implement login functionality.
+                              print(email);
+                              print(password);
+                              await addPost();
+                              if (post[0]["status"] == 200) {
+                                Navigator.of(context).pushNamed("Home");
+                              } else {
+                                print(email);
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("${post[0]['message']}"),
+                                  ),
+                                );
+                                Future.delayed(
+                                    const Duration(milliseconds: 3000), () {
+                                  setState(() {
+                                    Navigator.of(context).pushNamed("login");
+                                  });
+                                });
+                              }
                             },
                             minWidth: 100.0,
                             height: 40.0,
