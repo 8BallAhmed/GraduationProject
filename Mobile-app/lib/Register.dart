@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'constants.dart';
 
 class Register extends StatefulWidget {
   Register({Key? key}) : super(key: key);
@@ -10,30 +13,38 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  var name;
   var email;
   var password;
 
-  addPost() async {
-    var url = "http://localhost:8000/register";
-    Map data = {
-      "email": "$email",
-      "password": "$password",
-      "address": null,
-      "name": "$name",
-      "SSN": null,
-      "gender": null,
-      "city": null,
-      "dob": null,
-      "account_type": 0,
-    };
-    //encode Map to JSON
-    var body = json.encode(data);
+  List post = [];
 
-    var res = await http.post(Uri.parse(url), body: body);
-    var resbody = jsonDecode(res.body);
-    print(resbody);
-    return resbody;
+  addPost() async {
+    var url = "http://10.0.2.2:8090/register";
+
+    var res = await http.post(
+      Uri.parse(url),
+      body: {
+        "email": "$email",
+        "password": "$password",
+        "address": "null",
+        "name": "$name",
+        "SSN": "null",
+        "gender": "true",
+        "city": "null",
+        "dob": "null",
+        "account_type": "patient"
+      },
+    );
+
+    var resBody = jsonDecode(res.body);
+
+    setState(() {
+      post.add(resBody);
+    });
+    post[0]["status"];
+    print(post[0]);
+
+    return resBody;
   }
 
   @override
@@ -73,7 +84,10 @@ class _RegisterState extends State<Register> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
-                            name = value;
+
+                            setState(() {
+                              name = value;
+                            });
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
@@ -110,7 +124,9 @@ class _RegisterState extends State<Register> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
-                            email = value;
+                            setState(() {
+                              email = value;
+                            });
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
@@ -147,7 +163,10 @@ class _RegisterState extends State<Register> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
-                            password = value;
+                            setState(() {
+                              password =
+                                  md5.convert(utf8.encode(value)).toString();
+                            });
                           },
                           obscureText: true,
                           decoration: InputDecoration(
@@ -187,9 +206,43 @@ class _RegisterState extends State<Register> {
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),
                           elevation: 5.0,
                           child: MaterialButton(
-                            onPressed: () {
-                              //Implement login functionality.
-                              addPost();
+                            onPressed: () async {
+                              await addPost();
+
+                              print("asd");
+                              if (post[0]["status"] == 200) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("${post[0]['message']}"),
+                                  ),
+                                );
+                                Future.delayed(
+                                    const Duration(milliseconds: 3000), () {
+                                  setState(() {
+                                    Navigator.of(context).pushNamed("login");
+                                  });
+                                });
+                              } else {
+                                print(email);
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("${post[0]['message']}"),
+                                    content: Text("${post[0]['error']}"),
+                                  ),
+                                );
+                                Future.delayed(
+                                    const Duration(milliseconds: 3000), () {
+                                  setState(() {
+                                    Navigator.of(context).pushNamed("Register");
+                                  });
+                                });
+                                // SimpleDialog(
+                                //   title: Text("${post[0]['title']}"),
+                                // );
+                              }
+                              //    getPost();
                             },
                             minWidth: 100.0,
                             height: 40.0,

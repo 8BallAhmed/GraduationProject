@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class ResetPassword extends StatefulWidget {
   ResetPassword({Key? key}) : super(key: key);
@@ -8,6 +11,33 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
+  var email;
+  var password;
+  var password1;
+  List post = [];
+
+  addPost() async {
+    var url = "http://10.0.2.2:8090/reset-password";
+
+    print("1$email");
+    var res = await http.post(
+      Uri.parse(url),
+      body: {
+        "email": "$email",
+        "oldPwd": "$password",
+        "newPwd": "$password1",
+      },
+    );
+    var resBody = jsonDecode(res.body);
+    setState(() {
+      post.add(resBody);
+    });
+    post[0]["status"];
+    print(post[0]);
+
+    return resBody;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +72,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
+                            setState(() {
+                              email = value;
+                            });
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(
@@ -78,6 +111,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
+                            setState(() {
+                              password =
+                                  md5.convert(utf8.encode(value)).toString();
+                            });
                           },
                           obscureText: true,
                           decoration: InputDecoration(
@@ -115,6 +152,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                         child: TextField(
                           onChanged: (value) {
                             //Do something with the user input.
+                            setState(() {
+                              password1 =
+                                  md5.convert(utf8.encode(value)).toString();
+                            });
                           },
                           obscureText: true,
                           decoration: InputDecoration(
@@ -151,8 +192,44 @@ class _ResetPasswordState extends State<ResetPassword> {
                           borderRadius: BorderRadius.all(Radius.circular(30.0)),
                           elevation: 5.0,
                           child: MaterialButton(
-                            onPressed: () {
+                            onPressed: () async {
                               //Implement login functionality.
+                              await addPost();
+                              if (post[0]["status"] == 200) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("${post[0]['message']}"),
+
+                                    //content: Text("${post[0]['error']}"),
+                                  ),
+                                );
+                                Future.delayed(
+                                    const Duration(milliseconds: 3000), () {
+                                  setState(() {
+                                    Navigator.of(context).pushNamed("login");
+                                  });
+                                });
+                              } else {
+                                print(email);
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("${post[0]['message']}"),
+                                    //content: Text("${post[0]['error']}"),
+                                  ),
+                                );
+                                Future.delayed(
+                                    const Duration(milliseconds: 5000), () {
+                                  setState(() {
+                                    Navigator.of(context)
+                                        .pushNamed("ResetPassword");
+                                  });
+                                });
+                                // SimpleDialog(
+                                //   title: Text("${post[0]['title']}"),
+                                // );
+                              }
                             },
                             minWidth: 100.0,
                             height: 40.0,
