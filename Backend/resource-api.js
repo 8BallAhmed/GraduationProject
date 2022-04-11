@@ -32,12 +32,10 @@ app.get("/patients", authenticateToken, (req, res) => {
   let supervisedPatients = [];
   let patientIDs = [];
   if (accountType != "doctor" && accountType != null) {
-    res.end(
-      JSON.stringify({
-        status: 403,
-        message: "Unauthorized access. Account must be of type: Doctor.",
-      })
-    );
+    res.json({
+      status: 403,
+      message: "Unauthorized access. Account must be of type: Doctor.",
+    })
     return; // Must add return, or second hit on endpoint will look infinitely
   }
   Doctor.findOne({ where: { fk_email: email } }).then((result) => {
@@ -98,12 +96,10 @@ app.get("/patients", authenticateToken, (req, res) => {
                     }
                   })
                   .then(() => {
-                    res.end(
-                      JSON.stringify({
-                        status: 200,
-                        patients: supervisedPatients,
-                      })
-                    );
+                    res.json({
+                      status: 200,
+                      patients: supervisedPatients,
+                    })
                     return;
                   });
               }
@@ -674,10 +670,10 @@ app.get(
         response == 1
           ? ""
           : res.json({
-              status: 403,
-              message:
-                "You cannot view treatments for patients you do not supervise.",
-            })
+            status: 403,
+            message:
+              "You cannot view treatments for patients you do not supervise.",
+          })
       );
     }
     await Treatment.findAll({
@@ -866,7 +862,6 @@ app.get(
           message: "You cannot view appointments which do not belong to you.",
         });
       }
-
       Appointment.findAll({
         where: {
           fk_patient_id: patient_id,
@@ -878,6 +873,7 @@ app.get(
           return res.send({
             status: 404,
             message: "No appointments found on page #" + page,
+            result: response
           });
         } else {
           return res.send({
@@ -928,155 +924,194 @@ app.get(
   }
 );
 
-app.delete("/appointment/:appointment_id", authenticateToken, (req, res) => {
-  const body = req.body;
-  const appointment_id = req.params.appointment_id;
-  if (req.decodedToken.account_type != "doctor") {
-    return res.json({
-      status: 403,
-      message: "This endpoint is only allowed for doctors!",
-    });
-  }
-
-  Appointment.destroy({
-    where: {
-      fk_doctor_id: req.decodedToken.doctor_id,
-      appointment_id: appointment_id,
-    },
-  })
-    .then((result) => {
-      if (result == 1) {
-        return res.json({ status: 200, message: "Item deleted" });
-      } else {
-        return res.json({
-          status: 404,
-          message: "Apppointment could not be found!",
-        });
-      }
-    })
-    .catch((err) => {
-      return res.json({
-        status: 500,
-        message:
-          "An internal server error occured. Please contact an administrator",
-        error: err,
-      });
-    });
-});
-
-app.post(
-  "/appointment/patient/:patient_id",
+app.get(
+  "/appointments/doctor/page/:page",
   authenticateToken,
-  async (req, res) => {
-    const body = req.body;
-    const patient_id = req.params.patient_id;
-    if (req.decodedToken.account_type != "doctor") {
-      return res.json({
-        status: 403,
-        message: "This endpoint is only allowed for doctors!",
-      });
-    }
+  (req, res) => {
 
-    let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
+    const page = req.params.page;
+    const offset = 5;
+    //console.log(fk_doctor_id)
+    const doctor_id = req.decodedToken.doctor_id
 
-    if (errors == undefined) {
-      await Supervision.count({
+    if (req.decodedToken.account_type == "doctor") {
+      Appointment.findAll({
         where: {
-          fk_patient_id: patient_id,
-          fk_doctor_id: req.decodedToken.doctor_id,
+          fk_doctor_id: doctor_id,
         },
-      }).then(async (response) => {
-        if (response == 0) {
-          return res.json({
-            status: 403,
-            message: "You do not supervise this patient!",
-          });
-        } else {
-          await Appointment.create({
-            ...body,
-            fk_patient_id: patient_id,
-            fk_doctor_id: req.decodedToken.doctor_id,
+        include:[{model:Patient, include: [Account]}],
+        limit: 10,
+        //offset: page * 10,
+      }).then((appointments) => {
+        var list = []
+        appointments.forEach(element => {
+          console.log(element)
+          list.push({
+            "appointment_id":element.appointment_id,
+              "visit_time":element.visit_time,
+              "date":element.date,
+              "name":element.patient.account.name,
+              "email":element.patient.fk_email,
+              "diabetes_type":element.patient.patient_id,
+            })
           })
-            .then(() =>
-              res.json({ status: 200, message: "Appointment booked!" })
-            )
-            .catch((err) =>
-              res.json({
-                status: 500,
-                message: "An error occured, please contact an administrator.",
-                error: err,
-              })
-            );
-        }
-      });
-    } else {
-      return res.json({ status: 401, message: "Bad request!", errors: errors });
-    }
-  }
-);
+        return res.json({status:200,message:'success',result:list})
 
-app.patch(
-  "/appointment/patient/:patient_id/appointment/:appointment_id",
-  authenticateToken,
-  async (req, res) => {
-    const body = req.body;
-    const patient_id = req.params.patient_id;
-    const appointment_id = req.params.appointment_id;
-    if (req.decodedToken.account_type != "doctor") {
-      return res.json({
-        status: 403,
-        message: "This endpoint is only allowed for doctors!",
       });
     }
+  });
 
-    let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
 
-    if (errors == undefined) {
-      await Supervision.count({
-        where: {
-          fk_patient_id: patient_id,
-          fk_doctor_id: req.decodedToken.doctor_id,
-        },
-      }).then(async (response) => {
-        if (response == 0) {
+      app.delete("/appointment/:appointment_id", authenticateToken, (req, res) => {
+        const body = req.body;
+        const appointment_id = req.params.appointment_id;
+        if (req.decodedToken.account_type != "doctor") {
           return res.json({
             status: 403,
-            message: "You do not supervise this patient!",
+            message: "This endpoint is only allowed for doctors!",
           });
-        } else {
-          await Appointment.update(
-            {
-              ...body,
-            },
-            {
+        }
+
+        Appointment.destroy({
+          where: {
+            fk_doctor_id: req.decodedToken.doctor_id,
+            appointment_id: appointment_id,
+          },
+        })
+          .then((result) => {
+            if (result == 1) {
+              return res.json({ status: 200, message: "Item deleted" });
+            } else {
+              return res.json({
+                status: 404,
+                message: "Apppointment could not be found!",
+              });
+            }
+          })
+          .catch((err) => {
+            return res.json({
+              status: 500,
+              message:
+                "An internal server error occured. Please contact an administrator",
+              error: err,
+            });
+          });
+      });
+
+      app.post(
+        "/appointment/patient/:patient_id",
+        authenticateToken,
+        async (req, res) => {
+          const body = req.body;
+          const patient_id = req.params.patient_id;
+          if (req.decodedToken.account_type != "doctor") {
+            return res.json({
+              status: 403,
+              message: "This endpoint is only allowed for doctors!",
+            });
+          }
+
+          let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
+
+          if (errors == undefined) {
+            await Supervision.count({
               where: {
                 fk_patient_id: patient_id,
                 fk_doctor_id: req.decodedToken.doctor_id,
-                appointment_id: appointment_id,
               },
-            }
-          )
-            .then((result) => {
-              if (result == 0) {
+            }).then(async (response) => {
+              if (response == 0) {
                 return res.json({
-                  status: 404,
-                  message:
-                    "No appointment exists with this id! Update aborted.",
+                  status: 403,
+                  message: "You do not supervise this patient!",
                 });
+              } else {
+                await Appointment.create({
+                  ...body,
+                  fk_patient_id: patient_id,
+                  fk_doctor_id: req.decodedToken.doctor_id,
+                })
+                  .then(() =>
+                    res.json({ status: 200, message: "Appointment booked!" })
+                  )
+                  .catch((err) =>
+                    res.json({
+                      status: 500,
+                      message: "An error occured, please contact an administrator.",
+                      error: err,
+                    })
+                  );
               }
-              res.json({ status: 200, message: "Appointment updated!" });
-            })
-            .catch((err) =>
-              res.json({
-                status: 500,
-                message: "An error occured, please contact an administrator.",
-                error: err,
-              })
-            );
+            });
+          } else {
+            return res.json({ status: 401, message: "Bad request!", errors: errors });
+          }
         }
-      });
-    } else {
-      return res.json({ status: 401, message: "Bad request!", errors: errors });
-    }
-  }
-);
+      );
+
+
+
+      app.patch(
+        "/appointment/patient/:patient_id/appointment/:appointment_id",
+        authenticateToken,
+        async (req, res) => {
+          const body = req.body;
+          const patient_id = req.params.patient_id;
+          const appointment_id = req.params.appointment_id;
+          if (req.decodedToken.account_type != "doctor") {
+            return res.json({
+              status: 403,
+              message: "This endpoint is only allowed for doctors!",
+            });
+          }
+
+          let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
+
+          if (errors == undefined) {
+            await Supervision.count({
+              where: {
+                fk_patient_id: patient_id,
+                fk_doctor_id: req.decodedToken.doctor_id,
+              },
+            }).then(async (response) => {
+              if (response == 0) {
+                return res.json({
+                  status: 403,
+                  message: "You do not supervise this patient!",
+                });
+              } else {
+                await Appointment.update(
+                  {
+                    ...body,
+                  },
+                  {
+                    where: {
+                      fk_patient_id: patient_id,
+                      fk_doctor_id: req.decodedToken.doctor_id,
+                      appointment_id: appointment_id,
+                    },
+                  }
+                )
+                  .then((result) => {
+                    if (result == 0) {
+                      return res.json({
+                        status: 404,
+                        message:
+                          "No appointment exists with this id! Update aborted.",
+                      });
+                    }
+                    res.json({ status: 200, message: "Appointment updated!" });
+                  })
+                  .catch((err) =>
+                    res.json({
+                      status: 500,
+                      message: "An error occured, please contact an administrator.",
+                      error: err,
+                    })
+                  );
+              }
+            });
+          } else {
+            return res.json({ status: 401, message: "Bad request!", errors: errors });
+          }
+        });
