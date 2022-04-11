@@ -85,8 +85,8 @@
                     
                     //token is stored in localstoarge
                     const token = res.token
-                    await localStorage.setItem('token',res.token)
-                    console.log(res.token)
+                    await localStorage.setItem('token','Bearer '+res.token)
+                    alert(res.token)
                     setTimeout(window.location.assign("Appointments.html"),2000)
                     
                 },
