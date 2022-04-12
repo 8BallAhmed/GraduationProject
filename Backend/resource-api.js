@@ -135,6 +135,30 @@ app.get("/patients/:patientId", authenticateToken, (req, res) => {
   });
 });
 
+// an endpoint to look after a patient by his id
+app.get("/patient/profile", authenticateToken, (req, res) => {
+  // Middleware function "authenticateToken" is passed to endpoint
+  let accountType = req.decodedToken.account_type;
+  if (accountType != "patient" && accountType != null) {
+    res.end(
+      JSON.stringify({
+        status: 403,
+        message: "Unauthorized access. Account must be of type: Doctor.",
+      })
+    );
+    return;
+  }
+  let PatientId = req.decodedToken.patient_id;
+  Patient.findByPk(PatientId,{include:Account}).then((result) => {
+    console.log(result);
+    res.json({
+      status: 200,
+      message: "Query successful",
+      patient: result,
+    });
+  });
+});
+
 app.get("/doctors", (req, res) => {
   const header = req.header;
   if (header == undefined) {
