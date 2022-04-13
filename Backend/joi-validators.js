@@ -47,7 +47,7 @@ const glucoseSchema = joi.object({
   activity: joi.string(),
   meal: joi.string(),
   time_interval: joi.string(),
-  time: joi.number().required(), // The timing of the glucose reading is required
+  time: joi.date().required(), // The timing of the glucose reading is required
 });
 
 const foodSchema = joi.object({
