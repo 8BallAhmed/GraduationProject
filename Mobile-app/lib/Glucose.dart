@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'constants.dart';
 
 class Glucose extends StatefulWidget {
   Glucose({Key? key}) : super(key: key);
@@ -36,154 +37,181 @@ class _GlucoseState extends State<Glucose> {
           child: Container(
               margin: EdgeInsets.fromLTRB(15, 0, 15, 15),
               width: double.infinity,
-              child: Column(
+              child: ListView(
                 children: [
                   Container(
                     margin: EdgeInsets.fromLTRB(20, 0, 0, 35),
                     alignment: Alignment.centerLeft,
                   ),
-                  Flexible(
-                    flex: 1,
-                    fit: FlexFit.loose,
-                    child: Container(
-                      width: 380,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Color(0xFF101E73).withOpacity(0.08),
-                              spreadRadius: 5,
-                              blurRadius: 6,
-                              offset: Offset(1.0, 2.0))
-                        ],
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF4C75D4),
-                      ),
-                      child: Container(
-                        width: double.infinity,
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        fit: FlexFit.loose,
+                        child: Container(
+                          width: 380,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color(0xFF101E73).withOpacity(0.08),
+                                  spreadRadius: 5,
+                                  blurRadius: 6,
+                                  offset: Offset(1.0, 2.0))
+                            ],
+                            borderRadius: BorderRadius.circular(10),
+                            color: Color(0xFF4C75D4),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            child: Column(
                               children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text("$avgS mg/dL",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white)),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text("Avg",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white)),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text("$max mg/dL",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white)),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text("Max",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white))
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text("$min mg/dL",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white)),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text("Min",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white))
+                                      ],
+                                    ),
+                                  ],
+                                ),
                                 SizedBox(
-                                  height: 30,
+                                  height: 20,
+                                ),
+                                Text("est. A1C: $A1C%",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.white)),
+                                SizedBox(
+                                  height: 20,
                                 ),
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text("106.4 mg/dL",
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.white)),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text("Avg",
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.white)),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text("136.0 mg/dL",
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.white)),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text("Max",
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.white))
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text("66.0 mg/dL",
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.white)),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text("Min",
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.white))
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text("est. A1C: 5.34%",
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white)),
-                            SizedBox(
-                              height: 20,
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                   SizedBox(
                     height: 10,
                   ),
-                  Flexible(
-                    flex: 1,
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 0),
-                      height: 70,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Color(0xFF101E73).withOpacity(0.08),
-                              spreadRadius: 5,
-                              blurRadius: 6,
-                              offset: Offset(1.0, 2.0))
-                        ],
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                      ),
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(15, 15, 0, 0),
-                        alignment: Alignment.centerLeft,
-                        child: Column(
+                  ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: glucose_test.length,
+                      itemBuilder: ((context, index) {
+                        return Column(
                           children: [
                             Row(
                               children: [
-                                Image.asset("images/Blood.png",
-                                    height: 40, width: 40),
-                                SizedBox(
-                                  width: 10,
+                                Flexible(
+                                  flex: 1,
+                                  child: Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 0),
+                                    height: 70,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.white,
+                                    ),
+                                    child: Container(
+                                      margin: EdgeInsets.fromLTRB(15, 15, 0, 0),
+                                      alignment: Alignment.centerLeft,
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Image.asset("images/Blood.png",
+                                                  height: 40, width: 40),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                "${glucose_test[index]["glucose_level"]}",
+                                                style: TextStyle(fontSize: 18),
+                                              ),
+                                              SizedBox(
+                                                width: 170,
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text(
+                                                      "${glucose_test[index]["time"]}"
+                                                          .substring(0, 10)),
+                                                  Text(
+                                                    "${glucose_test[index]["time_interval"]}" ==
+                                                            "null"
+                                                        ? ""
+                                                        : "${glucose_test[index]["time_interval"]}",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                Text(
-                                  "120 mg/dL",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                SizedBox(
-                                  width: 120,
-                                ),
-                                Column(
-                                  children: [
-                                    Text("Mon, Dec 31"),
-                                    Text(
-                                      "After Snack",
-                                      style: TextStyle(
-                                          fontSize: 12, color: Colors.grey),
-                                    )
-                                  ],
-                                )
                               ],
                             ),
+                            SizedBox(
+                              height: 15,
+                            ),
                           ],
-                        ),
-                      ),
-                    ),
-                  ),
+                        );
+                      })),
                 ],
               )),
         ),
