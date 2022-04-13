@@ -84,20 +84,15 @@ class _ExerciseState extends State<Exercise> {
                                   height: 10,
                                 ),
                                 Text("423", style: TextStyle(fontSize: 24)),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text("Steps", style: TextStyle(fontSize: 24)),
-                                Text("3,750", style: TextStyle(fontSize: 24))
                               ],
                             ),
                             Column(
                               children: [
-                                Text("BPM", style: TextStyle(fontSize: 24)),
+                                Text("Steps", style: TextStyle(fontSize: 24)),
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Text("94", style: TextStyle(fontSize: 24))
+                                Text("3,750", style: TextStyle(fontSize: 24))
                               ],
                             ),
                           ],
@@ -107,17 +102,6 @@ class _ExerciseState extends State<Exercise> {
                   ),
                 ),
               ),
-
-/////////
-              SizedBox(
-                height: 15,
-              ),
-
-              ///
-              ///
-              ///
-              ///
-
               SizedBox(
                 height: 15,
               ),

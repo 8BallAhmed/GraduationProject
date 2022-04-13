@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'constants.dart';
 
 class BloodGlucose extends StatefulWidget {
   BloodGlucose({Key? key}) : super(key: key);
@@ -93,7 +94,8 @@ class _BloodGlucoseState extends State<BloodGlucose> {
                               SizedBox(
                                 height: 20,
                               ),
-                              Text("123 mg/dL", style: TextStyle(fontSize: 30))
+                              Text("$avgS mg/dL",
+                                  style: TextStyle(fontSize: 30))
                             ],
                           ),
                         ),
@@ -129,7 +131,7 @@ class _BloodGlucoseState extends State<BloodGlucose> {
                               SizedBox(
                                 height: 20,
                               ),
-                              Text("5.3%", style: TextStyle(fontSize: 30))
+                              Text("$A1C%", style: TextStyle(fontSize: 30))
                             ],
                           ),
                         ),
@@ -191,7 +193,8 @@ class _BloodGlucoseState extends State<BloodGlucose> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Text("102 KG", style: TextStyle(fontSize: 27))
+                                Text("$weight KG",
+                                    style: TextStyle(fontSize: 27))
                               ],
                             ),
                             Column(
@@ -200,7 +203,8 @@ class _BloodGlucoseState extends State<BloodGlucose> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Text("182cm", style: TextStyle(fontSize: 27))
+                                Text("$height cm",
+                                    style: TextStyle(fontSize: 27))
                               ],
                             ),
                             Column(
@@ -209,7 +213,7 @@ class _BloodGlucoseState extends State<BloodGlucose> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                Text("31.7", style: TextStyle(fontSize: 27))
+                                Text("$bmi", style: TextStyle(fontSize: 27))
                               ],
                             ),
                           ],
