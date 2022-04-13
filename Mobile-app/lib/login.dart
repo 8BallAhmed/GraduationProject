@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'constants.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class login extends StatefulWidget {
   login({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _loginState extends State<login> {
   var password;
   List post = [];
   addPost() async {
-    var url = "http://10.0.2.2:8090/login";
+    var url = "http://10.0.2.2:8000/login";
 
     var res = await http.post(
       Uri.parse(url),
@@ -31,6 +32,56 @@ class _loginState extends State<login> {
     setState(() {
       post.add(resBody);
     });
+
+ 
+  }
+
+  getglucosedata() async {
+    var url = "http://10.0.2.2:8000/glucose/patient/$patientid/page/1";
+
+    var res = await http.get(Uri.parse(url), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+
+    setState(() {
+      glucose_test.addAll(resBody["glucose_data"]);
+    });
+   
+    if (glucose_test == null || glucose_test.isEmpty) {
+    } else {
+     
+      max = glucose_test[0]["glucose_level"];
+      for (var i = 0; i < glucose_test.length; i++) {
+        if (max < glucose_test[i]["glucose_level"]) {
+          setState(() {
+            max = glucose_test[i]["glucose_level"];
+          });
+        }
+      }
+      min = glucose_test[0]["glucose_level"];
+      for (var i = 0; i < glucose_test.length; i++) {
+        if (min > glucose_test[i]["glucose_level"]) {
+          setState(() {
+            min = glucose_test[i]["glucose_level"];
+          });
+        }
+      }
+
+      for (var i = 0; i < glucose_test.length; i++) {
+        setState(() {
+          int test = glucose_test[i]["glucose_level"];
+          avg = avg + test;
+        });
+      }
+      setState(() {
+        avg = avg / glucose_test.length;
+        avgS = 0;
+        avgS = avg.toInt();
+      });
+    }
   }
 
   @override
@@ -165,13 +216,27 @@ class _loginState extends State<login> {
                           child: MaterialButton(
                             onPressed: () async {
                               //Implement login functionality.
-                              print(email);
-                              print(password);
+
                               await addPost();
                               if (post[0]["status"] == 200) {
-                                Navigator.of(context).pushNamed("Home");
+                                token = post[0]["token"];
+                                tokendec.add(Jwt.parseJwt(token));
+                                patientid = tokendec[0]["patient_id"];
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("${post[0]['message']}"),
+                                  ),
+                                );
+                                getglucosedata();
+                                Future.delayed(
+                                    const Duration(milliseconds: 1000), () {
+                                  setState(() {
+                                    Navigator.of(context).pushNamed("Home");
+                                  });
+                                });
                               } else {
-                                print(email);
+                               
                                 showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
