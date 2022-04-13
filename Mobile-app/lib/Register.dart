@@ -19,7 +19,7 @@ class _RegisterState extends State<Register> {
   List post = [];
 
   addPost() async {
-    var url = "http://10.0.2.2:8090/register";
+    var url = "http://10.0.2.2:8000/register";
 
     var res = await http.post(
       Uri.parse(url),
@@ -41,8 +41,6 @@ class _RegisterState extends State<Register> {
     setState(() {
       post.add(resBody);
     });
-    post[0]["status"];
-    print(post[0]);
 
     return resBody;
   }
@@ -209,7 +207,6 @@ class _RegisterState extends State<Register> {
                             onPressed: () async {
                               await addPost();
 
-                              print("asd");
                               if (post[0]["status"] == 200) {
                                 showDialog(
                                   context: context,
@@ -224,7 +221,6 @@ class _RegisterState extends State<Register> {
                                   });
                                 });
                               } else {
-                                print(email);
                                 showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
@@ -238,11 +234,7 @@ class _RegisterState extends State<Register> {
                                     Navigator.of(context).pushNamed("Register");
                                   });
                                 });
-                                // SimpleDialog(
-                                //   title: Text("${post[0]['title']}"),
-                                // );
                               }
-                              //    getPost();
                             },
                             minWidth: 100.0,
                             height: 40.0,

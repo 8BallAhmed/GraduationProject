@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'constants.dart';
 
 class RecordForGlucose extends StatefulWidget {
   RecordForGlucose({Key? key}) : super(key: key);
@@ -9,10 +12,15 @@ class RecordForGlucose extends StatefulWidget {
 }
 
 class _RecordForGlucoseState extends State<RecordForGlucose> {
-  DateTime dateTime = DateTime(2021);
+  DateTime dateTime = DateTime.now();
   String? selectedValue;
   String? now = "Now";
   double nowint = 140;
+
+  var glucose_level;
+  var time_interval;
+  var time = 20000000;
+
   List<String> items = [
     'Fasting',
     'Before Breakfast',
@@ -30,6 +38,76 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
     'Two Hour After Meal',
     'Other',
   ];
+
+
+  addPost() async {
+    var url = "http://10.0.2.2:8000/glucose";
+
+    var res = await http.post(Uri.parse(url), body: {
+      "glucose_level": "$glucose_level",
+      "time_interval": "$time_interval",
+      "time": "${dateTime.year}-${dateTime.month}-${dateTime.day}"
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+
+    setState(() {
+      glucose_con.add(resBody);
+    });
+  }
+
+  getglucosedata() async {
+    var url = "http://10.0.2.2:8000/glucose/patient/$patientid/page/1";
+
+    var res = await http.get(Uri.parse(url), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+
+    setState(() {
+      glucose_test.clear();
+      glucose_test.addAll(resBody["glucose_data"]);
+    });
+
+    if (glucose_test.isNotEmpty) {
+      max = glucose_test[0]["glucose_level"];
+      for (var i = 0; i < glucose_test.length; i++) {
+        if (max < glucose_test[i]["glucose_level"]) {
+          setState(() {
+            max = glucose_test[i]["glucose_level"];
+          });
+        }
+      }
+      min = glucose_test[0]["glucose_level"];
+      for (var i = 0; i < glucose_test.length; i++) {
+        if (min > glucose_test[i]["glucose_level"]) {
+          setState(() {
+            min = glucose_test[i]["glucose_level"];
+          });
+        }
+      }
+      setState(() {
+        avg = 0;
+        avgS = 0;
+      });
+
+      for (var i = 0; i < glucose_test.length; i++) {
+        setState(() {
+          int test = glucose_test[i]["glucose_level"];
+          avg = avg + test;
+        });
+      }
+
+      avg = avg / glucose_test.length;
+      avgS = avg.toInt();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +135,11 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
                       alignment: Alignment.centerLeft,
                     ),
                     TextFormField(
+                      onChanged: (value) {
+                        setState(() {
+                          glucose_level = value;
+                        });
+                      },
                       cursorColor: Color(0xFF4C75D4),
                       keyboardType: TextInputType.number,
                       style: TextStyle(fontSize: 20),
@@ -148,6 +231,11 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
                           items: items
                               .map((item) => DropdownMenuItem<String>(
                                     value: item,
+                                    onTap: () {
+                                      setState(() {
+                                        time_interval = item;
+                                      });
+                                    },
                                     child: Row(
                                       children: [
                                         Image.asset("images/Time.png",
@@ -284,8 +372,41 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
                       height: 60,
                     ),
                     InkWell(
-                      onTap: () {
-                        Navigator.of(context).pushNamed("Glucose");
+                      onTap: () async {
+                        await addPost();
+
+                        if (glucose_con[0]["status"] == 200) {
+                          await getglucosedata();
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("${glucose_con[0]['message']}"),
+                            ),
+                          );
+                          Future.delayed(const Duration(milliseconds: 3000),
+                              () {
+                            setState(() {
+                              glucose_con.clear();
+                              Navigator.of(context).pushNamed("Glucose");
+                            });
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("Glucose Require"),
+                            ),
+                          );
+                          Future.delayed(const Duration(milliseconds: 3000),
+                              () {
+                            setState(() {
+                              glucose_con.clear();
+                              Navigator.of(context)
+                                  .pushNamed("RecordForGlucose");
+                            });
+                          });
+                        }
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 20),

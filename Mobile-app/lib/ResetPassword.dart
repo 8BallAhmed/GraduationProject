@@ -17,9 +17,9 @@ class _ResetPasswordState extends State<ResetPassword> {
   List post = [];
 
   addPost() async {
-    var url = "http://10.0.2.2:8090/reset-password";
+    var url = "http://10.0.2.2:8000/reset-password";
 
-    print("1$email");
+   
     var res = await http.post(
       Uri.parse(url),
       body: {
@@ -32,8 +32,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     setState(() {
       post.add(resBody);
     });
-    post[0]["status"];
-    print(post[0]);
+   
 
     return resBody;
   }
@@ -211,7 +210,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   });
                                 });
                               } else {
-                                print(email);
+                                
                                 showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
