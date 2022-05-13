@@ -241,7 +241,7 @@ app.post("/glucose", authenticateToken, (req, res) => {
     return;
   }
   if (errors == undefined) {
-    let account = Patient.findOne({ fk_email: email }).then((result) => {
+    let account = Patient.findOne({ where: {fk_email: email} }).then((result) => {
       if (result == null) {
         res.end(
           JSON.stringify({
