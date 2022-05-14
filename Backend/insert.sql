@@ -53,3 +53,7 @@ insert into activity values(9,500,'01:30','weight lifting','2022-02-16 09:10',3)
 insert into supervision values(1,'need to exercise more',1,1);
 insert into supervision values(2,'need to eat healthy food',2,1);
 insert into supervision values(3,'need to walk 30 minutes a day',3,1);
+
+insert into treatment values(1,'glucophage',null,'2 pills',500,null,'1','1');
+insert into treatment values(2,'insuline injection',null,'after launch',1000,null,'1','1');
+insert into treatment values(3,'espereiene',null,'after meal',2.5,null,'1','1')
