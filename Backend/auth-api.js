@@ -326,7 +326,7 @@ function authenticateToken(req, res, next) {
 function generateAccessToken(data) {
   console.log(`JWT ID: ${data.id}`);
   // Generates a JWT Token with a payload. Signs using SECRET in .env file
-  return jwt.sign(data, JWTSECRET, { expiresIn: "24h" });
+  return jwt.sign(data, JWTSECRET, { expiresIn: "168h" });
 }
 
 module.exports.authenticateToken = authenticateToken;
