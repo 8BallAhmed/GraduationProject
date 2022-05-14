@@ -12,6 +12,7 @@ const Account = model.Account;
 const Supervision = model.Supervision;
 const Treatment = model.Treatment;
 const Food = model.Food;
+const axios = require("axios")
 const glucoseSchema = require("./joi-validators").glucoseSchema;
 const treatmentSchema = require("./joi-validators").treatmentSchema;
 const appointmentSchema = require("./joi-validators").appointmentSchema;
@@ -32,7 +33,7 @@ app.get("/patients", authenticateToken, (req, res) => {
   let supervisedPatients = [];
   let patientIDs = [];
   if (accountType != "doctor" && accountType != null) {
-    res.json({
+    res.status(403).end({
       status: 403,
       message: "Unauthorized access. Account must be of type: Doctor.",
     })
@@ -40,7 +41,7 @@ app.get("/patients", authenticateToken, (req, res) => {
   }
   Doctor.findOne({ where: { fk_email: email } }).then((result) => {
     if (result == null) {
-      res.end(
+      res.status(404).end(
         JSON.stringify({
           status: 404,
           message: "Doctor for patients not found.",
@@ -55,7 +56,7 @@ app.get("/patients", authenticateToken, (req, res) => {
         },
       }).then((result) => {
         if (result == null) {
-          res.end(
+          res.status(404).end(
             JSON.stringify({
               status: 404,
               message: "This Doctor does not treat any patients currently.",
@@ -69,7 +70,7 @@ app.get("/patients", authenticateToken, (req, res) => {
           patientIDs.map((ID) => {
             Patient.findByPk(ID).then((result) => {
               if (result == undefined) {
-                res.end(
+                res.status(500).end(
                   JSON.stringify({
                     status: 500,
                     message:
@@ -81,13 +82,14 @@ app.get("/patients", authenticateToken, (req, res) => {
                 Account.findByPk(result.dataValues.fk_email)
                   .then((accountResult) => {
                     if (accountResult == undefined) {
-                      res.end(
+                      res.status(500).end(
                         JSON.stringify({
                           status: 500,
                           message:
                             "An account for this patient was not found. Please contact an administrator or file a bug report.",
                         })
                       );
+                      return;
                     } else {
                       supervisedPatients.push({
                         name: accountResult.dataValues.name,
@@ -95,11 +97,11 @@ app.get("/patients", authenticateToken, (req, res) => {
                       });
                     }
                   })
-                  .then(() => {
-                    res.json({
+                  .then(() => {  
+                    res.end(JSON.stringify({
                       status: 200,
                       patients: supervisedPatients,
-                    })
+                    }))
                     return;
                   });
               }
@@ -116,7 +118,7 @@ app.get("/patients/:patientId", authenticateToken, (req, res) => {
   // Middleware function "authenticateToken" is passed to endpoint
   let accountType = req.decodedToken.account_type;
   if (accountType != "doctor" && accountType != null) {
-    res.end(
+    res.status(403).end(
       JSON.stringify({
         status: 403,
         message: "Unauthorized access. Account must be of type: Doctor.",
@@ -127,11 +129,11 @@ app.get("/patients/:patientId", authenticateToken, (req, res) => {
   let PatientId = req.params.patientId;
   Patient.findByPk(PatientId).then((result) => {
     console.log(result);
-    res.json({
+    res.end(JSON.stringify({
       status: 200,
       message: "Query successful",
       patient: result,
-    });
+    }));
   });
 });
 
@@ -140,7 +142,7 @@ app.get("/patient/profile", authenticateToken, (req, res) => {
   // Middleware function "authenticateToken" is passed to endpoint
   let accountType = req.decodedToken.account_type;
   if (accountType != "patient" && accountType != null) {
-    res.end(
+    res.status(403).end(
       JSON.stringify({
         status: 403,
         message: "Unauthorized access. Account must be of type: Doctor.",
@@ -151,31 +153,32 @@ app.get("/patient/profile", authenticateToken, (req, res) => {
   let PatientId = req.decodedToken.patient_id;
   Patient.findByPk(PatientId,{include:Account}).then((result) => {
     console.log(result);
-    res.json({
+    res.end(JSON.stringify({
       status: 200,
       message: "Query successful",
       patient: result,
-    });
+    }));
   });
 });
 
 app.get("/doctors", (req, res) => {
   const header = req.header;
   if (header == undefined) {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Authentication Header not specified!",
       })
     );
+    return;
   } else {
     Doctor.findAll().then((result) => {
       console.log(result);
-      res.json({
+      res.end(JSON.stringify({
         status: 200,
         message: "Query Successed",
         doctors: result,
-      });
+      }));
     });
   }
 });
@@ -183,21 +186,23 @@ app.get("/doctors", (req, res) => {
 app.get("/doctors/:doctorID", (req, res) => {
   const header = req.header;
   if (header == undefined) {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Authentication Header not specified!",
       })
     );
+    return;
   } else {
     let DoctorID = req.params.doctorID;
     Doctor.findByPk(DoctorID).then((result) => {
-      res.json({
+     return res.json({
         status: 200,
         message: "Query Succeed",
         doctor: result,
       });
     });
+    return;
   }
 });
 
@@ -205,16 +210,17 @@ app.get("/doctors/:doctorID", (req, res) => {
 app.get("/activity/:patient_id", authenticateToken, (req, res) => {
   const header = req.header;
   if (header == undefined) {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Authentication Header not specified",
       })
     );
+    return;
   } else {
     let PatientId = req.body.patient_id;
     Activitie.findByPk(PatientId).then((result) => {
-      res.json({
+      return res.json({
         status: 200,
         message: "success",
         activities: result,
@@ -232,7 +238,7 @@ app.post("/glucose", authenticateToken, (req, res) => {
   let account_type = req.decodedToken.account_type;
   let email = req.decodedToken.email;
   if (account_type != "patient") {
-    res.end(
+    res.status(403).end(
       JSON.stringify({
         status: 403,
         message: "Incorrect account type, only patient allowed.",
@@ -243,12 +249,13 @@ app.post("/glucose", authenticateToken, (req, res) => {
   if (errors == undefined) {
     let account = Patient.findOne({ where: {fk_email: email} }).then((result) => {
       if (result == null) {
-        res.end(
+        res.status(404).end(
           JSON.stringify({
             status: 404,
             message: "User not found! Blood Glucose not added.",
           })
         );
+        return;
       } else {
         let patient_id = result.dataValues.patient_id;
         console.log(`RESULT PATIENT ID: ${result.dataValues.patient_id}`);
@@ -257,9 +264,10 @@ app.post("/glucose", authenticateToken, (req, res) => {
             res.end(
               JSON.stringify({ status: 200, message: "Glucose reading added." })
             );
+            return;
           })
           .catch((err) => {
-            res.end(
+            res.status(401).end(
               JSON.stringify({
                 status: 401,
                 message: "Could not create Glucose Reading!",
@@ -268,15 +276,17 @@ app.post("/glucose", authenticateToken, (req, res) => {
             );
           });
       }
+      return;
     });
   } else {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Bad request!",
         errors: errors.message,
       })
     );
+    return;
   }
 });
 
@@ -301,14 +311,16 @@ app.get(
             glucose_data: result,
           })
         );
+        return;
       })
       .catch((err) => {
-        res.end(
+        res.status(403).end(
           JSON.stringify({
             status: 403,
             message: "Could not return glucose readings for patient.",
           })
         );
+        return;
       });
   }
 );
@@ -328,12 +340,13 @@ app.delete(
       .then((result) => {
         console.log(`RESULT: ${result}`);
         if (result == 0) {
-          res.end(
+          res.status(404).end(
             JSON.stringify({
               status: 404,
               message: "Reading not found for patient ID " + patient_id,
             })
           );
+          return;
         } else {
           res.end(
             JSON.stringify({
@@ -341,17 +354,19 @@ app.delete(
               message: `Deleted Glucose Reading ID ${test_id} for Patient with ID ${patient_id}`,
             })
           );
+          return;
         }
       })
       .catch((err) => {
         console.log(`ERR: ${err}`);
-        res.end(
+        res.status(403).end(
           JSON.stringify({
             status: 403,
             message: "Could not delete glucose reading for patient.",
             error: err,
           })
         );
+        return;
       });
   }
 );
@@ -366,7 +381,7 @@ app.patch(
     let patient_id = req.params.patient_id;
     let test_id = req.params.test_id;
     if (account_type != "patient") {
-      res.end(
+      res.status(403).end(
         JSON.stringify({
           status: 403,
           message: "Incorrect account type, only patient allowed.",
@@ -383,15 +398,17 @@ app.patch(
         },
       }).then((result) => {
         if (result == null) {
-          res.end(
+          res.status(404).end(
             JSON.stringify({ status: 404, message: "Reading not found" })
           );
+          return;
         } else {
           result.set(body);
           result.save().then(() => {
             res.end(
               JSON.stringify({ status: 200, message: "Reading updated." })
             );
+            return;
           });
         }
       });
@@ -407,7 +424,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const account_type = req.decodedToken.account_type;
 
   if (account_type != "doctor") {
-    res.json({
+    return res.json({
       status: 403,
       message: "This endpoint is to be used by Doctors only.",
     });
@@ -417,7 +434,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
     Patient.count({ where: { patient_id: patient_id } })
       .then((result) => {
         if (result <= 0) {
-          res.json({
+          return res.json({
             status: 404,
             message: "The specified patient does not exist.",
           });
@@ -430,7 +447,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
           },
         }).then((result) => {
           if (result <= 0) {
-            res.json({
+            return res.json({
               status: 404,
               message: "The specified doctor does not exist.",
             });
@@ -439,7 +456,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
               fk_patient_id: patient_id,
               fk_doctor_id: doctor_id,
             }).then(() => {
-              res.json({
+              return res.json({
                 status: 200,
                 message: `Patient #${patient_id} paired with Doctor #${doctor_id}`,
               });
@@ -456,7 +473,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const account_type = req.decodedToken.account_type;
 
   if (account_type != "doctor") {
-    res.json({
+    return res.json({
       status: 403,
       message: "This endpoint is to be used by Doctors only.",
     });
@@ -466,7 +483,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
     Patient.count({ where: { patient_id: patient_id } })
       .then((result) => {
         if (result <= 0) {
-          res.json({
+          return res.json({
             status: 404,
             message: "The specified patient does not exist.",
           });
@@ -479,14 +496,14 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
           },
         }).then((result) => {
           if (result <= 0) {
-            res.json({
+            return res.json({
               status: 404,
               message: "The specified doctor does not exist.",
             });
           } else {
             Supervision.destroy({ where: { patient_id: patient_id } }).then(
               () => {
-                res.json({
+                return res.json({
                   status: 200,
                   message: `Patient #${patient_id} unpaired with Doctor #${doctor_id}`,
                 });
@@ -516,7 +533,7 @@ app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
     })
     .then((response) => {
       if (response.data.common.length == 0) {
-        res.json({ status: 404, message: "No foods found with that name." });
+        return res.json({ status: 404, message: "No foods found with that name." });
       }
       for (i = offset * page; i < offset * page + 5; i++) {
         food_names.push({
@@ -527,7 +544,7 @@ app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
     })
     .then(() => res.json({ search_result: food_names }))
     .catch((err) => {
-      res.json({
+      return res.json({
         status: 500,
         message: "An unexpected error occured. Please contact an administrator",
       });
@@ -549,7 +566,7 @@ app.get("/food/:food_name/nutrients", authenticateToken, (req, res) => {
       }
     )
     .then((response) => {
-      res.json({
+      return res.json({
         status: 200,
         food_name: response.data.foods[0].food_name,
         serving_quantity: response.data.foods[0].serving_qty,
@@ -563,7 +580,7 @@ app.get("/food/:food_name/nutrients", authenticateToken, (req, res) => {
       return;
     })
     .catch((err) => {
-      res.json({ status: 404, message: "Food item not found." });
+      return res.json({ status: 404, message: "Food item not found." });
     });
 });
 
@@ -573,7 +590,7 @@ app.post("/food", authenticateToken, (req, res) => {
   const errors = foodSchema.validate(body, { abortEarly: false }).error;
   let account_type = req.decodedToken.account_type;
   if (account_type != "patient") {
-    res.json({
+    return res.json({
       status: 403,
       message: "This endpoint is only allowed for patients",
     });
@@ -586,7 +603,7 @@ app.post("/food", authenticateToken, (req, res) => {
     patient_id: patient_id,
     food_item: JSON.stringify({ ...body, date: Date.now() }),
   }).then(() => {
-    res.json({ status: 200, message: "Food item successfully added." });
+    return res.json({ status: 200, message: "Food item successfully added." });
     return;
   });
 });
@@ -608,14 +625,14 @@ app.get("/food/page/:page", authenticateToken, (req, res) => {
     })
     .then(() => {
       if (food.length == 0) {
-        res.json({ status: 404, message: "No more food items found." });
+        return res.json({ status: 404, message: "No more food items found." });
         return;
       }
-      res.json({ status: 200, message: "Food fetched", food: food });
+      return res.json({ status: 200, message: "Food fetched", food: food });
       return;
     })
     .catch((err) => {
-      res.json({
+      return res.json({
         status: 500,
         message: "An error has occured. Please contact an administrator.",
       });
@@ -632,13 +649,13 @@ app.delete("/food/:food_id", authenticateToken, (req, res) => {
   })
     .then((result) => {
       if (result == 1) {
-        res.json({ status: 200, message: "Food item deleted" });
+        return res.json({ status: 200, message: "Food item deleted" });
       } else {
-        res.json({ status: 404, message: "Food item not found." });
+        return res.json({ status: 404, message: "Food item not found." });
       }
     })
     .catch((err) => {
-      res.json({
+      return res.json({
         status: 500,
         message: "An error has occured, please contact an administrator.",
       });
@@ -650,9 +667,9 @@ app.get("/food/:food_id", authenticateToken, (req, res) => {
   Food.findByPk(food_id)
     .then((result) => {
       if (result == undefined) {
-        res.json({ status: 404, message: "Food item not found" });
+        return res.json({ status: 404, message: "Food item not found" });
       } else {
-        res.json({
+        return res.json({
           status: 200,
           message: "Food item found.",
           ...result.dataValues,
@@ -660,7 +677,7 @@ app.get("/food/:food_id", authenticateToken, (req, res) => {
       }
     })
     .catch((err) => {
-      res.json({
+      return res.json({
         status: 500,
         message: "An error has occured, please contact an administrator.",
       });
@@ -693,11 +710,11 @@ app.get(
       }).then((response) =>
         response == 1
           ? ""
-          : res.json({
+          : res.end(JSON.stringify({
             status: 403,
             message:
               "You cannot view treatments for patients you do not supervise.",
-          })
+          }))
       );
     }
     await Treatment.findAll({
@@ -756,7 +773,7 @@ app.post(
     if (req.decodedToken.account_type != "doctor") {
       console.log(`You're not a doctor!`);
       return res.json({
-        status: 200,
+        status: 403,
         message: "This endpoint is only allowed for doctors.",
       });
     } else {
@@ -820,7 +837,7 @@ app.patch(
   (req, res) => {
     if (req.decodedToken.account_type != "doctor") {
       return res.json({
-        status: 200,
+        status: 403,
         message: "This endpoint is only allowed for doctors.",
       });
     }
