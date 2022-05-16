@@ -296,7 +296,7 @@ if (
 
 // --- Synchronization and validation
 // force : true drop and recreate the tables everytime you start the app
-connection.sync({force:true}).then(() => {
+connection.sync({force:false}).then(() => {
   console.log("All models were synchronized successfully.");
 });
 
