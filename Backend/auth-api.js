@@ -27,7 +27,7 @@ app.post("/register", (req, res) => {
       password: body.password,
       address: body.address,
       name: body.name,
-      SSN: body.ssn,
+      ssn: body.SSN,
       gender: body.gender,
       city: body.city,
       dob: body.dob,

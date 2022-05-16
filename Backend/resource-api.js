@@ -195,7 +195,7 @@ app.get("/doctors/:doctorID", (req, res) => {
     return;
   } else {
     let DoctorID = req.params.doctorID;
-    Doctor.findByPk(DoctorID).then((result) => {
+    Doctor.findByPk(DoctorID,{include: Account}).then((result) => {
      return res.json({
         status: 200,
         message: "Query Succeed",

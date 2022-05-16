@@ -26,7 +26,7 @@ const loginSchema = joi.object({
       tlds: { allow: true },
     })
     .required(),
-  password: joi.string().min(8).alphanum().required(),
+  password: joi.string().min(8).required(),
 });
 
 const pwdResetSchema = joi.object({
