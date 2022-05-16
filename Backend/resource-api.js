@@ -301,6 +301,36 @@ app.post("/activity", authenticateToken, (req, res) => {
 
 
 
+app.delete("/activity/:activity_id", authenticateToken, (req, res) => {
+  const body = req.body;
+  // const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  const activity_id = req.params.activity_id
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+    Activitie.destroy({where: {
+      activity_id: activity_id,
+      patient_id: patient_id
+    }}).then((result) =>{
+      if(result == 1){
+        res.status(200).end(JSON.stringify({status: 200, message: "Activity deleted!"}))
+      }else{
+        res.status(404).end(JSON.stringify({status: 404, message: "Activity not found."}))
+      }
+    })
+});
+
+
+
+
 // Glucose CRUD
 
 app.post("/glucose", authenticateToken, (req, res) => {
