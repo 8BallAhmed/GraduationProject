@@ -28,7 +28,7 @@
                                     <div class="text-center">
                                         <h4 class="text-dark mb-4">Welcome Back!</h4>
                                     </div>
-                                    <form class="user" id="login" action="http://localhost:8000/login">
+                                    <form class="user" id="login" action="http://127.0.0.1:8000/login">
                                         <div class="mb-3"><input class="form-control form-control-user" type="email" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Enter Email Address..." name="email"></div>
                                         <div class="mb-3"><input class="form-control form-control-user" type="password" id="exampleInputPassword" placeholder="Password" name="password"></div>
                                         <div class="mb-3">
@@ -78,7 +78,7 @@
                 {
                     const token = res.token
                     await localStorage.setItem('token','Bearer '+res.token)
-                   // setTimeout(window.location.assign("Appointments.html"),2000)   
+                    setTimeout(window.location.assign("Appointments.html"),2000)   
                 },
                 error:function(XMLHttpRequest, textStatus, e) { 
                     console.error("Status: " + textStatus);
