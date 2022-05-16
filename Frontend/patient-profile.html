@@ -145,8 +145,11 @@
                                     </div>
                                     <form>
                                         <div class="row">
+                                            <!-- HERE -->
+                                            <!-- HERE -->
+                                            <!-- HERE -->
                                             <div class="col-xxl-3 offset-xxl-0">
-                                                <div class="mb-3"><label class="form-label" for="email"><strong>Email Address</strong></label><input class="form-control" type="email" id="email" placeholder="{patient.email}" name="email"></div>
+                                                <div class="mb-3"><label class="form-label" for="email"><strong>Email Address</strong></label><input class="form-control" type="email" id="email" placeholder="{{patient.email}}" name="email"></div>
                                             </div>
                                             <div class="col-xxl-3 offset-xxl-0">
                                                 <div class="mb-3"></div>
@@ -159,10 +162,13 @@
                                                 <div class="mb-3"><label class="form-label" for="last_name"><strong>Last Name</strong></label><input class="form-control" type="text" id="last_name" placeholder="{patients.lastName}" name="last_name"></div>
                                             </div>
                                             <div class="col-xxl-3 offset-xxl-0">
-                                                <div class="mb-3"><label class="form-label" id="gender" for="gender"><strong>Gender</strong></label><input class="form-control" type="text" id="first_name-1" placeholder="{patient.gender}" name="first_name"></div>
-                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Chronic diseases</strong></label><input class="form-control" type="text" id="last_name-1" placeholder="{patients.chronic_diseases}" name="last_name"></div>
+                                                <div class="mb-3"><label class="form-label" id="gender" for="gender"><strong>Gender</strong></label><input class="form-control" type="text" id="gender" placeholder="{patient.gender}" name="first_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Chronic diseases</strong></label><input class="form-control" type="text" id="chronic" placeholder="{patients.chronic_diseases}" name="last_name"></div>
                                             </div>
                                         </div>
+                                        <!-- HERE -->
+                                        <!-- HERE -->
+                                        <!-- HERE -->
                                         <div class="mb-3"></div>
                                     </form>
                                 </div>
@@ -203,70 +209,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-xxl-12 mb-4">
-                            <div class="card shadow mb-4"></div>
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="text-primary fw-bold m-0">Notes</h6>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                        <div class="row align-items-center no-gutters">
-                                            <div class="col me-2">
-                                                <h6 class="mb-0"><strong>Lunch meeting</strong></h6><span class="text-xs">10:30 AM</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-1"><label class="form-check-label" for="formCheck-1"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <div class="row align-items-center no-gutters">
-                                            <div class="col me-2">
-                                                <h6 class="mb-0"><strong>Lunch meeting</strong></h6><span class="text-xs">11:30 AM</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-2"><label class="form-check-label" for="formCheck-2"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <div class="row align-items-center no-gutters">
-                                            <div class="col me-2">
-                                                <h6 class="mb-0"><strong>Lunch meeting</strong></h6><span class="text-xs">12:30 AM</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-3"><label class="form-check-label" for="formCheck-3"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="card shadow mb-5">
-                                        <div class="card-header py-3">
-                                            <p class="text-primary m-0 fw-bold">Add new Note</p>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <form>
-                                                        <div class="mb-3"><label class="form-label" for="signature"><strong>Text</strong><br></label><textarea class="form-control" id="signature" rows="4" name="signature"></textarea></div>
-                                                        <div class="mb-3"></div>
-                                                        <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Add note</button></div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <footer class="bg-white sticky-footer">
@@ -280,6 +222,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/theme.js"></script>
+
+    <script>
+        window.onload = () => {
+            fetch('http://127.0.0.1:8000/patients/' + localStorage.getItem('activePatientId'), {
+        method: 'GET',
+        headers:{
+            "Authorization": localStorage.getItem('token')
+        }
+    }).then((res) => res.json()).then((data) => {
+        //alert('Data fetched!')
+        document.getElementById('email').value = localStorage.getItem('activePatient')
+        if(data.patient.account.gender == 'true'){
+            document.getElementById('gender').value = 'Male'
+        }else{
+            document.getElementById('gender').value = 'Female'
+        }
+        
+        document.getElementById('age').value = data.patient.account.dob
+        document.getElementById('chronic').value = data.patient.chronic_diseases
+        document.getElementById('gender').value = data.patient.account.gender
+        document.getElementById('first_name').value = data.patient.account.name.split(" ")[0]
+        document.getElementById('last_name').value = data.patient.account.name.split(" ")[1]
+        alert(JSON.stringify(data))
+    })
+        }
+
+    </script>
 </body>
 
 </html>
