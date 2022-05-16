@@ -70,7 +70,7 @@ const treatmentSchema = joi.object({
 
 const activitySchema = joi.object({
   calories: joi.string().required(),
-  duration: joi.date().required(),
+  duration: joi.string().required(),
   type: joi.string().required(),
   time: joi.date().required()
 });
