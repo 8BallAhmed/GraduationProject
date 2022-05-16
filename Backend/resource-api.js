@@ -204,17 +204,12 @@ app.get("/doctors/:doctorID", (req, res) => {
     return;
   } else {
     let DoctorID = req.params.doctorID;
-<<<<<<< HEAD
     Doctor.findByPk(DoctorID,{include: Account}).then((result) => {
      return res.json({
-=======
-    Doctor.findByPk(DoctorID).then((result) => {
-      return res.json({
->>>>>>> 707b74fae2ac47651095b1b5a27c1ad5f2ca159d
         status: 200,
         message: "Query Succeed",
         doctor: result,
-        account: { name: "Dr.Mohammed Al-Sahafi", email: "marwan@gmail.com" },
+        //account: { name: "Dr.Mohammed Al-Sahafi", email: "marwan@gmail.com" },
       });
     });
     return;
