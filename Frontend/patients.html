@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <script src="https://unpkg.com/vue@3"></script>
 </head>
 
 <body id="page-top">
@@ -129,11 +130,12 @@
                 </div>
                 <div class="container">
                     <div class="row">
-                        <div class="col-md-3">
+                        <!-- Card -->
+                        <div class="col-md-3" v-for="patient in patients">
                             <div>
                                 <div class="col-lg-4 col-xxl-12">
                                     <div class="card mb-3">
-                                        <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"></label><label class="form-label" for="email"><strong>{Patient.name}</strong></label>
+                                        <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"></label><label class="form-label" for="email"><strong>{{patient.name}}</strong></label>
                                             <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button>
                                         </div>
                                     </div>
@@ -141,42 +143,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div>
-                                <div class="col-lg-4 col-xxl-12">
-                                    <div class="card mb-3">
-                                        <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"><strong>{Patient.name}</strong></label>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button>
-                                        </div>
-                                    </div>
-                                    <div class="card shadow mb-4"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div>
-                                <div class="col-lg-4 col-xxl-12">
-                                    <div class="card mb-3">
-                                        <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"><strong>{Patient.name}</strong></label>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button>
-                                        </div>
-                                    </div>
-                                    <div class="card shadow mb-4"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div>
-                                <div class="col-lg-4 col-xxl-12">
-                                    <div class="card mb-3">
-                                        <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"><strong>{Patient.name}</strong></label>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button>
-                                        </div>
-                                    </div>
-                                    <div class="card shadow mb-4"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Card -->
                         <div class="col-md-3">
                             <div></div>
                         </div>
@@ -200,5 +167,35 @@
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/theme.js"></script>
 </body>
+
+<script>
+
+
+const fetchData = () =>{
+    fetch('http://127.0.0.1:8000/patients', {
+        method: 'GET',
+        headers:{
+            "Authorization": localStorage.getItem('token')
+        }
+    }).then((res) => res.json()).then((data) => {
+        //alert('Data fetched!')
+        app.patients.splice(0,app.patients.length,...data.patients)
+    })
+}
+
+window.onload = fetchData()
+
+
+const { createApp } = Vue
+
+  let app = createApp({ 
+    data() {
+      return {
+        patients: []
+      }
+    }
+  }).mount('#wrapper')
+
+</script>
 
 </html>

@@ -273,7 +273,6 @@
             dataType: 'json',
             success: async function (res, status) {
                 console.log(res)
-
                 res.result.map((data, index) => {
                     $('#dataTable tr:last').after(`
                     <tr id=${data.appointment_id}}>
