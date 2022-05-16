@@ -27,10 +27,10 @@ app.post("/register", (req, res) => {
       password: body.password,
       address: body.address,
       name: body.name,
-      ssn: body.SSN,
+      SSN: body.ssn,
       gender: body.gender,
       city: body.city,
-      dob: body.dob,
+      dob: null,
       account_type: body.account_type,
     })
       .then(() => {
@@ -39,7 +39,7 @@ app.post("/register", (req, res) => {
             fk_email: body.email,
           })
             .then(() => {
-              res.end(
+              res.status(200).end(
                 JSON.stringify({
                   status: 200,
                   message: "Patient account created successfully!",
@@ -48,7 +48,7 @@ app.post("/register", (req, res) => {
               );
             })
             .catch((err) => {
-              res.end(
+              res.status(401).end(
                 JSON.stringify({
                   status: 401,
                   message: "Could not create Patient account!",
@@ -59,7 +59,7 @@ app.post("/register", (req, res) => {
         } else if (body.account_type == "doctor") {
           Doctor.create({ fk_email: body.email })
             .then(() => {
-              res.end(
+              res.status(200).end(
                 JSON.stringify({
                   status: 200,
                   message: "Doctor account created successfully!",
@@ -68,7 +68,7 @@ app.post("/register", (req, res) => {
               );
             })
             .catch((err) => {
-              res.end(
+              res.status(401).end(
                 JSON.stringify({
                   status: 401,
                   message: "Could not create Doctor account!",
@@ -77,7 +77,7 @@ app.post("/register", (req, res) => {
               );
             });
         } else {
-          res.end(
+          res.status(400).end(
             JSON.stringify({
               status: 400,
               message: "Account type must be either 'Patient' or 'Doctor'!",
@@ -87,7 +87,7 @@ app.post("/register", (req, res) => {
       })
       .catch((err) => {
         console.log(err);
-        res.end(
+        res.status(401).end(
           JSON.stringify({
             status: 401,
             message: "Could not create account",
@@ -96,7 +96,7 @@ app.post("/register", (req, res) => {
         );
       });
   } else {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Bad request!",
@@ -110,25 +110,31 @@ app.post("/login", (req, res) => {
   const body = req.body;
   const errors = loginSchema.validate(body, { abortEarly: false }).error;
   if (errors == undefined) {
+    console.log('No Errors were found when logging in.')
     let account = Account.findByPk(body.email).then((result) => {
       if (result == null) {
-        res.end(
+        console.log('Account to log into was not found.')
+        res.status(404).end(
           JSON.stringify({
             status: 404,
             message: "User not found!",
           })
         );
+        return;
       } else {
         let data = result.dataValues;
+        console.log('Checking password match...')
         if (data.password == body.password) {
+          console.log('Passwords match.')
           if (data.account_type == "patient") {
+            console.log('Account is of type patient.')
             Patient.findOne({
               where: {
                 fk_email: data.email,
               },
             }).then((result) => {
               let patient_id = result.dataValues.patient_id;
-              res.end(
+              res.status(200).end(
                 JSON.stringify({
                   status: 200,
                   message: "Login successful!",
@@ -139,15 +145,17 @@ app.post("/login", (req, res) => {
                   }),
                 })
               );
+              return;
             });
           } else if (data.account_type == "doctor") {
+            console.log('Account is of type doctor...')
             Doctor.findOne({
               where: {
                 fk_email: data.email,
               },
             }).then((result) => {
               let doctor_id = result.dataValues.doctor_id;
-              res.end(
+              res.status(200).end(
                 JSON.stringify({
                   status: 200,
                   message: "Login successful!",
@@ -158,23 +166,30 @@ app.post("/login", (req, res) => {
                   }),
                 })
               );
+              return;
             });
+          }else{
+            res.end(JSON.stringify({status: 400, message: "Account type is neither Doctor nor patient. This shouldn't happen."}))
+            return;
           }
         } else {
-          res.end(
+          console.log('Incorrect password!')
+          res.status(401).end(
             JSON.stringify({ status: 401, message: "Incorrect password!" })
           );
+          return;
         }
       }
     });
   } else {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Bad request!",
         errors: errors.message,
       })
     );
+    return;
   }
 });
 
@@ -185,7 +200,7 @@ app.put("/update-account", (req, res) => {
   if (errors == undefined) {
     Account.findByPk(body.email).then((result) => {
       if (result == null) {
-        res.end(
+        res.status(404).end(
           JSON.stringify({
             status: 404,
             message:
@@ -196,7 +211,7 @@ app.put("/update-account", (req, res) => {
       } else {
         if (result.password == body.password) {
           if (JSON.stringify(req.body) == JSON.stringify(result.dataValues)) {
-            res.end(
+            res.status(418).end(
               JSON.stringify({
                 status: 418,
                 message: "Nothing to update, I'm a teapot.",
@@ -206,7 +221,7 @@ app.put("/update-account", (req, res) => {
           }
           result.set(body);
           result.save().then(() => {
-            res.end(
+            res.status(200).end(
               JSON.stringify({
                 status: 200,
                 message: "Account updated successfully",
@@ -214,7 +229,7 @@ app.put("/update-account", (req, res) => {
             );
           });
         } else {
-          res.end(
+          res.status(403).end(
             JSON.stringify({
               status: 403,
               message:
@@ -225,7 +240,7 @@ app.put("/update-account", (req, res) => {
       }
     });
   } else {
-    res.end(
+    res.status(400).end(
       JSON.stringify({
         status: 400,
         message: "Bad request!",
@@ -241,7 +256,7 @@ app.post("/reset-password", (req, res) => {
   if (errors == undefined) {
     Account.findByPk(body.email).then((result) => {
       if (result == null) {
-        res.end(
+        res.status(404).end(
           JSON.stringify({
             status: 404,
             message:
@@ -253,7 +268,7 @@ app.post("/reset-password", (req, res) => {
         if (body.oldPwd == result.password) {
           result.set({ password: body.newPwd });
           result.save().then(() => {
-            res.end(
+            res.status(200).end(
               JSON.stringify({
                 status: 200,
                 message: "password reset successfully",
@@ -261,7 +276,7 @@ app.post("/reset-password", (req, res) => {
             );
           });
         } else {
-          res.end(
+          res.status(403).end(
             JSON.stringify({
               status: 403,
               message:
@@ -273,7 +288,7 @@ app.post("/reset-password", (req, res) => {
     });
   } else {
     res.end(
-      JSON.stringify({
+      JSON.status(400).stringify({
         status: 400,
         message: "Bad request!",
         errors: errors.message,
@@ -288,7 +303,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1]; // Splits token, which is usually in the form of : "Bearer <token>"
   if (token == null)
     // Incase a token wasn't specified
-    return res.end(
+    return res.status(401).end(
       JSON.stringify({
         status: 401,
         message: "Unauthorized. Token not specified.",
@@ -304,9 +319,9 @@ function authenticateToken(req, res, next) {
       },
     }).then((result) => {
       if (err) {
-        res.json({ status: 403, message: err.message });
+        res.status(403).json({ status: 403, message: err.message });
       } else if (result == 0) {
-        res.json({
+        res.status(403).json({
           status: 403,
           message: "No account exists by this email!",
         });
