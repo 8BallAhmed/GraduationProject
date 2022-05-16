@@ -330,6 +330,48 @@ app.delete("/activity/:activity_id", authenticateToken, (req, res) => {
 
 
 
+app.patch("/activity/:activity_id", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  let activity_id = req.params.activity_id
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+
+
+  if (errors == undefined){
+    Activitie.findOne({where: {
+      patient_id: patient_id,
+      activity_id: activity_id
+    }}).then((result) => {
+      if(result == null){
+        res.end(JSON.stringify({status: 404, message: "Activity not found. Could not update."}))
+      }else{
+        result.set(body).save().then(() => res.end(JSON.stringify({status: 200, message: "Activity updated."})))
+      }
+    })
+  }else{
+    res.status(400).end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+    return;
+  }
+  
+});
+
+
 
 // Glucose CRUD
 
