@@ -53,11 +53,6 @@
                                             name="password_repeat"></div>
                                 </div><button class="btn btn-primary d-block btn-user w-100" type="submit">Register
                                     Account</button>
-                                <hr><a class="btn btn-primary d-block btn-google btn-user w-100 mb-2" role="button"><i
-                                        class="fab fa-google"></i>&nbsp; Register with Google</a><a
-                                    class="btn btn-primary d-block btn-facebook btn-user w-100" role="button"><i
-                                        class="fab fa-facebook-f"></i>&nbsp; Register with Facebook</a>
-                                <hr>
                             </form>
                             <div class="text-center"></div>
                             <div class="text-center"><a class="small" href="login.html">Already have an account?
@@ -83,20 +78,20 @@
             
             var actionUrl = form.attr('action');
             formData = form.serializeArray()
-
+            console.log(formData)
             var data = {
                 "email":formData[4].value,
-                "password":formData[1].value,
-                "SSN":formData[2].value,
+                "password":formData[5].value,
+                "ssn":formData[2].value,
                 "name":formData[0].value + " " + formData[1].value,
                 "account_type":"doctor",
-                "gender":null,
+                "gender":true,
                 "city":null,
                 "dob":formData[3].value,
                 "address":null,
             }
-            console.log(data)
-            console.log(JSON.stringify(data))
+            //console.log(data)
+            //console.log(JSON.stringify(data))
             $.ajax({
                 type: "POST",
                 url: actionUrl,
@@ -105,8 +100,7 @@
                 dataType : 'json',
                 success: function(res)
                 {
-        
-                    window.location.assign("http://127.0.0.1:5500/Frontend/login.html");
+                   // window.location.assign("http://127.0.0.1:5500/Frontend/login.html");
                 },
                 error:function(XMLHttpRequest, textStatus, e) { 
                     alert("Status: " + textStatus); alert("Error: " + e); 

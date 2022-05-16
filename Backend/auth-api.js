@@ -30,7 +30,7 @@ app.post("/register", (req, res) => {
       SSN: body.ssn,
       gender: body.gender,
       city: body.city,
-      dob: null,
+      dob: body.dob,
       account_type: body.account_type,
     })
       .then(() => {
