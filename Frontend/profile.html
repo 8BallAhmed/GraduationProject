@@ -286,9 +286,9 @@
                                                     <div class="col">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="email"><strong>Email
-                                                                    Address</strong></label><input class="form-control"
-                                                                type="email" id="email" placeholder="user@example.com"
-                                                                name="email" v-model="doctor.email" />
+                                                                    Address</strong></label>
+                                                            <input class="form-control" type="email" id="email"
+                                                                name="email" placeholder="" />
                                                         </div>
                                                     </div>
                                                     <div class="col">
@@ -301,7 +301,7 @@
                                                             <label class="form-label" for="first_name"><strong>First
                                                                     Name</strong></label><input class="form-control"
                                                                 type="text" id="first_name" placeholder="John"
-                                                                name="first_name" v-model="doctor.name" />
+                                                                name="first_name" />
                                                         </div>
                                                     </div>
                                                     <div class="col">
@@ -314,14 +314,11 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <button class="btn btn-primary btn-sm" type="submit">
-                                                        Save Settings
-                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="card shadow">
+                                    <!-- <div class="card shadow">
                                         <div class="card-header py-3">
                                             <p class="text-primary m-0 fw-bold">Contact Settings</p>
                                         </div>
@@ -350,12 +347,12 @@
                                                 </div>
                                             </form>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card shadow mb-5"></div>
+                  
                 </div>
             </div>
             <footer class="bg-white sticky-footer">
@@ -373,66 +370,30 @@
     <script src="assets/js/theme.js"></script>
     <script>
 
-        /*
-        const { createApp } = Vue
-        let app = createApp({
-            data() {
-                return {
-                    doctor: {
-                        name: "Dr.Marwan Al-Sahafi",
-                        email: "marwan@gmail.com"
-                    }
-                }
-            },
-            methods: {
-                fetchData() {
-                    fetch(`http://127.0.0.1:8000/doctors/${parseJwt(localStorage.getItem('token'))[2]}`, { // doctor_id
-                        method: 'GET',
-                        headers: {
-                            "Authorization": localStorage.getItem('token')
-                        }
-                    }).then((res) => res.json()).then((data) => {
-                        console.log(data.account)
-                    })
-                },
-                updateProfile() {
-                    fetch('http://127.0.0.1:8000/update-account', {
-                        method: 'PUT',
-                        headers: {
-                            "Authorization": localStorage.getItem('token'),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            email: this.doctor.email,
-                            name: this.doctor.name
-                        })
-                    })
-                }
-            },
-            mounted() {
-                this.fetchData()
-            }
-        }).mount('#wrapper')*/
-
         let doctor_id = parseJwt(localStorage.getItem('token')).doctor_id
-        //when the page loaded
-        $("#wrapper").ready(function(e) {
+
+        $("#wrapper").ready(function (e) {
 
             $.ajax({
                 type: "GET",
                 url: `http://127.0.0.1:8000/doctors/${doctor_id}`,
-                Authorization:localStorage.getItem('token'),
-                success: async function(res,status)
-                {
-                    console.log(res)
-                    console.log(status)
+                Authorization: localStorage.getItem('token'),
+                success: async function (res, status) {
+
+                    $('#doctor_name').text(res.doctor.account.name)
+                    $('#email').val(res.doctor.account.email)
+                    $('#first_name').val(res.doctor.account.name.split(' ')[0])
+                    $('#last_name').val(res.doctor.account.name.split(' ')[1])
+                    $('#address').val(res.doctor.account.address)
+                    $('#city').val(res.doctor.account.city)
+
                 },
-                error:function(XMLHttpRequest, textStatus, e) { 
+                error: function (XMLHttpRequest, textStatus, e) {
                     console.error("Status: " + textStatus);
-                } 
-                
+                }
+
             });
-            
+
         });
 
         function parseJwt(token) {
