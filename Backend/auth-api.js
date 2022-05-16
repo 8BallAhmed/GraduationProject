@@ -287,8 +287,8 @@ app.post("/reset-password", (req, res) => {
       }
     });
   } else {
-    res.end(
-      JSON.status(400).stringify({
+    res.status(400).end(
+      JSON.stringify({
         status: 400,
         message: "Bad request!",
         errors: errors.message,

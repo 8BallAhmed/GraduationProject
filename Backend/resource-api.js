@@ -451,6 +451,8 @@ app.get(
       where: {
         patient_id: patient_id,
       },
+      offset: page * 5,
+      limit: 5
     })
       .then((result) => {
         res.end(
