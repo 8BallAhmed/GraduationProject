@@ -67,6 +67,14 @@ const treatmentSchema = joi.object({
   unit: joi.string().required(),
 });
 
+
+const activitySchema = joi.object({
+  calories: joi.string().required(),
+  duration: joi.string().required(),
+  type: joi.string().required(),
+  time: joi.date().required()
+});
+
 const appointmentSchema = joi.object({
   visit_time: joi.string().required(),
 });
@@ -78,3 +86,4 @@ module.exports.glucoseSchema = glucoseSchema;
 module.exports.foodSchema = foodSchema;
 module.exports.treatmentSchema = treatmentSchema;
 module.exports.appointmentSchema = appointmentSchema;
+module.exports.activitySchema = activitySchema;

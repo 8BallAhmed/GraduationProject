@@ -296,7 +296,11 @@ if (
 
 // --- Synchronization and validation
 // force : true drop and recreate the tables everytime you start the app
+<<<<<<< HEAD
 connection.sync().then(() => {
+=======
+connection.sync({force:false}).then(() => {
+>>>>>>> 707b74fae2ac47651095b1b5a27c1ad5f2ca159d
   console.log("All models were synchronized successfully.");
 });
 

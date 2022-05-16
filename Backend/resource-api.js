@@ -12,10 +12,11 @@ const Account = model.Account;
 const Supervision = model.Supervision;
 const Treatment = model.Treatment;
 const Food = model.Food;
-const axios = require("axios")
+const axios = require("axios");
 const glucoseSchema = require("./joi-validators").glucoseSchema;
 const treatmentSchema = require("./joi-validators").treatmentSchema;
 const appointmentSchema = require("./joi-validators").appointmentSchema;
+const activitySchema = require("./joi-validators").activitySchema;
 const app = express_app.app;
 
 const APPID = process.env.APPID;
@@ -36,7 +37,7 @@ app.get("/patients", authenticateToken, (req, res) => {
     res.status(403).end({
       status: 403,
       message: "Unauthorized access. Account must be of type: Doctor.",
-    })
+    });
     return; // Must add return, or second hit on endpoint will look infinitely
   }
   Doctor.findOne({ where: { fk_email: email } }).then((result) => {
@@ -97,11 +98,13 @@ app.get("/patients", authenticateToken, (req, res) => {
                       });
                     }
                   })
-                  .then(() => {  
-                    res.end(JSON.stringify({
-                      status: 200,
-                      patients: supervisedPatients,
-                    }))
+                  .then(() => {
+                    res.end(
+                      JSON.stringify({
+                        status: 200,
+                        patients: supervisedPatients,
+                      })
+                    );
                     return;
                   });
               }
@@ -129,11 +132,13 @@ app.get("/patients/:patientId", authenticateToken, (req, res) => {
   let PatientId = req.params.patientId;
   Patient.findByPk(PatientId).then((result) => {
     console.log(result);
-    res.end(JSON.stringify({
-      status: 200,
-      message: "Query successful",
-      patient: result,
-    }));
+    res.end(
+      JSON.stringify({
+        status: 200,
+        message: "Query successful",
+        patient: result,
+      })
+    );
   });
 });
 
@@ -151,13 +156,15 @@ app.get("/patient/profile", authenticateToken, (req, res) => {
     return;
   }
   let PatientId = req.decodedToken.patient_id;
-  Patient.findByPk(PatientId,{include:Account}).then((result) => {
+  Patient.findByPk(PatientId, { include: Account }).then((result) => {
     console.log(result);
-    res.end(JSON.stringify({
-      status: 200,
-      message: "Query successful",
-      patient: result,
-    }));
+    res.end(
+      JSON.stringify({
+        status: 200,
+        message: "Query successful",
+        patient: result,
+      })
+    );
   });
 });
 
@@ -174,11 +181,13 @@ app.get("/doctors", (req, res) => {
   } else {
     Doctor.findAll().then((result) => {
       console.log(result);
-      res.end(JSON.stringify({
-        status: 200,
-        message: "Query Successed",
-        doctors: result,
-      }));
+      res.end(
+        JSON.stringify({
+          status: 200,
+          message: "Query Successed",
+          doctors: result,
+        })
+      );
     });
   }
 });
@@ -195,11 +204,17 @@ app.get("/doctors/:doctorID", (req, res) => {
     return;
   } else {
     let DoctorID = req.params.doctorID;
+<<<<<<< HEAD
     Doctor.findByPk(DoctorID,{include: Account}).then((result) => {
      return res.json({
+=======
+    Doctor.findByPk(DoctorID).then((result) => {
+      return res.json({
+>>>>>>> 707b74fae2ac47651095b1b5a27c1ad5f2ca159d
         status: 200,
         message: "Query Succeed",
         doctor: result,
+        account: { name: "Dr.Mohammed Al-Sahafi", email: "marwan@gmail.com" },
       });
     });
     return;
@@ -207,27 +222,161 @@ app.get("/doctors/:doctorID", (req, res) => {
 });
 
 // an endpoint to get all activites by the patient id
-app.get("/activity/:patient_id", authenticateToken, (req, res) => {
-  const header = req.header;
-  if (header == undefined) {
-    res.status(400).end(
+
+app.get("/activity", authenticateToken, (req, res) => {
+  const body = req.body;
+  // const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  let email = req.decodedToken.email;
+  let activities = [];
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
       JSON.stringify({
-        status: 400,
-        message: "Authentication Header not specified",
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
       })
     );
     return;
-  } else {
-    let PatientId = req.body.patient_id;
-    Activitie.findByPk(PatientId).then((result) => {
-      return res.json({
-        status: 200,
-        message: "success",
-        activities: result,
-      });
-    });
   }
+
+    Activitie.findAll({ where: { patient_id: patient_id } })
+      .then((response) => {
+        response.map((item) => {
+          activities.push(item.dataValues);
+        });
+      })
+      .then(() => {
+        if (activities.length == 0) {
+          res
+            .status(404)
+            .end(
+              JSON.stringify({ status: 404, message: "Activities not found" })
+            );
+        } else {
+          res.status(200).end(
+            JSON.stringify({
+              status: 200,
+              message: "Activities Fetched",
+              activites: activities,
+            })
+          );
+        }
+      });
 });
+
+
+
+
+
+app.post("/activity", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  let email = req.decodedToken.email;
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+
+
+  if (errors == undefined){
+    Activitie.create({...body, patient_id}).then(() => {
+      res.end(JSON.stringify({status: 200, message: 'Activity Added!'}))
+    })
+  }else{
+    res.status(400).end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+    return;
+  }
+  
+});
+
+
+
+
+app.delete("/activity/:activity_id", authenticateToken, (req, res) => {
+  const body = req.body;
+  // const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  const activity_id = req.params.activity_id
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+    Activitie.destroy({where: {
+      activity_id: activity_id,
+      patient_id: patient_id
+    }}).then((result) =>{
+      if(result == 1){
+        res.status(200).end(JSON.stringify({status: 200, message: "Activity deleted!"}))
+      }else{
+        res.status(404).end(JSON.stringify({status: 404, message: "Activity not found."}))
+      }
+    })
+});
+
+
+
+app.patch("/activity/:activity_id", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  let activity_id = req.params.activity_id
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+
+
+  if (errors == undefined){
+    Activitie.findOne({where: {
+      patient_id: patient_id,
+      activity_id: activity_id
+    }}).then((result) => {
+      if(result == null){
+        res.end(JSON.stringify({status: 404, message: "Activity not found. Could not update."}))
+      }else{
+        result.set(body).save().then(() => res.end(JSON.stringify({status: 200, message: "Activity updated."})))
+      }
+    })
+  }else{
+    res.status(400).end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+    return;
+  }
+  
+});
+
+
 
 // Glucose CRUD
 
@@ -247,37 +396,42 @@ app.post("/glucose", authenticateToken, (req, res) => {
     return;
   }
   if (errors == undefined) {
-    let account = Patient.findOne({ where: {fk_email: email} }).then((result) => {
-      if (result == null) {
-        res.status(404).end(
-          JSON.stringify({
-            status: 404,
-            message: "User not found! Blood Glucose not added.",
-          })
-        );
+    let account = Patient.findOne({ where: { fk_email: email } }).then(
+      (result) => {
+        if (result == null) {
+          res.status(404).end(
+            JSON.stringify({
+              status: 404,
+              message: "User not found! Blood Glucose not added.",
+            })
+          );
+          return;
+        } else {
+          let patient_id = result.dataValues.patient_id;
+          console.log(`RESULT PATIENT ID: ${result.dataValues.patient_id}`);
+          GlucoseTest.create({ ...body, patient_id: patient_id })
+            .then(() => {
+              res.end(
+                JSON.stringify({
+                  status: 200,
+                  message: "Glucose reading added.",
+                })
+              );
+              return;
+            })
+            .catch((err) => {
+              res.status(401).end(
+                JSON.stringify({
+                  status: 401,
+                  message: "Could not create Glucose Reading!",
+                  error: err.errors[0].message,
+                })
+              );
+            });
+        }
         return;
-      } else {
-        let patient_id = result.dataValues.patient_id;
-        console.log(`RESULT PATIENT ID: ${result.dataValues.patient_id}`);
-        GlucoseTest.create({ ...body, patient_id: patient_id })
-          .then(() => {
-            res.end(
-              JSON.stringify({ status: 200, message: "Glucose reading added." })
-            );
-            return;
-          })
-          .catch((err) => {
-            res.status(401).end(
-              JSON.stringify({
-                status: 401,
-                message: "Could not create Glucose Reading!",
-                error: err.errors[0].message,
-              })
-            );
-          });
       }
-      return;
-    });
+    );
   } else {
     res.status(400).end(
       JSON.stringify({
@@ -398,9 +552,9 @@ app.patch(
         },
       }).then((result) => {
         if (result == null) {
-          res.status(404).end(
-            JSON.stringify({ status: 404, message: "Reading not found" })
-          );
+          res
+            .status(404)
+            .end(JSON.stringify({ status: 404, message: "Reading not found" }));
           return;
         } else {
           result.set(body);
@@ -424,7 +578,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const account_type = req.decodedToken.account_type;
 
   if (account_type != "doctor") {
-    return res.json({
+    return res.status(403).json({
       status: 403,
       message: "This endpoint is to be used by Doctors only.",
     });
@@ -434,7 +588,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
     Patient.count({ where: { patient_id: patient_id } })
       .then((result) => {
         if (result <= 0) {
-          return res.json({
+          return res.status(404).json({
             status: 404,
             message: "The specified patient does not exist.",
           });
@@ -447,7 +601,7 @@ app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
           },
         }).then((result) => {
           if (result <= 0) {
-            return res.json({
+            return res.status(404).json({
               status: 404,
               message: "The specified doctor does not exist.",
             });
@@ -473,7 +627,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const account_type = req.decodedToken.account_type;
 
   if (account_type != "doctor") {
-    return res.json({
+    return res.status(403).json({
       status: 403,
       message: "This endpoint is to be used by Doctors only.",
     });
@@ -483,7 +637,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
     Patient.count({ where: { patient_id: patient_id } })
       .then((result) => {
         if (result <= 0) {
-          return res.json({
+          return res.status(404).json({
             status: 404,
             message: "The specified patient does not exist.",
           });
@@ -496,7 +650,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
           },
         }).then((result) => {
           if (result <= 0) {
-            return res.json({
+            return res.status(404).json({
               status: 404,
               message: "The specified doctor does not exist.",
             });
@@ -533,7 +687,9 @@ app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
     })
     .then((response) => {
       if (response.data.common.length == 0) {
-        return res.json({ status: 404, message: "No foods found with that name." });
+        return res
+          .status(404)
+          .json({ status: 404, message: "No foods found with that name." });
       }
       for (i = offset * page; i < offset * page + 5; i++) {
         food_names.push({
@@ -542,9 +698,9 @@ app.get("/food/search/:query/page/:page", authenticateToken, (req, res) => {
         });
       }
     })
-    .then(() => res.json({ search_result: food_names }))
+    .then(() => res.status(200).json({ search_result: food_names }))
     .catch((err) => {
-      return res.json({
+      return res.status(500).json({
         status: 500,
         message: "An unexpected error occured. Please contact an administrator",
       });
@@ -580,7 +736,9 @@ app.get("/food/:food_name/nutrients", authenticateToken, (req, res) => {
       return;
     })
     .catch((err) => {
-      return res.json({ status: 404, message: "Food item not found." });
+      return res
+        .status(404)
+        .json({ status: 404, message: "Food item not found." });
     });
 });
 
@@ -590,7 +748,7 @@ app.post("/food", authenticateToken, (req, res) => {
   const errors = foodSchema.validate(body, { abortEarly: false }).error;
   let account_type = req.decodedToken.account_type;
   if (account_type != "patient") {
-    return res.json({
+    return res.status(403).json({
       status: 403,
       message: "This endpoint is only allowed for patients",
     });
@@ -625,14 +783,16 @@ app.get("/food/page/:page", authenticateToken, (req, res) => {
     })
     .then(() => {
       if (food.length == 0) {
-        return res.json({ status: 404, message: "No more food items found." });
+        return res
+          .status(404)
+          .json({ status: 404, message: "No more food items found." });
         return;
       }
       return res.json({ status: 200, message: "Food fetched", food: food });
       return;
     })
     .catch((err) => {
-      return res.json({
+      return res.status(500).json({
         status: 500,
         message: "An error has occured. Please contact an administrator.",
       });
@@ -651,11 +811,13 @@ app.delete("/food/:food_id", authenticateToken, (req, res) => {
       if (result == 1) {
         return res.json({ status: 200, message: "Food item deleted" });
       } else {
-        return res.json({ status: 404, message: "Food item not found." });
+        return res
+          .status(404)
+          .json({ status: 404, message: "Food item not found." });
       }
     })
     .catch((err) => {
-      return res.json({
+      return res.status(500).json({
         status: 500,
         message: "An error has occured, please contact an administrator.",
       });
@@ -667,7 +829,9 @@ app.get("/food/:food_id", authenticateToken, (req, res) => {
   Food.findByPk(food_id)
     .then((result) => {
       if (result == undefined) {
-        return res.json({ status: 404, message: "Food item not found" });
+        return res
+          .status(404)
+          .json({ status: 404, message: "Food item not found" });
       } else {
         return res.json({
           status: 200,
@@ -677,7 +841,7 @@ app.get("/food/:food_id", authenticateToken, (req, res) => {
       }
     })
     .catch((err) => {
-      return res.json({
+      return res.status(500).json({
         status: 500,
         message: "An error has occured, please contact an administrator.",
       });
@@ -697,7 +861,7 @@ app.get(
       req.decodedToken.patient_id != undefined &&
       patient_id != req.decodedToken.patient_id
     ) {
-      return res.json({
+      return res.status(403).json({
         status: 403,
         message: "You are not allowed to access other patients' treatments.",
       });
@@ -710,11 +874,13 @@ app.get(
       }).then((response) =>
         response == 1
           ? ""
-          : res.end(JSON.stringify({
-            status: 403,
-            message:
-              "You cannot view treatments for patients you do not supervise.",
-          }))
+          : res.end(
+              JSON.stringify({
+                status: 403,
+                message:
+                  "You cannot view treatments for patients you do not supervise.",
+              })
+            )
       );
     }
     await Treatment.findAll({
@@ -725,7 +891,7 @@ app.get(
       offset: offset * page,
     }).then((result) => {
       if (result.length == 0) {
-        return res.json({
+        return res.status(404).json({
           status: 404,
           message: "No treatments found at page #" + page,
         });
@@ -743,7 +909,7 @@ app.get(
 app.delete("/treatment/:treatment_id", authenticateToken, (req, res) => {
   let treatment_id = req.params.treatment_id;
   if (req.decodedToken.account_type != "doctor") {
-    return res.json({
+    return res.status(403).json({
       status: 403,
       message: "This endpoint is only allowed for doctors.",
     });
@@ -757,7 +923,7 @@ app.delete("/treatment/:treatment_id", authenticateToken, (req, res) => {
       if (result == 1) {
         return res.json({ status: 200, message: "Treatment deleted" });
       } else {
-        return res.json({
+        return res.status(404).json({
           status: 404,
           message: "Treatment not found, cannot delete.",
         });
@@ -772,7 +938,7 @@ app.post(
   async (req, res) => {
     if (req.decodedToken.account_type != "doctor") {
       console.log(`You're not a doctor!`);
-      return res.json({
+      return res.status(403).json({
         status: 403,
         message: "This endpoint is only allowed for doctors.",
       });
@@ -788,7 +954,7 @@ app.post(
         console.log("Supervision counted.");
         if (result != 1) {
           console.log("No supervision exists.");
-          return res.json({
+          return res.status(403).json({
             status: 403,
             message: "You do not supervise this patient.",
           });
@@ -811,7 +977,7 @@ app.post(
               })
               .catch((err) => {
                 console.log("an error occured.");
-                return res.json({
+                return res.status(500).json({
                   status: 500,
                   message:
                     "An internal server error occured, please contact an administrator.",
@@ -819,7 +985,7 @@ app.post(
                 });
               });
           } else {
-            return res.json({
+            return res.status(401).json({
               status: 401,
               message: "Bad request",
               errors: errors.details,
@@ -836,7 +1002,7 @@ app.patch(
   authenticateToken,
   (req, res) => {
     if (req.decodedToken.account_type != "doctor") {
-      return res.json({
+      return res.status(403).json({
         status: 403,
         message: "This endpoint is only allowed for doctors.",
       });
@@ -849,7 +1015,7 @@ app.patch(
       },
     }).then((result) => {
       if (result != 1) {
-        return res.json({
+        return res.status(403).json({
           status: 403,
           message: "You do not supervise this patient.",
         });
@@ -875,7 +1041,7 @@ app.patch(
               return res.json({ status: 200, message: "Treatment updated." });
             })
             .catch((err) => {
-              return res.json({
+              return res.status(500).json({
                 status: 500,
                 message:
                   "An internal server error occured, please contact an administrator.",
@@ -898,7 +1064,7 @@ app.get(
     const offset = 5;
     if (req.decodedToken.account_type == "patient") {
       if (patient_id != req.decodedToken.patient_id) {
-        return res.json({
+        return res.status(403).json({
           status: 403,
           message: "You cannot view appointments which do not belong to you.",
         });
@@ -914,7 +1080,7 @@ app.get(
           return res.send({
             status: 404,
             message: "No appointments found on page #" + page,
-            result: response
+            result: response,
           });
         } else {
           return res.send({
@@ -965,194 +1131,191 @@ app.get(
   }
 );
 
-app.get(
-  "/appointments/doctor/page/:page",
+app.get("/appointments/doctor/page/:page", authenticateToken, (req, res) => {
+  const page = req.params.page;
+  const offset = 5;
+  //console.log(fk_doctor_id)
+  const doctor_id = req.decodedToken.doctor_id;
+
+  if (req.decodedToken.account_type == "doctor") {
+    Appointment.findAll({
+      where: {
+        fk_doctor_id: doctor_id,
+      },
+      include: [{ model: Patient, include: [Account] }],
+      limit: 10,
+      //offset: page * 10,
+    }).then((appointments) => {
+      var list = [];
+      appointments.forEach((element) => {
+        console.log(element);
+        list.push({
+          appointment_id: element.appointment_id,
+          visit_time: element.visit_time,
+          date: element.date,
+          name: element.patient.account.name,
+          email: element.patient.fk_email,
+          diabetes_type: element.patient.patient_id,
+        });
+      });
+      return res.json({ status: 200, message: "success", result: list });
+    });
+  }
+});
+
+app.delete("/appointment/:appointment_id", authenticateToken, (req, res) => {
+  const body = req.body;
+  const appointment_id = req.params.appointment_id;
+  if (req.decodedToken.account_type != "doctor") {
+    return res.status(403).json({
+      status: 403,
+      message: "This endpoint is only allowed for doctors!",
+    });
+  }
+
+  Appointment.destroy({
+    where: {
+      fk_doctor_id: req.decodedToken.doctor_id,
+      appointment_id: appointment_id,
+    },
+  })
+    .then((result) => {
+      if (result == 1) {
+        return res.json({ status: 200, message: "Item deleted" });
+      } else {
+        return res.status(404).json({
+          status: 404,
+          message: "Apppointment could not be found!",
+        });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        status: 500,
+        message:
+          "An internal server error occured. Please contact an administrator",
+        error: err,
+      });
+    });
+});
+
+app.post(
+  "/appointment/patient/:patient_id",
   authenticateToken,
-  (req, res) => {
-
-    const page = req.params.page;
-    const offset = 5;
-    //console.log(fk_doctor_id)
-    const doctor_id = req.decodedToken.doctor_id
-
-    if (req.decodedToken.account_type == "doctor") {
-      Appointment.findAll({
-        where: {
-          fk_doctor_id: doctor_id,
-        },
-        include:[{model:Patient, include: [Account]}],
-        limit: 10,
-        //offset: page * 10,
-      }).then((appointments) => {
-        var list = []
-        appointments.forEach(element => {
-          console.log(element)
-          list.push({
-            "appointment_id":element.appointment_id,
-              "visit_time":element.visit_time,
-              "date":element.date,
-              "name":element.patient.account.name,
-              "email":element.patient.fk_email,
-              "diabetes_type":element.patient.patient_id,
-            })
-          })
-        return res.json({status:200,message:'success',result:list})
-
+  async (req, res) => {
+    const body = req.body;
+    const patient_id = req.params.patient_id;
+    if (req.decodedToken.account_type != "doctor") {
+      return res.status(403).json({
+        status: 403,
+        message: "This endpoint is only allowed for doctors!",
       });
     }
-  });
 
+    let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
 
-      app.delete("/appointment/:appointment_id", authenticateToken, (req, res) => {
-        const body = req.body;
-        const appointment_id = req.params.appointment_id;
-        if (req.decodedToken.account_type != "doctor") {
-          return res.json({
+    if (errors == undefined) {
+      await Supervision.count({
+        where: {
+          fk_patient_id: patient_id,
+          fk_doctor_id: req.decodedToken.doctor_id,
+        },
+      }).then(async (response) => {
+        if (response == 0) {
+          return res.status(403).json({
             status: 403,
-            message: "This endpoint is only allowed for doctors!",
+            message: "You do not supervise this patient!",
           });
-        }
-
-        Appointment.destroy({
-          where: {
+        } else {
+          await Appointment.create({
+            ...body,
+            fk_patient_id: patient_id,
             fk_doctor_id: req.decodedToken.doctor_id,
-            appointment_id: appointment_id,
-          },
-        })
-          .then((result) => {
-            if (result == 1) {
-              return res.json({ status: 200, message: "Item deleted" });
-            } else {
-              return res.json({
-                status: 404,
-                message: "Apppointment could not be found!",
-              });
-            }
           })
-          .catch((err) => {
-            return res.json({
-              status: 500,
-              message:
-                "An internal server error occured. Please contact an administrator",
-              error: err,
-            });
-          });
-      });
-
-      app.post(
-        "/appointment/patient/:patient_id",
-        authenticateToken,
-        async (req, res) => {
-          const body = req.body;
-          const patient_id = req.params.patient_id;
-          if (req.decodedToken.account_type != "doctor") {
-            return res.json({
-              status: 403,
-              message: "This endpoint is only allowed for doctors!",
-            });
-          }
-
-          let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
-
-          if (errors == undefined) {
-            await Supervision.count({
-              where: {
-                fk_patient_id: patient_id,
-                fk_doctor_id: req.decodedToken.doctor_id,
-              },
-            }).then(async (response) => {
-              if (response == 0) {
-                return res.json({
-                  status: 403,
-                  message: "You do not supervise this patient!",
-                });
-              } else {
-                await Appointment.create({
-                  ...body,
-                  fk_patient_id: patient_id,
-                  fk_doctor_id: req.decodedToken.doctor_id,
-                })
-                  .then(() =>
-                    res.json({ status: 200, message: "Appointment booked!" })
-                  )
-                  .catch((err) =>
-                    res.json({
-                      status: 500,
-                      message: "An error occured, please contact an administrator.",
-                      error: err,
-                    })
-                  );
-              }
-            });
-          } else {
-            return res.json({ status: 401, message: "Bad request!", errors: errors });
-          }
+            .then(() =>
+              res.json({ status: 200, message: "Appointment booked!" })
+            )
+            .catch((err) =>
+              res.status(500).json({
+                status: 500,
+                message: "An error occured, please contact an administrator.",
+                error: err,
+              })
+            );
         }
-      );
+      });
+    } else {
+      return res
+        .status(401)
+        .json({ status: 401, message: "Bad request!", errors: errors });
+    }
+  }
+);
 
+app.patch(
+  "/appointment/patient/:patient_id/appointment/:appointment_id",
+  authenticateToken,
+  async (req, res) => {
+    const body = req.body;
+    const patient_id = req.params.patient_id;
+    const appointment_id = req.params.appointment_id;
+    if (req.decodedToken.account_type != "doctor") {
+      return res.status(403).json({
+        status: 403,
+        message: "This endpoint is only allowed for doctors!",
+      });
+    }
 
+    let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
 
-      app.patch(
-        "/appointment/patient/:patient_id/appointment/:appointment_id",
-        authenticateToken,
-        async (req, res) => {
-          const body = req.body;
-          const patient_id = req.params.patient_id;
-          const appointment_id = req.params.appointment_id;
-          if (req.decodedToken.account_type != "doctor") {
-            return res.json({
-              status: 403,
-              message: "This endpoint is only allowed for doctors!",
-            });
-          }
-
-          let errors = appointmentSchema.validate(body, { abortEarly: false }).error;
-
-          if (errors == undefined) {
-            await Supervision.count({
+    if (errors == undefined) {
+      await Supervision.count({
+        where: {
+          fk_patient_id: patient_id,
+          fk_doctor_id: req.decodedToken.doctor_id,
+        },
+      }).then(async (response) => {
+        if (response == 0) {
+          return res.status(403).json({
+            status: 403,
+            message: "You do not supervise this patient!",
+          });
+        } else {
+          await Appointment.update(
+            {
+              ...body,
+            },
+            {
               where: {
                 fk_patient_id: patient_id,
                 fk_doctor_id: req.decodedToken.doctor_id,
+                appointment_id: appointment_id,
               },
-            }).then(async (response) => {
-              if (response == 0) {
-                return res.json({
-                  status: 403,
-                  message: "You do not supervise this patient!",
+            }
+          )
+            .then((result) => {
+              if (result == 0) {
+                return res.status(404).json({
+                  status: 404,
+                  message:
+                    "No appointment exists with this id! Update aborted.",
                 });
-              } else {
-                await Appointment.update(
-                  {
-                    ...body,
-                  },
-                  {
-                    where: {
-                      fk_patient_id: patient_id,
-                      fk_doctor_id: req.decodedToken.doctor_id,
-                      appointment_id: appointment_id,
-                    },
-                  }
-                )
-                  .then((result) => {
-                    if (result == 0) {
-                      return res.json({
-                        status: 404,
-                        message:
-                          "No appointment exists with this id! Update aborted.",
-                      });
-                    }
-                    res.json({ status: 200, message: "Appointment updated!" });
-                  })
-                  .catch((err) =>
-                    res.json({
-                      status: 500,
-                      message: "An error occured, please contact an administrator.",
-                      error: err,
-                    })
-                  );
               }
-            });
-          } else {
-            return res.json({ status: 401, message: "Bad request!", errors: errors });
-          }
-        });
+              res.json({ status: 200, message: "Appointment updated!" });
+            })
+            .catch((err) =>
+              res.status(500).json({
+                status: 500,
+                message: "An error occured, please contact an administrator.",
+                error: err,
+              })
+            );
+        }
+      });
+    } else {
+      return res
+        .status(401)
+        .json({ status: 401, message: "Bad request!", errors: errors });
+    }
+  }
+);
