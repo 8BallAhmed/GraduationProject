@@ -258,8 +258,49 @@ app.get("/activity", authenticateToken, (req, res) => {
           );
         }
       });
+});
+
+
+
+
+
+app.post("/activity", authenticateToken, (req, res) => {
+  const body = req.body;
+  const errors = activitySchema.validate(body, { abortEarly: false }).error;
+  let account_type = req.decodedToken.account_type;
+  let email = req.decodedToken.email;
+  let patient_id = req.decodedToken.patient_id;
+  if (account_type != "patient") {
+    res.status(403).end(
+      JSON.stringify({
+        status: 403,
+        message: "Incorrect account type, only patient allowed.",
+      })
+    );
+    return;
+  }
+
+
+  if (errors == undefined){
+    Activitie.create({...body, patient_id}).then(() => {
+      res.end(JSON.stringify({status: 200, message: 'Activity Added!'}))
+    })
+  }else{
+    res.status(400).end(
+      JSON.stringify({
+        status: 400,
+        message: "Bad request!",
+        errors: errors.message,
+      })
+    );
+    return;
+  }
   
 });
+
+
+
+
 // Glucose CRUD
 
 app.post("/glucose", authenticateToken, (req, res) => {
