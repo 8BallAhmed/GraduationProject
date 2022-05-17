@@ -68,55 +68,57 @@ app.get("/patients", authenticateToken, async (req, res) => {
           return;
         } else {
           goal = result.length;
-          console.log(`goal: ` + goal)
+          console.log(`goal: ` + goal);
           result.map((supervised_patient) => {
             patientIDs.push(supervised_patient.dataValues.fk_patient_id);
           });
           patientIDs.map(async (ID) => {
-            await Patient.findByPk(ID).then(async (result) => {
-              if (result == undefined) {
-                res.status(500).end(
-                  JSON.stringify({
-                    status: 500,
-                    message:
-                      "This Patient does not exist anymore, please contact an administrator or file a bug report",
-                  })
-                );
-                return;
-              } else {
-                await Account.findByPk(result.dataValues.fk_email)
-                  .then(async (accountResult) => {
-                    if (accountResult == undefined) {
-                      res.status(500).end(
-                        JSON.stringify({
-                          status: 500,
-                          message:
-                            "An account for this patient was not found. Please contact an administrator or file a bug report.",
-                        })
-                      );
+            await Patient.findByPk(ID, { include: [Account, GlucoseTest] }).then(
+              async (result) => {
+                if (result == undefined) {
+                  res.status(500).end(
+                    JSON.stringify({
+                      status: 500,
+                      message:
+                        "This Patient does not exist anymore, please contact an administrator or file a bug report",
+                    })
+                  );
+                  return;
+                } else {
+                  await Account.findByPk(result.dataValues.fk_email)
+                    .then(async (accountResult) => {
+                      if (accountResult == undefined) {
+                        res.status(500).end(
+                          JSON.stringify({
+                            status: 500,
+                            message:
+                              "An account for this patient was not found. Please contact an administrator or file a bug report.",
+                          })
+                        );
+                        return;
+                      } else {
+                        await supervisedPatients.push({
+                          name: accountResult.dataValues.name,
+                          ...result.dataValues,
+                        });
+                      }
+                    })
+                    .then(async () => {
+                      console.log("SUPERVISED PATIENTS: " + supervisedPatients);
+                      counter++;
+                      if (goal == counter) {
+                        res.end(
+                          JSON.stringify({
+                            status: 200,
+                            patients: supervisedPatients,
+                          })
+                        );
+                      }
                       return;
-                    } else {
-                      await supervisedPatients.push({
-                        name: accountResult.dataValues.name,
-                        ...result.dataValues,
-                      });
-                    }
-                  })
-                  .then(async () => {
-                    console.log('SUPERVISED PATIENTS: ' + supervisedPatients)
-                    counter++;
-                    if(goal == counter){
-                      res.end(
-                        JSON.stringify({
-                          status: 200,
-                          patients: supervisedPatients,
-                        })
-                      );
-                    }
-                    return;
-                  });
+                    });
+                }
               }
-            });
+            );
           });
         }
       });
@@ -138,7 +140,7 @@ app.get("/patients/:patientId", authenticateToken, (req, res) => {
     return;
   }
   let PatientId = req.params.patientId;
-  Patient.findByPk(PatientId, {include: Account}).then((result) => {
+  Patient.findByPk(PatientId, { include: Account }).then((result) => {
     console.log(result);
     res.end(
       JSON.stringify({
@@ -212,8 +214,8 @@ app.get("/doctors/:doctorID", (req, res) => {
     return;
   } else {
     let DoctorID = req.params.doctorID;
-    Doctor.findByPk(DoctorID,{include: Account}).then((result) => {
-     return res.json({
+    Doctor.findByPk(DoctorID, { include: Account }).then((result) => {
+      return res.json({
         status: 200,
         message: "Query Succeed",
         doctor: result,
@@ -243,34 +245,30 @@ app.get("/activity", authenticateToken, (req, res) => {
     return;
   }
 
-    Activitie.findAll({ where: { patient_id: patient_id } })
-      .then((response) => {
-        response.map((item) => {
-          activities.push(item.dataValues);
-        });
-      })
-      .then(() => {
-        if (activities.length == 0) {
-          res
-            .status(404)
-            .end(
-              JSON.stringify({ status: 404, message: "Activities not found" })
-            );
-        } else {
-          res.status(200).end(
-            JSON.stringify({
-              status: 200,
-              message: "Activities Fetched",
-              activites: activities,
-            })
-          );
-        }
+  Activitie.findAll({ where: { patient_id: patient_id } })
+    .then((response) => {
+      response.map((item) => {
+        activities.push(item.dataValues);
       });
+    })
+    .then(() => {
+      if (activities.length == 0) {
+        res
+          .status(404)
+          .end(
+            JSON.stringify({ status: 404, message: "Activities not found" })
+          );
+      } else {
+        res.status(200).end(
+          JSON.stringify({
+            status: 200,
+            message: "Activities Fetched",
+            activites: activities,
+          })
+        );
+      }
+    });
 });
-
-
-
-
 
 app.post("/activity", authenticateToken, (req, res) => {
   const body = req.body;
@@ -288,12 +286,11 @@ app.post("/activity", authenticateToken, (req, res) => {
     return;
   }
 
-
-  if (errors == undefined){
-    Activitie.create({...body, patient_id}).then(() => {
-      res.end(JSON.stringify({status: 200, message: 'Activity Added!'}))
-    })
-  }else{
+  if (errors == undefined) {
+    Activitie.create({ ...body, patient_id }).then(() => {
+      res.end(JSON.stringify({ status: 200, message: "Activity Added!" }));
+    });
+  } else {
     res.status(400).end(
       JSON.stringify({
         status: 400,
@@ -303,17 +300,13 @@ app.post("/activity", authenticateToken, (req, res) => {
     );
     return;
   }
-  
 });
-
-
-
 
 app.delete("/activity/:activity_id", authenticateToken, (req, res) => {
   const body = req.body;
   // const errors = activitySchema.validate(body, { abortEarly: false }).error;
   let account_type = req.decodedToken.account_type;
-  const activity_id = req.params.activity_id
+  const activity_id = req.params.activity_id;
   let patient_id = req.decodedToken.patient_id;
   if (account_type != "patient") {
     res.status(403).end(
@@ -324,25 +317,29 @@ app.delete("/activity/:activity_id", authenticateToken, (req, res) => {
     );
     return;
   }
-    Activitie.destroy({where: {
+  Activitie.destroy({
+    where: {
       activity_id: activity_id,
-      patient_id: patient_id
-    }}).then((result) =>{
-      if(result == 1){
-        res.status(200).end(JSON.stringify({status: 200, message: "Activity deleted!"}))
-      }else{
-        res.status(404).end(JSON.stringify({status: 404, message: "Activity not found."}))
-      }
-    })
+      patient_id: patient_id,
+    },
+  }).then((result) => {
+    if (result == 1) {
+      res
+        .status(200)
+        .end(JSON.stringify({ status: 200, message: "Activity deleted!" }));
+    } else {
+      res
+        .status(404)
+        .end(JSON.stringify({ status: 404, message: "Activity not found." }));
+    }
+  });
 });
-
-
 
 app.patch("/activity/:activity_id", authenticateToken, (req, res) => {
   const body = req.body;
   const errors = activitySchema.validate(body, { abortEarly: false }).error;
   let account_type = req.decodedToken.account_type;
-  let activity_id = req.params.activity_id
+  let activity_id = req.params.activity_id;
   let patient_id = req.decodedToken.patient_id;
   if (account_type != "patient") {
     res.status(403).end(
@@ -354,19 +351,32 @@ app.patch("/activity/:activity_id", authenticateToken, (req, res) => {
     return;
   }
 
-
-  if (errors == undefined){
-    Activitie.findOne({where: {
-      patient_id: patient_id,
-      activity_id: activity_id
-    }}).then((result) => {
-      if(result == null){
-        res.end(JSON.stringify({status: 404, message: "Activity not found. Could not update."}))
-      }else{
-        result.set(body).save().then(() => res.end(JSON.stringify({status: 200, message: "Activity updated."})))
+  if (errors == undefined) {
+    Activitie.findOne({
+      where: {
+        patient_id: patient_id,
+        activity_id: activity_id,
+      },
+    }).then((result) => {
+      if (result == null) {
+        res.end(
+          JSON.stringify({
+            status: 404,
+            message: "Activity not found. Could not update.",
+          })
+        );
+      } else {
+        result
+          .set(body)
+          .save()
+          .then(() =>
+            res.end(
+              JSON.stringify({ status: 200, message: "Activity updated." })
+            )
+          );
       }
-    })
-  }else{
+    });
+  } else {
     res.status(400).end(
       JSON.stringify({
         status: 400,
@@ -376,10 +386,7 @@ app.patch("/activity/:activity_id", authenticateToken, (req, res) => {
     );
     return;
   }
-  
 });
-
-
 
 // Glucose CRUD
 
@@ -460,7 +467,7 @@ app.get(
         patient_id: patient_id,
       },
       offset: page * 5,
-      limit: 5
+      limit: 5,
     })
       .then((result) => {
         res.end(
@@ -581,56 +588,70 @@ app.patch(
 app.post("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const patient_id = req.params.patient_id;
   const account_type = req.decodedToken.account_type;
-
-  if (account_type != "doctor") {
-    return res.status(403).json({
-      status: 403,
-      message: "This endpoint is to be used by Doctors only.",
-    });
-    return;
-  } else {
-    const doctor_id = req.decodedToken.doctor_id;
-    Patient.count({ where: { patient_id: patient_id } })
-      .then((result) => {
-        if (result <= 0) {
-          return res.status(404).json({
-            status: 404,
-            message: "The specified patient does not exist.",
-          });
-        }
-      })
-      .then(
-        Doctor.count({
-          where: {
-            doctor_id: doctor_id,
-          },
-        }).then((result) => {
-          if (result <= 0) {
-            return res.status(404).json({
-              status: 404,
-              message: "The specified doctor does not exist.",
-            });
-          } else {
-            Supervision.create({
-              fk_patient_id: patient_id,
-              fk_doctor_id: doctor_id,
-            }).then(() => {
-              return res.json({
-                status: 200,
-                message: `Patient #${patient_id} paired with Doctor #${doctor_id}`,
+  const doctor_id = req.decodedToken.doctor_id;
+  Supervision.count({
+    where: { fk_patient_id: patient_id, fk_doctor_id: doctor_id },
+  }).then((result) => {
+    if (result != 0) {
+      return res
+        .status(403)
+        .end(
+          JSON.stringify({
+            status: 403,
+            message: "Patient Already supervised by a doctor!",
+          })
+        );
+    } else {
+      if (account_type != "doctor") {
+        return res.status(403).json({
+          status: 403,
+          message: "This endpoint is to be used by Doctors only.",
+        });
+        return;
+      } else {
+        Patient.count({ where: { patient_id: patient_id } })
+          .then((result) => {
+            if (result <= 0) {
+              return res.status(404).json({
+                status: 404,
+                message: "The specified patient does not exist.",
               });
-              return;
-            });
-          }
-        })
-      );
-  }
+            }
+          })
+          .then(
+            Doctor.count({
+              where: {
+                doctor_id: doctor_id,
+              },
+            }).then((result) => {
+              if (result <= 0) {
+                return res.status(404).json({
+                  status: 404,
+                  message: "The specified doctor does not exist.",
+                });
+              } else {
+                Supervision.create({
+                  fk_patient_id: patient_id,
+                  fk_doctor_id: doctor_id,
+                }).then(() => {
+                  return res.json({
+                    status: 200,
+                    message: `Patient #${patient_id} paired with Doctor #${doctor_id}`,
+                  });
+                  return;
+                });
+              }
+            })
+          );
+      }
+    }
+  });
 });
 
 app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
   const patient_id = req.params.patient_id;
   const account_type = req.decodedToken.account_type;
-
+  const doctor_id = req.decodedToken.doctor_id;
   if (account_type != "doctor") {
     return res.status(403).json({
       status: 403,
@@ -638,8 +659,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
     });
     return;
   } else {
-    const doctor_id = req.decodedToken.doctor_id;
-    Patient.count({ where: { patient_id: patient_id } })
+    Patient.count({ where: {patient_id: patient_id } })
       .then((result) => {
         if (result <= 0) {
           return res.status(404).json({
@@ -660,7 +680,7 @@ app.delete("/pair/patient/:patient_id", authenticateToken, (req, res) => {
               message: "The specified doctor does not exist.",
             });
           } else {
-            Supervision.destroy({ where: { patient_id: patient_id } }).then(
+            Supervision.destroy({ where: { fk_patient_id: patient_id } }).then(
               () => {
                 return res.json({
                   status: 200,

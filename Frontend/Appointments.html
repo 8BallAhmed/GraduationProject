@@ -268,7 +268,7 @@
 
         $.ajax({
             type: "GET",
-            url: "http://localhost:8000/appointments/doctor/page/1",
+            url: "http://localhost:8000/appointments/doctor/page/2",
             headers: { "Authorization": localStorage.getItem('token') },
             dataType: 'json',
             success: async function (res, status) {
@@ -279,8 +279,8 @@
                         <td>${data.name}</td>
                         <td>${data.email}</td>
                         <td>${data.diabetes_type}</td>
-                        <td>${data.visit_time}</td>
-                        <td>${data.date}</td>
+                        <td>${data.visit_time.substr(11,8)}</td>
+                        <td>${data.visit_time.substr(0,10)}</td>
                         <td><a id="delete_button" href="#"></a><a class="btn btn-danger btn-circle ms-1" role="button"><i class="fas fa-trash text-white"></i></a><br></td>
                     </tr>
                     `);

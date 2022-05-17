@@ -46,74 +46,10 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown no-arrow mx-1">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="badge bg-danger badge-counter">3+</span><i class="fas fa-bell fa-fw"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                                        <h6 class="dropdown-header">alerts center</h6><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="me-3">
-                                                <div class="bg-primary icon-circle"><i class="fas fa-file-alt text-white"></i></div>
-                                            </div>
-                                            <div><span class="small text-gray-500">December 12, 2019</span>
-                                                <p>A new monthly report is ready to download!</p>
-                                            </div>
-                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="me-3">
-                                                <div class="bg-success icon-circle"><i class="fas fa-donate text-white"></i></div>
-                                            </div>
-                                            <div><span class="small text-gray-500">December 7, 2019</span>
-                                                <p>$290.29 has been deposited into your account!</p>
-                                            </div>
-                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="me-3">
-                                                <div class="bg-warning icon-circle"><i class="fas fa-exclamation-triangle text-white"></i></div>
-                                            </div>
-                                            <div><span class="small text-gray-500">December 2, 2019</span>
-                                                <p>Spending Alert: We've noticed unusually high spending for your account.</p>
-                                            </div>
-                                        </a><a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                                    </div>
-                                </div>
                             </li>
                             <li class="nav-item dropdown no-arrow mx-1">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="badge bg-danger badge-counter">7</span><i class="fas fa-envelope fa-fw"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                                        <h6 class="dropdown-header">alerts center</h6><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="dropdown-list-image me-3"><img class="rounded-circle" src="assets/img/avatars/avatar4.jpeg">
-                                                <div class="bg-success status-indicator"></div>
-                                            </div>
-                                            <div class="fw-bold">
-                                                <div class="text-truncate"><span>Hi there! I am wondering if you can help me with a problem I've been having.</span></div>
-                                                <p class="small text-gray-500 mb-0">Emily Fowler - 58m</p>
-                                            </div>
-                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="dropdown-list-image me-3"><img class="rounded-circle" src="assets/img/avatars/avatar2.jpeg">
-                                                <div class="status-indicator"></div>
-                                            </div>
-                                            <div class="fw-bold">
-                                                <div class="text-truncate"><span>I have the photos that you ordered last month!</span></div>
-                                                <p class="small text-gray-500 mb-0">Jae Chun - 1d</p>
-                                            </div>
-                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="dropdown-list-image me-3"><img class="rounded-circle" src="assets/img/avatars/avatar3.jpeg">
-                                                <div class="bg-warning status-indicator"></div>
-                                            </div>
-                                            <div class="fw-bold">
-                                                <div class="text-truncate"><span>Last month's report looks great, I am very happy with the progress so far, keep up the good work!</span></div>
-                                                <p class="small text-gray-500 mb-0">Morgan Alvarez - 2d</p>
-                                            </div>
-                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
-                                            <div class="dropdown-list-image me-3"><img class="rounded-circle" src="assets/img/avatars/avatar5.jpeg">
-                                                <div class="bg-success status-indicator"></div>
-                                            </div>
-                                            <div class="fw-bold">
-                                                <div class="text-truncate"><span>Am I a good boy? The reason I ask is because someone told me that people say this to all dogs, even if they aren't good...</span></div>
-                                                <p class="small text-gray-500 mb-0">Chicken the Dog · 2w</p>
-                                            </div>
-                                        </a><a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                                    </div>
-                                </div>
                                 <div class="shadow dropdown-list dropdown-menu dropdown-menu-end" aria-labelledby="alertsDropdown"></div>
                             </li>
-                            <div class="d-none d-sm-block topbar-divider"></div>
                             <li class="nav-item dropdown no-arrow">
                                 <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">{username.doctor}</span><img class="border rounded-circle img-profile" src="assets/img/avatars/DoctorAvatar.png"></a>
                                     <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Profile</a><a class="dropdown-item" href="#"><i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Settings</a><a class="dropdown-item" href="#"><i class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Activity log</a>
@@ -139,6 +75,7 @@
                                         <div class="card mb-3">
                                             <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160">
                                                 <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">Change Photo</button></div>
+                                                <div class="mb-3"><button class="btn btn-primary btn-sm" onclick="unsupervise()" type="button">Unsupervise Patient</button></div>
                                             </div>
                                         </div>
                                         <div class="card shadow mb-4"></div>
@@ -149,22 +86,25 @@
                                             <!-- HERE -->
                                             <!-- HERE -->
                                             <div class="col-xxl-3 offset-xxl-0">
-                                                <div class="mb-3"><label class="form-label" for="email"><strong>Email Address</strong></label><input class="form-control" type="email" id="email" placeholder="{{patient.email}}" name="email"></div>
+                                                <div class="mb-3"><label class="form-label" for="email"><strong>Email Address</strong></label><input readonly class="form-control" type="email" id="email" placeholder="{{patient.email}}" name="email"></div>
                                             </div>
                                             <div class="col-xxl-3 offset-xxl-0">
                                                 <div class="mb-3"></div>
-                                                <div class="mb-3"><label class="form-label" for="email"><strong>Age</strong></label><input class="form-control" type="email" id="age" placeholder="{patients.age}" name="age"></div>
+                                                <div class="mb-3"><label class="form-label" for="email"><strong>Age</strong></label><input readonly class="form-control" type="email" id="age" placeholder="{patients.age}" name="age"></div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-xxl-3">
-                                                <div class="mb-3"><label class="form-label" for="first_name"><strong>First Name</strong></label><input class="form-control" type="text" id="first_name" placeholder="{patient.first_name}" name="first_name"></div>
-                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Last Name</strong></label><input class="form-control" type="text" id="last_name" placeholder="{patients.lastName}" name="last_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="first_name"><strong>First Name</strong></label><input readonly class="form-control" type="text" id="first_name" placeholder="{patient.first_name}" name="first_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Last Name</strong></label><input readonly class="form-control" type="text" id="last_name" placeholder="{patients.lastName}" name="last_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>A1C Level</strong></label><input readonly class="form-control" type="text" id="A1C" placeholder="{patients.A1C}" name="last_name"></div>
                                             </div>
                                             <div class="col-xxl-3 offset-xxl-0">
-                                                <div class="mb-3"><label class="form-label" id="gender" for="gender"><strong>Gender</strong></label><input class="form-control" type="text" id="gender" placeholder="{patient.gender}" name="first_name"></div>
-                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Chronic diseases</strong></label><input class="form-control" type="text" id="chronic" placeholder="{patients.chronic_diseases}" name="last_name"></div>
+                                                <div class="mb-3"><label class="form-label" id="gender" for="gender"><strong>Gender</strong></label><input readonly class="form-control" type="text" id="genderinput" placeholder="{patient.gender}" name="first_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Chronic diseases</strong></label><input readonly class="form-control" type="text" id="chronic" placeholder="{patients.chronic_diseases}" name="last_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>BMI Level</strong></label><input readonly class="form-control" type="text" id="BMI" placeholder="{patients.BMI}" name="last_name"></div>
                                             </div>
+                                            
                                         </div>
                                         <!-- HERE -->
                                         <!-- HERE -->
@@ -179,13 +119,12 @@
                                 </div>
                                 <div class="card-body">
                                     <form>
-                                        <div class="mb-3"><label class="form-label" for="address"><strong>Address</strong></label><input class="form-control" type="text" id="address" placeholder="{patient.address}" name="address"></div>
+                                        <div class="mb-3"><label class="form-label" for="address"><strong>Address</strong></label><input readonly class="form-control" type="text" id="address" placeholder="{patient.address}" name="address"></div>
                                         <div class="row">
                                             <div class="col">
-                                                <div class="mb-3"><label class="form-label" for="city"><strong>City</strong></label><input class="form-control" type="text" id="city" placeholder="{patient.city}" name="city"></div>
+                                                <div class="mb-3"><label class="form-label" for="city"><strong>City</strong></label><input readonly class="form-control" type="text" id="city" placeholder="{patient.city}" name="city"></div>
                                             </div>
                                         </div>
-                                        <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Save&nbsp;Settings</button></div>
                                     </form>
                                 </div>
                             </div>
@@ -204,7 +143,7 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;line&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Jan&quot;,&quot;Feb&quot;,&quot;Mar&quot;,&quot;Apr&quot;,&quot;May&quot;,&quot;Jun&quot;,&quot;Jul&quot;,&quot;Aug&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Earnings&quot;,&quot;fill&quot;:true,&quot;data&quot;:[&quot;0&quot;,&quot;10000&quot;,&quot;5000&quot;,&quot;15000&quot;,&quot;10000&quot;,&quot;20000&quot;,&quot;15000&quot;,&quot;25000&quot;],&quot;backgroundColor&quot;:&quot;rgba(78, 115, 223, 0.05)&quot;,&quot;borderColor&quot;:&quot;rgba(78, 115, 223, 1)&quot;}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;}},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;scales&quot;:{&quot;xAxes&quot;:[{&quot;gridLines&quot;:{&quot;color&quot;:&quot;rgb(234, 236, 244)&quot;,&quot;zeroLineColor&quot;:&quot;rgb(234, 236, 244)&quot;,&quot;drawBorder&quot;:false,&quot;drawTicks&quot;:false,&quot;borderDash&quot;:[&quot;2&quot;],&quot;zeroLineBorderDash&quot;:[&quot;2&quot;],&quot;drawOnChartArea&quot;:false},&quot;ticks&quot;:{&quot;fontColor&quot;:&quot;#858796&quot;,&quot;fontStyle&quot;:&quot;normal&quot;,&quot;padding&quot;:20}}],&quot;yAxes&quot;:[{&quot;gridLines&quot;:{&quot;color&quot;:&quot;rgb(234, 236, 244)&quot;,&quot;zeroLineColor&quot;:&quot;rgb(234, 236, 244)&quot;,&quot;drawBorder&quot;:false,&quot;drawTicks&quot;:false,&quot;borderDash&quot;:[&quot;2&quot;],&quot;zeroLineBorderDash&quot;:[&quot;2&quot;]},&quot;ticks&quot;:{&quot;fontColor&quot;:&quot;#858796&quot;,&quot;fontStyle&quot;:&quot;normal&quot;,&quot;padding&quot;:20}}]}}}"></canvas></div>
+                                    <div on class="chart-area"><canvas style="width: 100%; height: 300px" id = 'myChart' ></canvas></div>
                                 </div>
                             </div>
                         </div>
@@ -222,30 +161,76 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/theme.js"></script>
-
+    <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+    </script>
     <script>
-        window.onload = () => {
-            fetch('http://127.0.0.1:8000/patients/' + localStorage.getItem('activePatientId'), {
-        method: 'GET',
-        headers:{
-            "Authorization": localStorage.getItem('token')
-        }
-    }).then((res) => res.json()).then((data) => {
-        //alert('Data fetched!')
-        document.getElementById('email').value = localStorage.getItem('activePatient')
-        if(data.patient.account.gender == 'true'){
-            document.getElementById('gender').value = 'Male'
-        }else{
-            document.getElementById('gender').value = 'Female'
-        }
-        
-        document.getElementById('age').value = data.patient.account.dob
-        document.getElementById('chronic').value = data.patient.chronic_diseases
-        document.getElementById('gender').value = data.patient.account.gender
-        document.getElementById('first_name').value = data.patient.account.name.split(" ")[0]
-        document.getElementById('last_name').value = data.patient.account.name.split(" ")[1]
-        alert(JSON.stringify(data))
-    })
+
+
+
+
+function unsupervise(){
+    let patientID = parseInt(localStorage.getItem('activePatientIndex'));
+    patientID++;
+        fetch('http://localhost:8000/pair/patient/' + patientID, {
+            method: 'DELETE',
+            headers: { "Authorization": localStorage.getItem('token') }
+        }).then((res) => res.json()).then((data) => {
+            alert(data.message)
+            window.location = 'patients.html'
+        })
+    
+    
+}
+
+        window.onload = async () => {
+
+            let patients = JSON.parse(localStorage.getItem('patients')).patients
+            let index = parseInt(localStorage.getItem('activePatientIndex'))
+            let glucose = []
+            await patients[index].glucose_tests.map((glucoseTest) => {glucose.push(glucoseTest.glucose_level)})
+            
+            let dates = []
+            patients[index].glucose_tests.map((glucoseTest) => {
+                //2022-02-13T21:00:00.000Z
+                
+                let date = new Date(parseInt(glucoseTest.time.substr(0,4)), parseInt(glucoseTest.time.substr(5,7)) - 1, parseInt(glucoseTest.time.substr(8,10)),parseInt(glucoseTest.time.substr(11,13)) + 3, parseInt(glucoseTest.time.substr(14,16)), parseInt(glucoseTest.time.substr(17,19))).toLocaleDateString().toString().concat(" " + new Date(parseInt(glucoseTest.time.substr(0,4)), parseInt(glucoseTest.time.substr(5,7)) - 1, parseInt(glucoseTest.time.substr(8,10)),parseInt(glucoseTest.time.substr(11,13)) + 3, parseInt(glucoseTest.time.substr(14,16)), parseInt(glucoseTest.time.substr(17,19))).toLocaleTimeString().toString())
+                
+
+                dates.push(date)
+            })
+            
+                
+            document.getElementById('email').value = localStorage.getItem('activePatientEmail')
+            document.getElementById('first_name').value = patients[index].name.split(" ")[0]
+            document.getElementById('last_name').value = patients[index].name.split(" ")[1]
+            let gender = patients[index].account.gender
+            if(gender == true){
+                document.getElementById('genderinput').value = 'Male'
+            }else{
+                document.getElementById('genderinput').value = 'Female'
+            }
+            document.getElementById('age').value = patients[index].account.dob
+            document.getElementById('address').value = patients[index].account.address
+            document.getElementById('city').value = patients[index].account.city
+            document.getElementById('chronic').value = patients[index].chronic_diseases
+            document.getElementById('A1C').value = patients[index].A1C_level
+            document.getElementById('BMI').value = patients[index].bmi
+            
+            var myChart = new Chart("myChart", {
+            type: "line",
+            
+            data: {
+                labels: dates,
+                datasets: [{
+                label: 'Glucose Levels',
+                backgroundColor: "transparent",
+                borderColor: "rgba(0,0,0,1)",
+                borderWidth:2,
+                data: glucose
+            }]},
+            options: {}
+            });
         }
 
     </script>
