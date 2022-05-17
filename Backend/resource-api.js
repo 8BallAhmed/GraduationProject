@@ -27,12 +27,14 @@ console.log(`APPID: ${APPID}, \nAPPLICATION KEY: ${APPLICATIONKEY}`);
 
 //this endpoint should fetch patient_id and email FK from account table to get personal information such as name, age etc...
 //since there is no fk_email ill stick with patient_id as it is for testing purposes
-app.get("/patients", authenticateToken, (req, res) => {
+app.get("/patients", authenticateToken, async (req, res) => {
   // Middleware function "authenticateToken" is passed to endpoint
   let accountType = req.decodedToken.account_type;
   let email = req.decodedToken.email;
   let supervisedPatients = [];
   let patientIDs = [];
+  let counter = 0;
+  let goal = 0;
   if (accountType != "doctor" && accountType != null) {
     res.status(403).end({
       status: 403,
@@ -40,7 +42,7 @@ app.get("/patients", authenticateToken, (req, res) => {
     });
     return; // Must add return, or second hit on endpoint will look infinitely
   }
-  Doctor.findOne({ where: { fk_email: email } }).then((result) => {
+  await Doctor.findOne({ where: { fk_email: email } }).then(async (result) => {
     if (result == null) {
       res.status(404).end(
         JSON.stringify({
@@ -51,11 +53,11 @@ app.get("/patients", authenticateToken, (req, res) => {
       return;
     } else {
       let doctor_id = result.dataValues.doctor_id;
-      Supervision.findAll({
+      await Supervision.findAll({
         where: {
           fk_doctor_id: doctor_id,
         },
-      }).then((result) => {
+      }).then(async (result) => {
         if (result == null) {
           res.status(404).end(
             JSON.stringify({
@@ -65,11 +67,13 @@ app.get("/patients", authenticateToken, (req, res) => {
           );
           return;
         } else {
+          goal = result.length;
+          console.log(`goal: ` + goal)
           result.map((supervised_patient) => {
             patientIDs.push(supervised_patient.dataValues.fk_patient_id);
           });
-          patientIDs.map((ID) => {
-            Patient.findByPk(ID).then((result) => {
+          patientIDs.map(async (ID) => {
+            await Patient.findByPk(ID).then(async (result) => {
               if (result == undefined) {
                 res.status(500).end(
                   JSON.stringify({
@@ -80,8 +84,8 @@ app.get("/patients", authenticateToken, (req, res) => {
                 );
                 return;
               } else {
-                Account.findByPk(result.dataValues.fk_email)
-                  .then((accountResult) => {
+                await Account.findByPk(result.dataValues.fk_email)
+                  .then(async (accountResult) => {
                     if (accountResult == undefined) {
                       res.status(500).end(
                         JSON.stringify({
@@ -92,19 +96,23 @@ app.get("/patients", authenticateToken, (req, res) => {
                       );
                       return;
                     } else {
-                      supervisedPatients.push({
+                      await supervisedPatients.push({
                         name: accountResult.dataValues.name,
                         ...result.dataValues,
                       });
                     }
                   })
-                  .then(() => {
-                    res.end(
-                      JSON.stringify({
-                        status: 200,
-                        patients: supervisedPatients,
-                      })
-                    );
+                  .then(async () => {
+                    console.log('SUPERVISED PATIENTS: ' + supervisedPatients)
+                    counter++;
+                    if(goal == counter){
+                      res.end(
+                        JSON.stringify({
+                          status: 200,
+                          patients: supervisedPatients,
+                        })
+                      );
+                    }
                     return;
                   });
               }
