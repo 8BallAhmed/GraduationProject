@@ -130,7 +130,7 @@ app.get("/patients/:patientId", authenticateToken, (req, res) => {
     return;
   }
   let PatientId = req.params.patientId;
-  Patient.findByPk(PatientId).then((result) => {
+  Patient.findByPk(PatientId, {include: Account}).then((result) => {
     console.log(result);
     res.end(
       JSON.stringify({
