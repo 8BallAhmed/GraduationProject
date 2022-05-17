@@ -136,7 +136,7 @@
                                 <div class="col-lg-4 col-xxl-12">
                                     <div class="card mb-3">
                                         <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"></label><label class="form-label" for="email"><strong>{{patient.name}}</strong></label>
-                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="button" onclick="redirectToProfile()">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button><p id= "#patientEmail"style="display: none;">{{patient.fk_email}}</p><p id= "#patientId"style="display: none;">{{patient.patient_id}}</p>
                                         </div>
                                     </div>
                                     <div class="card shadow mb-4"></div>
@@ -171,6 +171,15 @@
 <script>
 
 
+function redirectToProfile(){
+    let email = document.getElementById('#patientEmail').innerText
+    let id = document.getElementById('#patientId').innerText
+    localStorage.setItem('activePatient', email)
+    localStorage.setItem('activePatientId', id)
+    window.location = "patient-profile.html"
+
+}
+
 const fetchData = () =>{
     fetch('http://127.0.0.1:8000/patients', {
         method: 'GET',
@@ -179,6 +188,7 @@ const fetchData = () =>{
         }
     }).then((res) => res.json()).then((data) => {
         //alert('Data fetched!')
+
         app.patients.splice(0,app.patients.length,...data.patients)
     })
 }
