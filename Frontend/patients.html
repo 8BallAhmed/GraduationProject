@@ -188,6 +188,7 @@
                             <div>
                                 <div class="col-lg-4 col-xxl-12">
                                     <div class="card mb-3">
+<<<<<<< HEAD
                                         <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4"
                                                 src="assets/img/avatars/DoctorAvatar.png" width="160"
                                                 height="160"><label class="form-label" for="email"></label><label
@@ -197,6 +198,10 @@
                                             <div class="mb-3"><button class="btn btn-primary btn-sm" type="button">View
                                                     Profile</button></div><button class="btn btn-primary btn-sm"
                                                 type="button">Refer Patient</button>
+=======
+                                        <div class="card-body text-center shadow"><img class="rounded-circle mb-3 mt-4" src="assets/img/avatars/DoctorAvatar.png" width="160" height="160"><label class="form-label" for="email"></label><label class="form-label" for="email"><strong>{{patient.name}}</strong></label>
+                                            <div class="mb-3"><button class="btn btn-primary btn-sm" type="button" onclick="redirectToProfile()">View Profile</button></div><button class="btn btn-primary btn-sm" type="button">Refer Patient</button><p id= "#patientEmail"style="display: none;">{{patient.fk_email}}</p><p id= "#patientId"style="display: none;">{{patient.patient_id}}</p>
+>>>>>>> fa8a2b96dbbac48203aadcea52085dba5828bf3f
                                         </div>
                                     </div>
                                     <div class="card shadow mb-4"></div>
