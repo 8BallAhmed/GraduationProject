@@ -32,7 +32,6 @@ class _HomeState extends State<Home> {
     setState(() {
       Userprofile.add(resBody["patient"]["account"]);
     });
-   
   }
 
   @override
@@ -196,7 +195,7 @@ class _HomeState extends State<Home> {
                                         margin:
                                             EdgeInsets.symmetric(vertical: 15),
                                         child: Text(
-                                          "1092 Calories",
+                                          "$Calories Calories",
                                           style: TextStyle(fontSize: 27),
                                         ),
                                       ),

@@ -32,12 +32,48 @@ class _loginState extends State<login> {
     setState(() {
       post.add(resBody);
     });
-
- 
   }
 
+  //////////////////////////////////
+  treatments() async {
+    var url = "http://10.0.2.2:8000/treatments/patient/$patientid/page/0";
+
+    var res = await http.get(Uri.parse(url), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+
+    if (resBody["status"] == 200) {
+      setState(() {
+        treatment.addAll(resBody["treatments"]);
+        print(treatment);
+      });
+    }
+  }
+
+  ///////////
+  Exercise() async {
+    var url = "http://10.0.2.2:8000/activity";
+
+    var res = await http.get(Uri.parse(url), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+
+    if (resBody["status"] == 200) {
+      setState(() {
+        activity.addAll(resBody["activites"]);
+      });
+    }
+  }
+
+/////////////////////////
   getglucosedata() async {
-    var url = "http://10.0.2.2:8000/glucose/patient/$patientid/page/1";
+    var url = "http://10.0.2.2:8000/glucose/patient/$patientid/page/0";
 
     var res = await http.get(Uri.parse(url), headers: {
       'Accept': 'application/json',
@@ -49,10 +85,9 @@ class _loginState extends State<login> {
     setState(() {
       glucose_test.addAll(resBody["glucose_data"]);
     });
-   
+
     if (glucose_test == null || glucose_test.isEmpty) {
     } else {
-     
       max = glucose_test[0]["glucose_level"];
       for (var i = 0; i < glucose_test.length; i++) {
         if (max < glucose_test[i]["glucose_level"]) {
@@ -228,7 +263,9 @@ class _loginState extends State<login> {
                                     title: Text("${post[0]['message']}"),
                                   ),
                                 );
-                                getglucosedata();
+                                await treatments();
+                                await Exercise();
+                                await getglucosedata();
                                 Future.delayed(
                                     const Duration(milliseconds: 1000), () {
                                   setState(() {
@@ -236,7 +273,6 @@ class _loginState extends State<login> {
                                   });
                                 });
                               } else {
-                               
                                 showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
