@@ -19,7 +19,7 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
 
   var glucose_level;
   var time_interval;
-  var time = 20000000;
+  
 
   List<String> items = [
     'Fasting',
@@ -60,7 +60,7 @@ class _RecordForGlucoseState extends State<RecordForGlucose> {
   }
 
   getglucosedata() async {
-    var url = "http://10.0.2.2:8000/glucose/patient/$patientid/page/1";
+    var url = "http://10.0.2.2:8000/glucose/patient/$patientid/page/0";
 
     var res = await http.get(Uri.parse(url), headers: {
       'Accept': 'application/json',

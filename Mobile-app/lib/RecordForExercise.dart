@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'constants.dart';
 
 class RecordForExercise extends StatefulWidget {
   RecordForExercise({Key? key}) : super(key: key);
@@ -9,15 +12,61 @@ class RecordForExercise extends StatefulWidget {
 }
 
 class _RecordForExerciseState extends State<RecordForExercise> {
-  DateTime dateTime = DateTime(2021);
+  DateTime dateTime = DateTime.now();
   String? selectedValue;
   String? now = "Now";
   double nowint = 140;
+
+  var cal;
+  var duration;
+  var type;
+
   List<String> items = [
     'Walk',
     'Run',
     'Other',
   ];
+
+
+  addPost() async {
+  
+    var url = "http://10.0.2.2:8000/activity";
+   
+
+    var res = await http.post(Uri.parse(url), body: {
+      "calories": "$cal",
+      "duration": "00:$duration:00",
+      "type": "$type",
+      "time": "${dateTime.year}-${dateTime.month}-${dateTime.day}"
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+    setState(() {
+      activity_con.add(resBody);
+    });
+  }
+
+  Exercise() async {
+    var url = "http://10.0.2.2:8000/activity";
+
+    var res = await http.get(Uri.parse(url), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    var resBody = jsonDecode(res.body);
+
+    if (resBody["status"] == 200) {
+      setState(() {
+        activity.clear();
+        activity.addAll(resBody["activites"]);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,6 +179,11 @@ class _RecordForExerciseState extends State<RecordForExercise> {
                           items: items
                               .map((item) => DropdownMenuItem<String>(
                                     value: item,
+                                    onTap: () {
+                                      setState(() {
+                                        type = item;
+                                      });
+                                    },
                                     child: Row(
                                       children: [
                                         Image.asset("images/Bottle.png",
@@ -178,6 +232,11 @@ class _RecordForExerciseState extends State<RecordForExercise> {
                       height: 20,
                     ),
                     TextFormField(
+                      onChanged: ((value) {
+                        setState(() {
+                          duration = value;
+                        });
+                      }),
                       cursorColor: Color(0xFF4C75D4),
                       keyboardType: TextInputType.number,
                       style: TextStyle(fontSize: 20),
@@ -208,6 +267,11 @@ class _RecordForExerciseState extends State<RecordForExercise> {
                       height: 20,
                     ),
                     TextFormField(
+                      onChanged: (value) {
+                        setState(() {
+                          cal = value;
+                        });
+                      },
                       cursorColor: Color(0xFF4C75D4),
                       keyboardType: TextInputType.number,
                       style: TextStyle(fontSize: 20),
@@ -237,39 +301,46 @@ class _RecordForExerciseState extends State<RecordForExercise> {
                     SizedBox(
                       height: 20,
                     ),
-                    TextFormField(
-                      cursorColor: Color(0xFF4C75D4),
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(fontSize: 20),
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: Color(0XFFF6F8FB)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: Color(0XFFF6F8FB)),
-                        ),
-                        contentPadding: EdgeInsets.only(top: 45),
-                        focusColor: Colors.white,
-                        hintText: "Steps",
-                        labelText: "Steps",
-                        labelStyle: TextStyle(color: Colors.black),
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.fromLTRB(10, 5, 0, 0),
-                          child: Image.asset("images/Footprint.png",
-                              height: 40, width: 40),
-                        ),
-                      ),
-                    ),
+                 
                     SizedBox(
                       height: 70,
                     ),
                     InkWell(
-                      onTap: () {
-                        Navigator.of(context).pushNamed("ExerciseData");
+                      onTap: () async {
+                       
+                        await addPost();
+                        print(activity_con[0]["status"]);
+                        if (activity_con[0]["status"] == 200) {
+                          await Exercise();
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("${activity_con[0]['message']}"),
+                            ),
+                          );
+                          Future.delayed(const Duration(milliseconds: 3000),
+                              () {
+                            setState(() {
+                              activity_con.clear();
+                              Navigator.of(context).pushNamed("ExerciseData");
+                            });
+                          });
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("${activity_con[0]['message']}"),
+                            ),
+                          );
+                          Future.delayed(const Duration(milliseconds: 3000),
+                              () {
+                            setState(() {
+                              activity_con.clear();
+                              Navigator.of(context)
+                                  .pushNamed("RecordForExercise");
+                            });
+                          });
+                        }
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 20),

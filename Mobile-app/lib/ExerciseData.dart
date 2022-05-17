@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'constants.dart';
 
 class ExerciseData extends StatefulWidget {
   ExerciseData({Key? key}) : super(key: key);
@@ -42,205 +43,219 @@ class _ExerciseDataState extends State<ExerciseData> {
                   margin: EdgeInsets.fromLTRB(20, 0, 0, 35),
                   alignment: Alignment.centerLeft,
                 ),
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      fit: FlexFit.loose,
-                      child: Container(
-                        width: 380,
-                        height: 170,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0xFF101E73).withOpacity(0.08),
-                                spreadRadius: 5,
-                                blurRadius: 6,
-                                offset: Offset(1.0, 2.0))
-                          ],
-                          borderRadius: BorderRadius.circular(10),
-                          color: Color(0xFF4C75D4),
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          child: Column(
+
+                ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: activity.length,
+                    itemBuilder: ((context, index) {
+                      return Column(
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: 30,
+                              Flexible(
+                                flex: 1,
+                                fit: FlexFit.loose,
+                                child: Container(
+                                  width: 380,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white,
                                   ),
-                                ],
-                              ),
-                              Text("Week’s Exercise",
-                                  style: TextStyle(
-                                      fontSize: 28, color: Colors.white)),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text("Training",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white)),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text("8.5 hours.",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white)),
-                                    ],
+                                  child: Container(
+                                    width: double.infinity,
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(
+                                              height: 20,
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                            "${activity[index]["time"]}"
+                                                .substring(0, 10),
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.black)),
+                                        SizedBox(
+                                          height: 25,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Text("Training",
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black)),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(
+                                                    "${activity[index]["duration"]}"
+                                                            .substring(3, 5) +
+                                                        "min",
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black)),
+                                              ],
+                                            ),
+                                            Column(
+                                              children: [
+                                                Text("Type of Exercise",
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black)),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(
+                                                    "${activity[index]["type"]}",
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black))
+                                              ],
+                                            ),
+                                            Column(
+                                              children: [
+                                                Text("Calories Burnt",
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black)),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(
+                                                    "${activity[index]["calories"]}",
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black))
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Column(
-                                    children: [
-                                      Text("Calories Burnt",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white)),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text("5418",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white))
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text("Steps",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white)),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text("24 Km",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white))
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 20,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      fit: FlexFit.loose,
-                      child: Container(
-                        width: 380,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0xFF101E73).withOpacity(0.08),
-                                spreadRadius: 5,
-                                blurRadius: 6,
-                                offset: Offset(1.0, 2.0))
-                          ],
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                ],
-                              ),
-                              Text("Mon, Dec 31",
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.black)),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text("Training",
-                                          style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black)),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text("1.5 hours.",
-                                          style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black)),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text("Type of Exercise",
-                                          style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black)),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text("Run",
-                                          style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black))
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text("Calories Burnt",
-                                          style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black)),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text("850",
-                                          style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black))
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                            ],
+                          SizedBox(
+                            height: 15,
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                        ],
+                      );
+                    })),
+
+                // Row(
+                //   children: [
+                //     Flexible(
+                //       flex: 1,
+                //       fit: FlexFit.loose,
+                //       child: Container(
+                //         width: 380,
+                //         height: 150,
+                //         decoration: BoxDecoration(
+                //           boxShadow: [
+                //             BoxShadow(
+                //                 color: Color(0xFF101E73).withOpacity(0.08),
+                //                 spreadRadius: 5,
+                //                 blurRadius: 6,
+                //                 offset: Offset(1.0, 2.0))
+                //           ],
+                //           borderRadius: BorderRadius.circular(10),
+                //           color: Colors.white,
+                //         ),
+                //           child: Container(
+                //           width: double.infinity,
+                //           child: Column(
+                //             children: [
+                //               Row(
+                //                 mainAxisAlignment: MainAxisAlignment.center,
+                //                 children: [
+                //                   SizedBox(
+                //                     height: 20,
+                //                   ),
+                //                 ],
+                //               ),
+                //               Text("Mon, Dec 31",
+                //                   style: TextStyle(
+                //                       fontSize: 20, color: Colors.black)),
+                //               SizedBox(
+                //                 height: 25,
+                //               ),
+                //               Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceEvenly,
+                //                 children: [
+                //                   Column(
+                //                     children: [
+                //                       Text("Training",
+                //                           style: TextStyle(
+                //                               fontSize: 17,
+                //                               color: Colors.black)),
+                //                       SizedBox(
+                //                         height: 10,
+                //                       ),
+                //                       Text("1.5 hours.",
+                //                           style: TextStyle(
+                //                               fontSize: 17,
+                //                               color: Colors.black)),
+                //                     ],
+                //                   ),
+                //                   Column(
+                //                     children: [
+                //                       Text("Type of Exercise",
+                //                           style: TextStyle(
+                //                               fontSize: 17,
+                //                               color: Colors.black)),
+                //                       SizedBox(
+                //                         height: 10,
+                //                       ),
+                //                       Text("Run",
+                //                           style: TextStyle(
+                //                               fontSize: 17,
+                //                               color: Colors.black))
+                //                     ],
+                //                   ),
+                //                   Column(
+                //                     children: [
+                //                       Text("Calories Burnt",
+                //                           style: TextStyle(
+                //                               fontSize: 17,
+                //                               color: Colors.black)),
+                //                       SizedBox(
+                //                         height: 10,
+                //                       ),
+                //                       Text("850",
+                //                           style: TextStyle(
+                //                               fontSize: 17,
+                //                               color: Colors.black))
+                //                     ],
+                //                   ),
+                //                 ],
+                //               ),
+                //               SizedBox(
+                //                 height: 20,
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
