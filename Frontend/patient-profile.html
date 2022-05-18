@@ -98,6 +98,7 @@
                                                 <div class="mb-3"><label class="form-label" for="first_name"><strong>First Name</strong></label><input readonly class="form-control" type="text" id="first_name" placeholder="{patient.first_name}" name="first_name"></div>
                                                 <div class="mb-3"><label class="form-label" for="last_name"><strong>Last Name</strong></label><input readonly class="form-control" type="text" id="last_name" placeholder="{patients.lastName}" name="last_name"></div>
                                                 <div class="mb-3"><label class="form-label" for="last_name"><strong>A1C Level</strong></label><input readonly class="form-control" type="text" id="A1C" placeholder="{patients.A1C}" name="last_name"></div>
+                                                <div class="mb-3"><label class="form-label" for="last_name"><strong>Diabetes type</strong></label><input readonly class="form-control" type="text" id="diabetes" placeholder="{patients.diabetes}" name="last_name"></div>
                                             </div>
                                             <div class="col-xxl-3 offset-xxl-0">
                                                 <div class="mb-3"><label class="form-label" id="gender" for="gender"><strong>Gender</strong></label><input readonly class="form-control" type="text" id="genderinput" placeholder="{patient.gender}" name="first_name"></div>
@@ -216,6 +217,7 @@ function unsupervise(){
             document.getElementById('chronic').value = patients[index].chronic_diseases
             document.getElementById('A1C').value = patients[index].A1C_level
             document.getElementById('BMI').value = patients[index].bmi
+            document.getElementById('diabetes').value = patients[index].diabetes_type
             
             var myChart = new Chart("myChart", {
             type: "line",

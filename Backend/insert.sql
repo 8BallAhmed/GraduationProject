@@ -2,7 +2,7 @@
 insert into account values('aziz@gmail.com','abdulaziz!@#','jaber ibn sinan st.','abdulaziz alghamdi','1234567891',true,'jeddah','1999-09-17','patient');
 insert into account values('ahmed@gmail.com','ahmed!@#','rehanat al jazeerah','ahmed alosaimi','2234567891',true,'jeddah','1999-09-2','patient');
 insert into account values('mubarak@gmail.com','mubarak!@#','60 road','mubarak aloufi','3234567891',true,'jeddah','1999-09-4','patient');
-insert into account values('Marwan@gmail.com','Marwan!@#','70 road','Marwan Al harbi','4234567891',true,'jeddah','1980-09-4','doctor');
+insert into account values('Marwan@gmail.com','Marwan!@#','70 road','Marwan AlSahafi','4234567891',true,'jeddah','1980-09-4','doctor');
 
 -- Insert into patient table
 insert into patient values(1,19.89,'pills','type 1','High Blood Pressure,High Colestrol Rate',5.6,null,'aziz@gmail.com');
